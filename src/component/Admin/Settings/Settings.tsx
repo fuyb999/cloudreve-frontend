@@ -317,7 +317,7 @@ const Settings = () => {
                 </SettingsWrapper>
               )}
               {tab === SettingsPageTab.Events && (
-                <SettingsWrapper settings={[]}>
+                <SettingsWrapper settings={["audit_log_enabled_types"]}>
                   <Events />
                 </SettingsWrapper>
               )}

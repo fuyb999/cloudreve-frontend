@@ -18,6 +18,7 @@ import {
   ListEntityResponse,
   ListFileResponse,
   ListNodeResponse,
+  ListAuditLogResponse,
   ListPaymentResponse as AdminListPaymentResponse,
   ListShareResponse as AdminListShareResponse,
   ListStoragePolicyResponse,
@@ -1877,6 +1878,20 @@ export function getTaskList(args: AdminListService): ThunkResponse<ListTaskRespo
     return await dispatch(
       send(
         `/admin/queue`,
+        { method: "POST", data: args },
+        {
+          ...defaultOpts,
+        },
+      ),
+    );
+  };
+}
+
+export function getAuditLogList(args: AdminListService): ThunkResponse<ListAuditLogResponse> {
+  return async (dispatch, _getState) => {
+    return await dispatch(
+      send(
+        `/admin/event`,
         { method: "POST", data: args },
         {
           ...defaultOpts,
