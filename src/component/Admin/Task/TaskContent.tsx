@@ -2,7 +2,7 @@ import { Link, Typography } from "@mui/material";
 import { memo, useCallback, useMemo } from "react";
 import { Trans, useTranslation } from "react-i18next";
 import { Task } from "../../../api/dashboard";
-import { TaskSummary, TaskType } from "../../../api/workflow";
+import { getFullTextTaskFileIDs, getTaskDisplayType, TaskSummary, TaskType } from "../../../api/workflow";
 import CrUri, { Filesystem } from "../../../util/uri";
 import TaskSummaryTitle from "../../Pages/Tasks/TaskSummaryTitle";
 
@@ -50,7 +50,7 @@ export const TaskContent = memo(({ task, openEntity, openFile }: TaskContentProp
     const processedSummary = processTaskContent({ ...task.summary } as TaskSummary, task?.user_hash_id ?? "");
     return (
       <Typography variant="body2">
-        <TaskSummaryTitle type={task.type?.toString() ?? ""} summary={processedSummary} isInDashboard />
+        <TaskSummaryTitle type={getTaskDisplayType(task.type?.toString())} summary={processedSummary} isInDashboard />
       </Typography>
     );
   }
@@ -84,7 +84,10 @@ export const TaskContent = memo(({ task, openEntity, openFile }: TaskContentProp
     } catch (error) {
       console.error(error);
     }
-    switch (task.type) {
+    const fullTextFileIDs = getFullTextTaskFileIDs(privateState);
+    const primaryFullTextFileID = fullTextFileIDs[0] ?? 0;
+
+    switch (getTaskDisplayType(task.type)) {
       case TaskType.upload_sentinel_check:
         return t("task.uploadSentinelCheck", { uploadSessionID: privateState?.session?.Props?.UploadSessionID });
       case TaskType.media_metadata:
@@ -103,12 +106,21 @@ export const TaskContent = memo(({ task, openEntity, openFile }: TaskContentProp
           blobs: privateState?.entity_ids?.map((id: number) => `#${id}`).join(", "),
         });
       case TaskType.full_text_index:
+        if (fullTextFileIDs.length > 1) {
+          return t("task.fullTextIndexBatch", {
+            count: fullTextFileIDs.length,
+            defaultValue: "Reconcile full-text index for {{count}} files",
+          });
+        }
+        if (!primaryFullTextFileID) {
+          return t("task.full_text_index");
+        }
         return (
           <Trans
             ns="dashboard"
-            values={{ fileID: privateState?.file_id ?? 0 }}
+            values={{ fileID: primaryFullTextFileID }}
             i18nKey="task.fullTextIndex"
-            components={[<Link key={0} href={"#/"} onClick={fileLinkClick(privateState?.file_id ?? 0)} />]}
+            components={[<Link key={0} href={"#/"} onClick={fileLinkClick(primaryFullTextFileID)} />]}
           />
         );
       case TaskType.full_text_copy:
@@ -129,10 +141,6 @@ export const TaskContent = memo(({ task, openEntity, openFile }: TaskContentProp
             components={[<Link key={0} href={"#/"} onClick={fileLinkClick(privateState?.file_id ?? 0)} />]}
           />
         );
-      case TaskType.full_text_delete:
-        return t("task.fullTextDelete", {
-          count: privateState?.file_ids?.length ?? 0,
-        });
       default:
         return "";
     }

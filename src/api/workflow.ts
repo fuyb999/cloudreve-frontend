@@ -125,6 +125,7 @@ export enum ListTaskCategory {
 }
 
 export enum TaskType {
+  relocate = "relocate",
   create_archive = "create_archive",
   extract_archive = "extract_archive",
   remote_download = "remote_download",
@@ -139,6 +140,41 @@ export enum TaskType {
   full_text_delete = "full_text_delete",
   full_text_rebuild = "full_text_rebuild",
 }
+
+const hiddenTaskTypes = new Set<string>([TaskType.full_text_delete]);
+
+export const getTaskDisplayType = (type?: string): string => {
+  if (type === TaskType.full_text_delete) {
+    return TaskType.full_text_index;
+  }
+
+  return type ?? "";
+};
+
+export const visibleTaskTypes = Object.values(TaskType).filter((type) => !hiddenTaskTypes.has(type));
+
+export const getFullTextTaskFileIDs = (state: any): number[] => {
+  const result: number[] = [];
+  const seen = new Set<number>();
+  const append = (fileID: unknown) => {
+    if (typeof fileID !== "number" || fileID <= 0 || seen.has(fileID)) {
+      return;
+    }
+    seen.add(fileID);
+    result.push(fileID);
+  };
+
+  if (Array.isArray(state?.file_ids)) {
+    state.file_ids.forEach(append);
+  }
+
+  if (Array.isArray(state?.files)) {
+    state.files.forEach((item: any) => append(item?.file_id));
+  }
+
+  append(state?.file_id);
+  return result;
+};
 
 export enum TaskStatus {
   queued = "queued",

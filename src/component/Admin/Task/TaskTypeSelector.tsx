@@ -1,6 +1,6 @@
 import { Box, FormHelperText, ListItemText, SelectChangeEvent } from "@mui/material";
 import { useTranslation } from "react-i18next";
-import { TaskType } from "../../../api/workflow";
+import { getTaskDisplayType, TaskType, visibleTaskTypes } from "../../../api/workflow";
 import { DenseSelect, SquareChip } from "../../Common/StyledComponents";
 import { SquareMenuItem } from "../../FileManager/ContextMenu/ContextMenu";
 
@@ -32,7 +32,7 @@ const TaskTypeSelector = ({
     return (
       <Box display="flex" flexWrap="wrap" gap={0.5}>
         {values.map((val) => (
-          <SquareChip key={val} label={t(`task.${val}`)} size="small" />
+          <SquareChip key={val} label={t(`task.${getTaskDisplayType(val)}`)} size="small" />
         ))}
       </Box>
     );
@@ -56,9 +56,12 @@ const TaskTypeSelector = ({
             />
           </SquareMenuItem>
         )}
-        {Object.values(TaskType).map((type) => (
+        {visibleTaskTypes.map((type) => (
           <SquareMenuItem value={type} key={type}>
-            <ListItemText primary={t(`task.${type}`)} slotProps={{ primary: { variant: "body2" } }} />
+            <ListItemText
+              primary={t(`task.${getTaskDisplayType(type)}`)}
+              slotProps={{ primary: { variant: "body2" } }}
+            />
           </SquareMenuItem>
         ))}
       </DenseSelect>

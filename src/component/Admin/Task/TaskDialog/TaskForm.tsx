@@ -20,7 +20,7 @@ import { useTranslation } from "react-i18next";
 import { Link as RouterLink } from "react-router-dom";
 import { Task } from "../../../../api/dashboard";
 import { FileType } from "../../../../api/explorer";
-import { TaskStatus, TaskSummary, TaskType } from "../../../../api/workflow";
+import { getTaskDisplayType, TaskStatus, TaskSummary, TaskType } from "../../../../api/workflow";
 import { formatDuration } from "../../../../util/datetime";
 import FacebookCircularProgress from "../../../Common/CircularProgress";
 import { NoWrapTypography, StyledTableContainerPaper } from "../../../Common/StyledComponents";
@@ -84,7 +84,7 @@ const TaskForm = ({ values }: { values: Task }) => {
 
           <SettingForm title={t("task.type")} noContainer lgWidth={2}>
             <Typography variant={"body2"} color={"textSecondary"}>
-              {t(`task.${values.type}`)}
+              {t(`task.${getTaskDisplayType(values.type)}`)}
             </Typography>
           </SettingForm>
 

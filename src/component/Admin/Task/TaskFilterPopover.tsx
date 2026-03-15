@@ -1,7 +1,7 @@
 import { Box, Button, ListItemText, Popover, PopoverProps, Stack } from "@mui/material";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { TaskStatus, TaskType } from "../../../api/workflow";
+import { getTaskDisplayType, TaskStatus, visibleTaskTypes } from "../../../api/workflow";
 import { DenseFilledTextField, DenseSelect } from "../../Common/StyledComponents";
 import { SquareMenuItem } from "../../FileManager/ContextMenu/ContextMenu";
 import SettingForm from "../../Pages/Setting/SettingForm";
@@ -121,24 +121,10 @@ const TaskFilterPopover = ({
             value={localType != "" ? localType : " "}
             onChange={(e) => setLocalType(e.target.value === " " ? "" : (e.target.value as string))}
           >
-            {[
-              TaskType.create_archive,
-              TaskType.extract_archive,
-              TaskType.remote_download,
-              TaskType.media_metadata,
-              TaskType.entity_recycle_routine,
-              TaskType.explicit_entity_recycle,
-              TaskType.upload_sentinel_check,
-              TaskType.import,
-              TaskType.full_text_rebuild,
-              TaskType.full_text_index,
-              TaskType.full_text_copy,
-              TaskType.full_text_change_owner,
-              TaskType.full_text_delete,
-            ].map((type) => (
+            {visibleTaskTypes.map((type) => (
               <SquareMenuItem key={type} value={type}>
                 <ListItemText
-                  primary={t(`task.${type}`)}
+                  primary={t(`task.${getTaskDisplayType(type)}`)}
                   slotProps={{
                     primary: {
                       variant: "body2",
