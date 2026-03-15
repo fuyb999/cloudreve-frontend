@@ -4,6 +4,7 @@ import React, { lazy, Suspense, useCallback, useEffect, useMemo, useRef, useStat
 import { useTranslation } from "react-i18next";
 import { closeMarkdownViewer } from "../../../redux/globalStateSlice.ts";
 import { useAppDispatch, useAppSelector } from "../../../redux/hooks.ts";
+import { confirmOperation } from "../../../redux/thunks/dialog.ts";
 import { getEntityContent } from "../../../redux/thunks/file.ts";
 import {
   markdownImageAutocompleteSuggestions,
@@ -35,6 +36,27 @@ const MarkdownViewer = () => {
   const [optionAnchorEl, setOptionAnchorEl] = useState<null | HTMLElement>(null);
   const saveFunction = useRef(() => {});
 
+  const closeViewer = useCallback(() => {
+    dispatch(closeMarkdownViewer());
+  }, [dispatch]);
+
+  const handleDialogClose = useCallback(
+    (_: React.SyntheticEvent | object, _reason?: string) => {
+      if (!saved && supportUpdate) {
+        dispatch(confirmOperation(t("application:modals.discardUnsavedConfirm")))
+          .then(() => {
+            closeViewer();
+          })
+          .catch(() => {});
+
+        return;
+      }
+
+      closeViewer();
+    },
+    [closeViewer, saved, supportUpdate, t, dispatch],
+  );
+
   const loadContent = useCallback(() => {
     if (!viewerState || !viewerState.open) {
       return;
@@ -50,9 +72,9 @@ const MarkdownViewer = () => {
         setLoaded(true);
       })
       .catch(() => {
-        onClose();
+        closeViewer();
       });
-  }, [viewerState]);
+  }, [viewerState, closeViewer]);
 
   useEffect(() => {
     if (!viewerState || !viewerState.open) {
@@ -69,10 +91,6 @@ const MarkdownViewer = () => {
     }
     return dispatch(markdownImageAutocompleteSuggestions());
   }, [viewerState?.open]);
-
-  const onClose = useCallback(() => {
-    dispatch(closeMarkdownViewer());
-  }, [dispatch]);
 
   const openMore = useCallback(
     (e: React.MouseEvent<any>) => {
@@ -154,7 +172,7 @@ const MarkdownViewer = () => {
       fullScreenToggle
       dialogProps={{
         open: !!(viewerState && viewerState.open),
-        onClose: onClose,
+        onClose: handleDialogClose,
         fullWidth: true,
         maxWidth: "lg",
       }}

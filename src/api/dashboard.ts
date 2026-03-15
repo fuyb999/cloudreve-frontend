@@ -144,6 +144,7 @@ export interface StoragePolicy extends CommonMixin {
   };
   entities_count?: number;
   entities_size?: number;
+  hash_id?: string;
 }
 
 export enum NodeType {
@@ -560,4 +561,34 @@ export interface CleanupTaskService {
   not_after: string;
   types?: TaskType[];
   status?: TaskStatus[];
+}
+
+export interface OAuthClientProps {
+  icon?: string;
+  refresh_token_ttl?: number;
+}
+
+export interface OAuthClient extends CommonMixin {
+  guid?: string;
+  secret?: string;
+  name?: string;
+  homepage_url?: string; // Not used
+  redirect_uris?: string[];
+  scopes?: string[];
+  props?: OAuthClientProps;
+  is_enabled?: boolean;
+}
+
+export interface GetOAuthClientResponse extends OAuthClient {
+  is_system?: boolean;
+  total_grants?: number;
+}
+
+export interface ListOAuthClientResponse {
+  clients: GetOAuthClientResponse[];
+  pagination: PaginationResults;
+}
+
+export interface UpsertOAuthClientService {
+  client: OAuthClient;
 }

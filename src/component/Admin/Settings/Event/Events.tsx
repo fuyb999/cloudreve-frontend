@@ -19,7 +19,6 @@ import {
 } from "../../Event/auditEvents.ts";
 import { NoMarginHelperText, SettingSection, SettingSectionContent } from "../Settings";
 import { SettingContext } from "../SettingWrapper";
-
 const Events = () => {
   const { t } = useTranslation("dashboard");
   const { formRef, setSettings, values } = useContext(SettingContext);

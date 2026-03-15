@@ -146,6 +146,24 @@ const stepOptions: {
       },
     ],
   ],
+  [TaskType.full_text_rebuild]: [
+    // Master
+    [
+      queueingStep,
+      {
+        title: "setting.ftsNukingIndex",
+        state: "nuke",
+        description: "setting.ftsNukingIndexDes",
+      },
+      {
+        title: "setting.ftsIndexingFiles",
+        state: "index",
+        description: "setting.ftsIndexingFilesDes",
+        supportProgress: true,
+      },
+      completedStep,
+    ],
+  ],
   [TaskType.create_archive]: [
     // Master
     [

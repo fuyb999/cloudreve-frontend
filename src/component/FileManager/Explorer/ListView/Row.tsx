@@ -1,8 +1,9 @@
 import { alpha, Box, Skeleton, styled } from "@mui/material";
-import { memo, useEffect } from "react";
+import { memo, useCallback, useEffect } from "react";
 import { useAppDispatch } from "../../../../redux/hooks.ts";
 import { navigateReconcile } from "../../../../redux/thunks/filemanager.ts";
 import { NoWrapTypography } from "../../../Common/StyledComponents.tsx";
+import useActionDisplayOpt from "../../ContextMenu/useActionDisplayOpt.ts";
 import { FileBlockProps } from "../Explorer.tsx";
 import { useFileBlockState } from "../GridView/GridFile.tsx";
 import Cell from "./Cell.tsx";
@@ -69,6 +70,8 @@ const Row = memo((props: FileBlockProps) => {
     thumbHeight,
   } = useFileBlockState(props);
 
+  const targetDisplayOptions = useActionDisplayOpt([file]);
+
   useEffect(() => {
     if (!inView) {
       return;
@@ -82,12 +85,17 @@ const Row = memo((props: FileBlockProps) => {
     }
   }, [inView]);
 
+  const stopPop = useCallback((e: React.MouseEvent<HTMLElement>) => {
+    e.stopPropagation();
+  }, []);
+
   return (
     <RowContainer
       transparent={isDragging || fileDisabled}
       isDropOver={isDropOver && !isDragging}
       ref={setRefFunc}
       selected={!!isSelected}
+      onMouseDown={stopPop}
       onClick={onClick}
       onDoubleClick={onDoubleClicked}
       onMouseEnter={hoverStateOn}
@@ -105,6 +113,7 @@ const Row = memo((props: FileBlockProps) => {
           >
             {!file.placeholder && (
               <Cell
+                actionDisplayOpt={targetDisplayOptions}
                 isSelected={!!isSelected}
                 search={search}
                 column={column}

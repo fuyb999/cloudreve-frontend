@@ -108,6 +108,14 @@ const TaskSummaryTitle = ({ type, summary, isInDashboard = false }: TaskSummaryT
           ]}
         />
       );
+    case TaskType.full_text_rebuild:
+      return (
+        <Typography variant={"inherit"}>
+          {t("setting.rebuildFTSIndex", {
+            total: summary?.props.total ?? "-",
+          })}
+        </Typography>
+      );
     default:
       return (
         <Trans

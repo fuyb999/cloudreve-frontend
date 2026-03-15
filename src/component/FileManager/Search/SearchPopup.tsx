@@ -1,5 +1,4 @@
-import { useAppDispatch, useAppSelector } from "../../../redux/hooks.ts";
-import { setSearchPopup } from "../../../redux/globalStateSlice.ts";
+import { SearchOutlined } from "@mui/icons-material";
 import {
   Box,
   debounce,
@@ -13,22 +12,29 @@ import {
   useMediaQuery,
   useTheme,
 } from "@mui/material";
-import { forwardRef, useCallback, useEffect, useMemo, useState } from "react";
-import { OutlineIconTextField } from "../../Common/Form/OutlineIconTextField.tsx";
-import { SearchOutlined } from "@mui/icons-material";
-import { useTranslation } from "react-i18next";
-import { FileManagerIndex } from "../FileManager.tsx";
-import { FileResponse } from "../../../api/explorer.ts";
-import Fuse from "fuse.js";
-import AutoHeight from "../../Common/AutoHeight.tsx";
-import FuzzySearchResult from "./FuzzySearchResult.tsx";
-import CrUri, { Filesystem } from "../../../util/uri.ts";
-import SessionManager from "../../../session";
-import { defaultPath } from "../../../hooks/useNavigation.tsx";
-import FullSearchOption from "./FullSearchOptions.tsx";
 import { TransitionProps } from "@mui/material/transitions";
+import Fuse from "fuse.js";
+import { forwardRef, useCallback, useEffect, useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
+import { sendFullTextSearch } from "../../../api/api.ts";
+import {
+  FileResponse,
+  FullTextSearchResults,
+  FullTextSearchResult as FullTextSearchResultType,
+} from "../../../api/explorer.ts";
+import { defaultPath } from "../../../hooks/useNavigation.tsx";
+import { setSearchPopup } from "../../../redux/globalStateSlice.ts";
+import { useAppDispatch, useAppSelector } from "../../../redux/hooks.ts";
 import { openAdvancedSearch, quickSearch } from "../../../redux/thunks/filemanager.ts";
+import SessionManager from "../../../session";
+import CrUri, { Filesystem } from "../../../util/uri.ts";
+import AutoHeight from "../../Common/AutoHeight.tsx";
+import { OutlineIconTextField } from "../../Common/Form/OutlineIconTextField.tsx";
 import Options from "../../Icons/Options.tsx";
+import { FileManagerIndex } from "../FileManager.tsx";
+import FullSearchOption from "./FullSearchOptions.tsx";
+import FullTextSearchResultList from "./FullTextSearchResult.tsx";
+import FuzzySearchResult from "./FuzzySearchResult.tsx";
 
 const StyledDialog = styled(Dialog)<{
   expanded?: boolean;
@@ -64,17 +70,24 @@ const SearchPopup = () => {
   const [keywords, setKeywords] = useState("");
   const [searchedKeyword, setSearchedKeyword] = useState("");
   const [treeSearchResults, setTreeSearchResults] = useState<FileResponse[]>([]);
+  const [fullTextResults, setFullTextResults] = useState<FullTextSearchResultType[]>([]);
+  const [fullTextTotal, setFullTextTotal] = useState(0);
+  const [fullTextLoading, setFullTextLoading] = useState(false);
 
   const onClose = () => {
     dispatch(setSearchPopup(false));
     setKeywords("");
     setSearchedKeyword("");
+    setFullTextResults([]);
+    setFullTextTotal(0);
   };
 
   const open = useAppSelector((state) => state.globalState.searchPopupOpen);
   const tree = useAppSelector((state) => state.fileManager[FileManagerIndex.main]?.tree);
   const path = useAppSelector((state) => state.fileManager[FileManagerIndex.main]?.path);
   const single_file_view = useAppSelector((state) => state.fileManager[FileManagerIndex.main]?.list?.single_file_view);
+  const fullTextSearchEnabled = useAppSelector((state) => state.siteConfig.explorer?.config?.full_text_search);
+  const isLoggedIn = !!SessionManager.currentLoginOrNull();
 
   const searchTree = useMemo(
     () =>
@@ -125,6 +138,56 @@ const SearchPopup = () => {
     };
   }, [keywords, setSearchedKeyword, searchTree]);
 
+  const fullTextSearchDebounced = useMemo(
+    () =>
+      debounce((query: string) => {
+        if (!fullTextSearchEnabled || !isLoggedIn) return;
+        setFullTextLoading(true);
+        setFullTextResults([]);
+        setFullTextTotal(0);
+        dispatch(sendFullTextSearch(query))
+          .then((res: FullTextSearchResults) => {
+            setFullTextResults(res.hits ?? []);
+            setFullTextTotal(res.total);
+          })
+          .catch(() => {
+            setFullTextResults([]);
+            setFullTextTotal(0);
+          })
+          .finally(() => {
+            setFullTextLoading(false);
+          });
+      }, 500),
+    [fullTextSearchEnabled, isLoggedIn, path, dispatch],
+  );
+
+  useEffect(() => {
+    if (keywords === "" || keywords.length < 2 || !fullTextSearchEnabled || !isLoggedIn) {
+      setFullTextResults([]);
+      setFullTextTotal(0);
+      return;
+    }
+
+    fullTextSearchDebounced(keywords);
+    return () => {
+      fullTextSearchDebounced.clear();
+    };
+  }, [keywords, fullTextSearchDebounced, fullTextSearchEnabled, isLoggedIn]);
+
+  const loadMoreFullText = useCallback(() => {
+    if (fullTextLoading) return;
+    setFullTextLoading(true);
+    dispatch(sendFullTextSearch(keywords, fullTextResults.length))
+      .then((res: FullTextSearchResults) => {
+        setFullTextResults((prev) => [...prev, ...(res.hits ?? [])]);
+        setFullTextTotal(res.total);
+      })
+      .catch(() => {})
+      .finally(() => {
+        setFullTextLoading(false);
+      });
+  }, [keywords, fullTextResults.length, fullTextLoading, dispatch]);
+
   const fullSearchOptions = useMemo(() => {
     if (!open || !keywords) {
       return [];
@@ -149,7 +212,7 @@ const SearchPopup = () => {
 
   const onEnter = useCallback(
     (e: React.KeyboardEvent) => {
-      if (e.key === "Enter") {
+      if (e.key === "Enter" && !e.nativeEvent.isComposing) {
         e.stopPropagation();
         e.preventDefault();
         if (fullSearchOptions.length > 0) {
@@ -221,6 +284,28 @@ const SearchPopup = () => {
                 {t("navbar.searchFilesTitle")}
               </Typography>
               <FullSearchOption keyword={keywords} options={fullSearchOptions} />
+              {(fullTextResults.length > 0 || fullTextLoading || treeSearchResults.length > 0) && <Divider />}
+            </>
+          )}
+          {fullTextSearchEnabled && isLoggedIn && (fullTextResults.length > 0 || fullTextLoading) && (
+            <>
+              <Typography
+                variant={"body2"}
+                color={"textSecondary"}
+                sx={{
+                  px: 3,
+                  pt: 1.5,
+                  fontWeight: 600,
+                }}
+              >
+                {t("navbar.fullTextSearch")}
+              </Typography>
+              <FullTextSearchResultList
+                results={fullTextResults}
+                loading={fullTextLoading}
+                hasMore={fullTextResults.length < fullTextTotal}
+                onLoadMore={loadMoreFullText}
+              />
               {treeSearchResults.length > 0 && <Divider />}
             </>
           )}

@@ -4,6 +4,8 @@ import i18n from "../i18n.ts";
 import {
   AdminListGroupResponse,
   AdminListService,
+  ListShareResponse as AdminListShareResponse,
+  StoragePolicy as AdminStoragePolicy,
   BatchIDService,
   CleanupTaskService,
   CreateStoragePolicyCorsService,
@@ -11,6 +13,7 @@ import {
   FetchWOPIDiscoveryService,
   File as FileEnt,
   FinishOauthCallbackService,
+  GetOAuthClientResponse,
   GetOauthRedirectService,
   GetSettingService,
   GroupEnt,
@@ -20,7 +23,7 @@ import {
   ListNodeResponse,
   ListAuditLogResponse,
   ListPaymentResponse as AdminListPaymentResponse,
-  ListShareResponse as AdminListShareResponse,
+  ListOAuthClientResponse,
   ListStoragePolicyResponse,
   ListTaskResponse,
   ListUserResponse,
@@ -29,7 +32,6 @@ import {
   QueueMetric,
   SetSettingService,
   Share as ShareEnt,
-  StoragePolicy as AdminStoragePolicy,
   Task,
   TestNodeDownloaderService,
   TestNodeService,
@@ -38,6 +40,7 @@ import {
   UpsertFileService,
   UpsertGroupService,
   UpsertNodeService,
+  UpsertOAuthClientService,
   UpsertStoragePolicyService,
   UpsertUserService,
   User as UserEnt,
@@ -78,9 +81,12 @@ import { CreateDavAccountService, DavAccount, ListDavAccountsResponse, ListDavAc
 import { ListShareResponse, ListShareService } from "./share.ts";
 import { CaptchaResponse, SiteConfig } from "./site.ts";
 import {
+  AppRegistration,
   Capacity,
   FinishPasskeyLoginService,
   FinishPasskeyRegistrationService,
+  GrantResponse,
+  GrantService,
   LoginResponse,
   Passkey,
   PasskeyCredentialOption,
@@ -102,6 +108,7 @@ import {
   DownloadWorkflowService,
   ImportWorkflowService,
   ListTaskService,
+  RebuildFTSIndexWorkflowService,
   SetDownloadFilesService,
   TaskListResponse,
   TaskProgresses,
@@ -2036,6 +2043,145 @@ export function getArchiveListFiles(args: ArchiveListFilesService): ThunkRespons
       send(
         `/file/archive`,
         { method: "GET", params: args },
+        {
+          ...defaultOpts,
+        },
+      ),
+    );
+  };
+}
+
+export function getOauthAppRegistration(app_id: string): ThunkResponse<AppRegistration> {
+  return async (dispatch, _getState) => {
+    return await dispatch(send(`/session/oauth/app/${app_id}`, { method: "GET" }, { ...defaultOpts }));
+  };
+}
+
+export function sendConsentOauthApp(args: GrantService): ThunkResponse<GrantResponse> {
+  return async (dispatch, _getState) => {
+    return await dispatch(
+      send(`/session/oauth/consent`, { method: "POST", data: args }, { bypassSnackbar: (e) => true, ...defaultOpts }),
+    );
+  };
+}
+
+export function getOAuthClientList(args: AdminListService): ThunkResponse<ListOAuthClientResponse> {
+  return async (dispatch, _getState) => {
+    return await dispatch(
+      send(
+        `/admin/oauthClient`,
+        { method: "POST", data: args },
+        {
+          ...defaultOpts,
+        },
+      ),
+    );
+  };
+}
+
+export function getOAuthClientDetail(id: number): ThunkResponse<GetOAuthClientResponse> {
+  return async (dispatch, _getState) => {
+    return await dispatch(
+      send(
+        `/admin/oauthClient/${id}`,
+        { method: "GET" },
+        {
+          ...defaultOpts,
+        },
+      ),
+    );
+  };
+}
+
+export function upsertOAuthClient(args: UpsertOAuthClientService): ThunkResponse<GetOAuthClientResponse> {
+  return async (dispatch, _getState) => {
+    return await dispatch(
+      send(
+        `/admin/oauthClient${args.client.id ? `/${args.client.id}` : ""}`,
+        { method: "PUT", data: args },
+        {
+          ...defaultOpts,
+        },
+      ),
+    );
+  };
+}
+
+export function deleteOAuthClient(id: number): ThunkResponse<void> {
+  return async (dispatch, _getState) => {
+    return await dispatch(
+      send(
+        `/admin/oauthClient/${id}`,
+        { method: "DELETE" },
+        {
+          ...defaultOpts,
+        },
+      ),
+    );
+  };
+}
+
+export function batchDeleteOAuthClients(args: BatchIDService): ThunkResponse<void> {
+  return async (dispatch, _getState) => {
+    return await dispatch(
+      send(
+        `/admin/oauthClient/batch/delete`,
+        { method: "POST", data: args },
+        {
+          ...defaultOpts,
+        },
+      ),
+    );
+  };
+}
+
+export function sendRevokeOAuthGrant(grant_id: string): ThunkResponse {
+  return async (dispatch, _getState) => {
+    return await dispatch(
+      send(
+        `/session/oauth/grant/${grant_id}`,
+        {
+          method: "DELETE",
+        },
+        {
+          ...defaultOpts,
+        },
+      ),
+    );
+  };
+}
+
+export function sendFullTextSearch(query: string, offset?: number): ThunkResponse {
+  const params = new URLSearchParams();
+  params.set("query", query);
+  if (offset) {
+    params.set("offset", offset.toString());
+  }
+  return async (dispatch, _getState) => {
+    return await dispatch(
+      send(
+        `/file/search`,
+        {
+          method: "GET",
+          params,
+        },
+        {
+          ...defaultOpts,
+        },
+      ),
+    );
+  };
+}
+
+export function sendRebuildFTSIndex(req: RebuildFTSIndexWorkflowService): ThunkResponse<TaskResponse> {
+  return async (dispatch, _getState) => {
+    return await dispatch(
+      send(
+        "/workflow/rebuildFtsIndex",
+        {
+          data: req,
+          method: "POST",
+        },
         {
           ...defaultOpts,
         },

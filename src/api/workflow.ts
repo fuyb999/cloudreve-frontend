@@ -37,6 +37,7 @@ export interface TaskSummary {
     src_multiple?: string[];
     dst_policy_id?: string;
     failed?: number;
+    total?: number;
     download?: DownloadTaskStatus;
   };
 }
@@ -132,6 +133,11 @@ export enum TaskType {
   explicit_entity_recycle = "explicit_entity_recycle",
   upload_sentinel_check = "upload_sentinel_check",
   import = "import",
+  full_text_index = "full_text_index",
+  full_text_copy = "full_text_copy",
+  full_text_change_owner = "full_text_change_owner",
+  full_text_delete = "full_text_delete",
+  full_text_rebuild = "full_text_rebuild",
 }
 
 export enum TaskStatus {
@@ -160,4 +166,8 @@ export interface SetFileToDownloadArgs {
 
 export interface SetDownloadFilesService {
   files: SetFileToDownloadArgs[];
+}
+
+export interface RebuildFTSIndexWorkflowService {
+  filtered_storage_policy?: number[];
 }

@@ -170,6 +170,7 @@ export const Metadata = {
   thumbDisabled: "thumb:disabled",
   restore_uri: "sys:restore_uri",
   expected_collect_time: "sys:expected_collect_time",
+  full_text_index: "sys:fulltext_index",
 
   // Exif
   gps_lng: "exif:longitude",
@@ -416,6 +417,9 @@ export const AuditLogType = {
   update_view: 56,
   delete_direct_link: 57,
   report_abuse: 58,
+  oauth_grant_create: 59,
+  oauth_token_exchange: 60,
+  oauth_grant_revoke: 61,
 };
 
 export interface MultipleUriService {
@@ -588,4 +592,14 @@ export interface ArchiveListFilesService {
   uri: string;
   entity?: string;
   text_encoding?: string;
+}
+
+export interface FullTextSearchResults {
+  hits?: FullTextSearchResult[];
+  total: number;
+}
+
+export interface FullTextSearchResult {
+  file: FileResponse;
+  content: string;
 }

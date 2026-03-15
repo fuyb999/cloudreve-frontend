@@ -1,4 +1,5 @@
 import DeleteConfirmation from "./DeleteConfirmation.tsx";
+import DesktopMountSetup from "./DesktopMountSetup.tsx";
 import AggregatedErrorDetail from "../../Dialogs/AggregatedErrorDetail.tsx";
 import LockConflictDetails from "./LockConflictDetails.tsx";
 import Rename from "./Rename.tsx";
@@ -30,7 +31,7 @@ import CreateRemoteDownload from "./CreateRemoteDownload.tsx";
 import AdvanceSearch from "../Search/AdvanceSearch/AdvanceSearch.tsx";
 import React from "react";
 import ColumnSetting from "../Explorer/ListView/ColumnSetting.tsx";
-import DirectLinks from "./DirectLinks.tsx";
+import DirectLinks from "./DirectLinks/DirectLinks.tsx";
 import DirectLinksControl from "./DirectLinksControl.tsx";
 
 const Dialogs = () => {
@@ -43,6 +44,7 @@ const Dialogs = () => {
   const excalidrawViewer = useAppSelector((state) => state.globalState.excalidrawViewer);
   const directLinkManagement = useAppSelector((state) => state.globalState.directLinkManagementDialogOpen);
   const archivePreview = useAppSelector((state) => state.globalState.archiveViewer);
+  const desktopMountSetup = useAppSelector((state) => state.globalState.desktopMountSetupDialogOpen);
 
   return (
     <>
@@ -78,6 +80,7 @@ const Dialogs = () => {
       {excalidrawViewer != undefined && <ExcalidrawViewer />}
       {directLinkManagement != undefined && <DirectLinksControl />}
       {archivePreview != undefined && <ArchivePreview />}
+      {desktopMountSetup != undefined && <DesktopMountSetup />}
     </>
   );
 };

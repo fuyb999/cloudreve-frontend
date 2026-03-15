@@ -6,18 +6,21 @@ import { CSSTransition, SwitchTransition } from "react-transition-group";
 import ResponsiveTabs, { Tab } from "../../Common/ResponsiveTabs.tsx";
 import AppGeneric from "../../Icons/AppGeneric.tsx";
 import Icons from "../../Icons/Icons.tsx";
+import Search from "../../Icons/Search.tsx";
 import SettingsOutlined from "../../Icons/SettingsOutlined.tsx";
 import TextBulletListSquareEdit from "../../Icons/TextBulletListSquareEdit.tsx";
 import PageContainer from "../../Pages/PageContainer.tsx";
 import PageHeader, { PageTabQuery } from "../../Pages/PageHeader.tsx";
 import SettingsWrapper from "../Settings/SettingWrapper.tsx";
 import CustomPropsSetting from "./CustomProps/CustomPropsSetting.tsx";
+import FullTextSearchSetting from "./FullTextSearch/FullTextSearchSetting.tsx";
 import FileIcons from "./Icons/FileIcons.tsx";
 import Parameters from "./Parameters/Parameters.tsx";
 import ViewerSetting from "./ViewerSetting/ViewerSetting.tsx";
 
 export enum SettingsPageTab {
   Parameters = "parameters",
+  FullTextSearch = "fullTextSearch",
   CustomProps = "customProps",
   Icon = "icon",
   FileApp = "fileApp",
@@ -35,6 +38,11 @@ const FileSystem = () => {
           label: t("nav.settings"),
           value: SettingsPageTab.Parameters,
           icon: <SettingsOutlined />,
+        },
+        {
+          label: t("nav.fullTextSearch"),
+          value: SettingsPageTab.FullTextSearch,
+          icon: <Search />,
         },
         {
           label: t("settings.fileIcons"),
@@ -105,9 +113,30 @@ const FileSystem = () => {
                     "encrypt_master_key_vault",
                     "encrypt_master_key_file",
                     "show_encryption_status",
+                    "fs_event_push_enabled",
+                    "fs_event_push_max_age",
+                    "fs_event_push_debounce",
                   ]}
                 >
                   <Parameters />
+                </SettingsWrapper>
+              )}
+              {tab === SettingsPageTab.FullTextSearch && (
+                <SettingsWrapper
+                  settings={[
+                    "fts_enabled",
+                    "fts_meilisearch_endpoint",
+                    "fts_meilisearch_api_key",
+                    "fts_meilisearch_page_size",
+                    "fts_meilisearch_embed_enabled",
+                    "fts_meilisearch_embed_config",
+                    "fts_chunk_size",
+                    "fts_tika_endpoint",
+                    "fts_tika_exts",
+                    "fts_tika_max_file_size",
+                  ]}
+                >
+                  <FullTextSearchSetting />
                 </SettingsWrapper>
               )}
               {tab === SettingsPageTab.Icon && (
@@ -116,7 +145,7 @@ const FileSystem = () => {
                 </SettingsWrapper>
               )}
               {tab === SettingsPageTab.FileApp && (
-                <SettingsWrapper settings={["file_viewers"]}>
+                <SettingsWrapper settings={["file_viewers", "viewer_default_apps"]}>
                   <ViewerSetting />
                 </SettingsWrapper>
               )}
