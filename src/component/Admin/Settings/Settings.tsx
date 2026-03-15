@@ -174,6 +174,9 @@ const Settings = () => {
                     "privacy_policy_url",
                     "show_app_promotion",
                     "show_desktop_app_promotion",
+                    "syncthing_upgrade_version",
+                    "syncthing_download_linux_url",
+                    "syncthing_download_windows_url",
                   ]}
                 >
                   <SiteInformation />

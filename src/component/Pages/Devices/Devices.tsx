@@ -16,9 +16,11 @@ import { GroupPermission } from "../../../api/user.ts";
 import AppPromotion from "./AppPromotion.tsx";
 import DesktopAppPromotion from "./DesktopAppPromotion.tsx";
 import PageContainer from "../PageContainer.tsx";
+import SyncthingClient from "./SyncthingClient.tsx";
 
 export enum DevicePageTab {
   Dav = "dav",
+  Syncthing = "syncthing",
   App = "app",
   DesktopApp = "desktop",
 }
@@ -50,6 +52,10 @@ const Devices = () => {
         value: DevicePageTab.Dav,
       });
     }
+    res.push({
+      label: t("setting.syncthingClient"),
+      value: DevicePageTab.Syncthing,
+    });
     if (appPromotion) {
       res.push({
         label: t("application:setting.iOSApp"),
@@ -66,7 +72,7 @@ const Devices = () => {
   }, [webDavEnabled, appPromotion, desktopAppPromotion]);
 
   const [tab, setTab] = useState(
-    searchParams.get(PageTabQuery) ?? (webDavEnabled ? DevicePageTab.Dav : DevicePageTab.App),
+    searchParams.get(PageTabQuery) ?? (webDavEnabled ? DevicePageTab.Dav : DevicePageTab.Syncthing),
   );
 
   useEffect(() => {
@@ -90,10 +96,11 @@ const Devices = () => {
         {tab == DevicePageTab.Dav && webDavEnabled && (
           <DavAccountList creatAccountDialog={creatAccountDialog} setCreateAccountDialog={setCreateAccountDialog} />
         )}
+        {tab == DevicePageTab.Syncthing && <SyncthingClient />}
         {tab == DevicePageTab.App && appPromotion && <AppPromotion />}
         {tab == DevicePageTab.DesktopApp && desktopAppPromotion && <DesktopAppPromotion />}
 
-        {!webDavEnabled && !appPromotion && !desktopAppPromotion && <Nothing primary={t("setting.deviceNothing")} />}
+        {tabs.length === 0 && <Nothing primary={t("setting.deviceNothing")} />}
       </Container>
     </PageContainer>
   );

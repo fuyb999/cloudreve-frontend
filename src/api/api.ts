@@ -77,7 +77,13 @@ import {
   ViewerSessionResponse,
 } from "./explorer.ts";
 import { AppError, Code, CrHeaders, defaultOpts, isRequestAbortedError, send, ThunkResponse } from "./request.ts";
-import { CreateDavAccountService, DavAccount, ListDavAccountsResponse, ListDavAccountsService } from "./setting.ts";
+import {
+  CreateDavAccountService,
+  DavAccount,
+  ListDavAccountsResponse,
+  ListDavAccountsService,
+  ListSyncthingDevicesResponse,
+} from "./setting.ts";
 import { ListShareResponse, ListShareService } from "./share.ts";
 import { CaptchaResponse, SiteConfig } from "./site.ts";
 import {
@@ -1001,6 +1007,22 @@ export function sendDeleteDavAccount(id: string): ThunkResponse {
         `/devices/dav/${id}`,
         {
           method: "DELETE",
+        },
+        {
+          ...defaultOpts,
+        },
+      ),
+    );
+  };
+}
+
+export function getSyncthingDevices(): ThunkResponse<ListSyncthingDevicesResponse> {
+  return async (dispatch, _getState) => {
+    return await dispatch(
+      send(
+        "/devices/syncthing",
+        {
+          method: "GET",
         },
         {
           ...defaultOpts,

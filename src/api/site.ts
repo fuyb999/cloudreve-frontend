@@ -44,6 +44,8 @@ export interface SiteConfig {
   max_batch_size?: number;
   app_promotion?: boolean;
   desktop_app_promotion?: boolean;
+  syncthing_download_linux_url?: string;
+  syncthing_download_windows_url?: string;
   thumbnail_width?: number;
   thumbnail_height?: number;
   custom_props?: CustomProps[];

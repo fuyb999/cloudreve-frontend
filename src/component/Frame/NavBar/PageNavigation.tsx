@@ -253,7 +253,6 @@ export const AdminPageNavigation = memo(() => {
 
 const PageNavigation = () => {
   const shopNavEnabled = useAppSelector((state) => state.siteConfig.basic.config.shop_nav_enabled);
-  const appPromotionEnabled = useAppSelector((state) => state.siteConfig.basic.config.app_promotion);
   const user = SessionManager.currentLoginOrNull();
   const isAdmin = useMemo(() => {
     return GroupBS(user?.user).enabled(GroupPermission.is_admin);
@@ -261,9 +260,6 @@ const PageNavigation = () => {
   const remoteDownloadEnabled = useMemo(() => {
     return GroupBS(user?.user).enabled(GroupPermission.remote_download);
   }, [user?.user?.group?.permission]);
-  const connectEnabled = useMemo(() => {
-    return GroupBS(user?.user).enabled(GroupPermission.webdav) || appPromotionEnabled;
-  }, [user?.user?.group?.permission, appPromotionEnabled]);
   const isLogin = !!user;
   const customNavItems = useAppSelector((state) => state.siteConfig.basic.config.custom_nav_items);
 
@@ -275,7 +271,7 @@ const PageNavigation = () => {
             {NavigationItems.map((item) => (
               <SideNavItemComponent key={item.label} item={item} />
             ))}
-            {connectEnabled && <SideNavItemComponent item={ConnectNavigationItem} />}
+            <SideNavItemComponent item={ConnectNavigationItem} />
             <SideNavItemComponent item={TaskNavigationItem} />
             {remoteDownloadEnabled && <SideNavItemComponent item={RemoteDownloadNavigationItem} />}
           </>

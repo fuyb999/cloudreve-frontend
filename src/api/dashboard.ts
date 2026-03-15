@@ -565,6 +565,7 @@ export interface CleanupTaskService {
 
 export interface OAuthClientProps {
   icon?: string;
+  access_token_ttl?: number;
   refresh_token_ttl?: number;
 }
 

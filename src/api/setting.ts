@@ -19,6 +19,24 @@ export interface ListDavAccountsResponse {
   pagination?: PaginationResults;
 }
 
+export interface SyncthingDevice {
+  created_at: string;
+  updated_at: string;
+  device_id: string;
+  short_id?: string;
+  last_ip?: string;
+  bind_uri?: string;
+  client_version?: string;
+  platform?: string;
+  last_seen_at?: string;
+  last_sync_at?: string;
+  online: boolean;
+}
+
+export interface ListSyncthingDevicesResponse {
+  devices: SyncthingDevice[];
+}
+
 export const DavAccountOption = {
   readonly: 0,
   proxy: 1,
