@@ -45,15 +45,10 @@ export const processTaskContent = (summary: TaskSummary, userHashId: string): Ta
 
 export const TaskContent = memo(({ task, openEntity, openFile }: TaskContentProps) => {
   const { t } = useTranslation("dashboard");
-
-  if (userTaskTypes.includes(task.type ?? "")) {
-    const processedSummary = processTaskContent({ ...task.summary } as TaskSummary, task?.user_hash_id ?? "");
-    return (
-      <Typography variant="body2">
-        <TaskSummaryTitle type={getTaskDisplayType(task.type?.toString())} summary={processedSummary} isInDashboard />
-      </Typography>
-    );
-  }
+  const isUserTask = userTaskTypes.includes(task.type ?? "");
+  const processedSummary = useMemo(() => {
+    return processTaskContent({ ...task.summary } as TaskSummary, task?.user_hash_id ?? "");
+  }, [task.summary, task.user_hash_id]);
 
   const entityLinkClick = useCallback(
     (entityID: number) => (e: React.MouseEvent<HTMLAnchorElement>) => {
@@ -78,7 +73,7 @@ export const TaskContent = memo(({ task, openEntity, openFile }: TaskContentProp
   );
 
   const content = useMemo(() => {
-    var privateState: any = {};
+    let privateState: any = {};
     try {
       privateState = JSON.parse(task.private_state ?? "{}");
     } catch (error) {
@@ -145,6 +140,14 @@ export const TaskContent = memo(({ task, openEntity, openFile }: TaskContentProp
         return "";
     }
   }, [task, t]);
+
+  if (isUserTask) {
+    return (
+      <Typography variant="body2">
+        <TaskSummaryTitle type={getTaskDisplayType(task.type?.toString())} summary={processedSummary} isInDashboard />
+      </Typography>
+    );
+  }
 
   return <Typography variant="body2">{content}</Typography>;
 });

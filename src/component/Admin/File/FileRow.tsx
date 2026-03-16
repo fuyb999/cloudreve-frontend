@@ -121,6 +121,27 @@ const FileRow = ({
     );
   }, [file?.edges?.metadata]);
 
+  const sizeUsed = useMemo(() => {
+    return sizeToString(file?.edges?.entities?.reduce((acc, entity) => acc + (entity.size ?? 0), 0) ?? 0);
+  }, [file?.edges?.entities]);
+
+  const encryptionStatus = useMemo(() => {
+    const status: EncryptionStatus = { status: "none", cipher: [] };
+    let encrypted = 0;
+    file?.edges?.entities?.forEach((entity) => {
+      if (entity.props?.encrypt_metadata?.algorithm) {
+        encrypted++;
+        if (!status.cipher.includes(entity.props?.encrypt_metadata?.algorithm)) {
+          status.cipher.push(entity.props?.encrypt_metadata?.algorithm);
+        }
+      }
+    });
+    if (encrypted > 0) {
+      status.status = encrypted === file?.edges?.entities?.length ? "full" : "partial";
+    }
+    return status;
+  }, [file?.edges?.entities]);
+
   if (loading) {
     return (
       <TableRow sx={{ height: "43px" }}>
@@ -164,27 +185,6 @@ const FileRow = ({
     e.preventDefault();
     openUserDialog?.(file?.owner_id ?? 0);
   };
-
-  const sizeUsed = useMemo(() => {
-    return sizeToString(file?.edges?.entities?.reduce((acc, entity) => acc + (entity.size ?? 0), 0) ?? 0);
-  }, [file?.edges?.entities]);
-
-  const encryptionStatus = useMemo(() => {
-    const status: EncryptionStatus = { status: "none", cipher: [] };
-    let encrypted = 0;
-    file?.edges?.entities?.forEach((entity) => {
-      if (entity.props?.encrypt_metadata?.algorithm) {
-        encrypted++;
-        if (!status.cipher.includes(entity.props?.encrypt_metadata?.algorithm)) {
-          status.cipher.push(entity.props?.encrypt_metadata?.algorithm);
-        }
-      }
-    });
-    if (encrypted > 0) {
-      status.status = encrypted === file?.edges?.entities?.length ? "full" : "partial";
-    }
-    return status;
-  }, [file?.edges?.entities]);
 
   return (
     <TableRow hover key={file?.id} sx={{ cursor: "pointer" }} onClick={onRowClick} selected={selected}>

@@ -42,13 +42,12 @@ const UserPopover = ({ open, onClose, ...rest }: PopoverProps) => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
 
-  if (!user) {
-    return null;
-  }
-
   const isAdmin = useMemo(() => {
+    if (!user) {
+      return false;
+    }
     return GroupBS(user).enabled(GroupPermission.is_admin);
-  }, [user.group?.permission]);
+  }, [user?.group?.permission]);
 
   const signWithHint = (email: string) => {
     navigate("/session?phase=email&email=" + encodeURIComponent(email));
@@ -57,22 +56,26 @@ const UserPopover = ({ open, onClose, ...rest }: PopoverProps) => {
   const signOut = useCallback(() => {
     dispatch(signout());
     onClose && onClose({}, "backdropClick");
-  }, []);
+  }, [dispatch, onClose]);
 
   const openMyProfile = useCallback(() => {
     navigate(`/profile/${user?.id}`);
     onClose && onClose({}, "backdropClick");
-  }, [user?.id]);
+  }, [navigate, onClose, user?.id]);
 
   const openSetting = useCallback(() => {
     navigate(`/settings`);
     onClose && onClose({}, "backdropClick");
-  }, [user?.id]);
+  }, [navigate, onClose]);
 
   const openDashboard = useCallback(() => {
     navigate(`/admin/home`);
     onClose && onClose({}, "backdropClick");
-  }, [user?.id]);
+  }, [navigate, onClose]);
+
+  if (!user) {
+    return null;
+  }
 
   return (
     <Popover
