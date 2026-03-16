@@ -193,6 +193,14 @@ const Settings = () => {
                     "avatar_size",
                     "avatar_size_l",
                     "gravatar_server",
+                    "oidc_enabled",
+                    "oidc_display_name",
+                    "oidc_auto_redirect",
+                    "oidc_sso_url",
+                    "oidc_wellknown_url",
+                    "oidc_client_id",
+                    "oidc_client_secret",
+                    "oidc_scope",
                   ]}
                 >
                   <UserSession />

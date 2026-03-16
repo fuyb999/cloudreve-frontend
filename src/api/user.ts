@@ -45,6 +45,22 @@ export interface PrepareLoginResponse {
   qq_enabled: boolean;
 }
 
+// 统一认证预处理接口只负责生成跳转地址，next 用于记录登录成功后的站内目标页面。
+export interface PrepareOIDCRequest {
+  next?: string;
+}
+
+export interface PrepareOIDCResponse {
+  redirect_url: string;
+  state: string;
+}
+
+// OIDC 回调页把 code/state 交给后端，由后端完成远端换票、影子用户同步和本地 token 签发。
+export interface OIDCExchangeRequest {
+  code: string;
+  state: string;
+}
+
 export interface CaptchaRequest {
   [key: string]: any;
 }
@@ -64,6 +80,11 @@ export interface Token {
 export interface LoginResponse {
   user: User;
   token: Token;
+}
+
+// 第一版统一认证成功后依旧返回 Cloudreve 本地 token，后续接口不需要每次远程校验。
+export interface OIDCLoginResponse extends LoginResponse {
+  redirect_to?: string;
 }
 
 export interface TwoFALoginRequest {

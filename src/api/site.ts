@@ -19,6 +19,9 @@ export interface SiteConfig {
   themes?: string;
   default_theme?: string;
   authn?: boolean;
+  oidc_enabled?: boolean;
+  oidc_display_name?: string;
+  oidc_auto_redirect?: boolean;
   user?: User;
   captcha_ReCaptchaKey?: string;
   captcha_type?: CaptchaType;

@@ -94,10 +94,14 @@ import {
   GrantResponse,
   GrantService,
   LoginResponse,
+  OIDCExchangeRequest,
+  OIDCLoginResponse,
   Passkey,
   PasskeyCredentialOption,
   PasswordLoginRequest,
   PatchUserSetting,
+  PrepareOIDCRequest,
+  PrepareOIDCResponse,
   PrepareLoginResponse,
   PreparePasskeyLoginResponse,
   RefreshTokenRequest,
@@ -191,6 +195,44 @@ export function sendLogin(req: PasswordLoginRequest): ThunkResponse<LoginRespons
           ...defaultOpts,
           noCredential: true,
           bypassSnackbar: (e) => e instanceof AppError && e.code == Code.Continue,
+        },
+      ),
+    );
+  };
+}
+
+export function sendPrepareOIDCLogin(req: PrepareOIDCRequest): ThunkResponse<PrepareOIDCResponse> {
+  return async (dispatch, _getState) => {
+    // 统一认证准备阶段只生成跳转地址，不依赖当前 Cloudreve 会话。
+    return await dispatch(
+      send(
+        "/session/oidc/prepare",
+        {
+          params: req,
+          method: "GET",
+        },
+        {
+          ...defaultOpts,
+          noCredential: true,
+        },
+      ),
+    );
+  };
+}
+
+export function sendOIDCExchange(req: OIDCExchangeRequest): ThunkResponse<OIDCLoginResponse> {
+  return async (dispatch, _getState) => {
+    // 回调页用授权码换取 Cloudreve 本地会话，后续请求继续走现有 token 流程。
+    return await dispatch(
+      send(
+        "/session/oidc/exchange",
+        {
+          data: req,
+          method: "POST",
+        },
+        {
+          ...defaultOpts,
+          noCredential: true,
         },
       ),
     );

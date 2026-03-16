@@ -11,6 +11,7 @@ import {
   send2FALogin,
   sendConsentOauthApp,
   sendLogin,
+  sendPrepareOIDCLogin,
   sendPrepareLogin,
   sendResetEmail,
 } from "../../../../api/api.ts";
@@ -506,14 +507,86 @@ const EmailLogin = ({ oauthConsent }: SignInProps) => {
   );
 };
 
+const OIDCLogin = ({ oauthConsent }: SignInProps) => {
+  const { t } = useTranslation();
+  const dispatch = useAppDispatch();
+  const query = useQuery();
+  const oidcDisplayName = useAppSelector((state) => state.siteConfig.login.config.oidc_display_name) ?? "OIDC";
+  const oidcAutoRedirect = useAppSelector((state) => state.siteConfig.login.config.oidc_auto_redirect);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const nextTarget = useMemo(() => {
+    // OAuth 授权页场景需要完整保留当前 query，避免统一认证回来后丢掉下游应用授权参数。
+    if (oauthConsent) {
+      return `${window.location.pathname}${window.location.search}`;
+    }
+    return query.get("redirect") ?? "/home";
+  }, [oauthConsent, query]);
+
+  const startOIDCLogin = useCallback(async () => {
+    if (loading) {
+      return;
+    }
+
+    try {
+      setLoading(true);
+      setError(null);
+      // 先向后端申请 state 和重定向地址，避免前端自行拼接造成配置分叉。
+      const response = await dispatch(
+        sendPrepareOIDCLogin({
+          next: nextTarget,
+        }),
+      );
+      window.location.assign(response.redirect_url);
+    } catch (e) {
+      setLoading(false);
+      setError(e instanceof AppError ? e.message : String(e));
+    }
+  }, [dispatch, loading, nextTarget]);
+
+  useEffect(() => {
+    // 开启自动跳转后，用户打开登录页就会直达统一认证中心。
+    if (oidcAutoRedirect) {
+      void startOIDCLogin();
+    }
+  }, [oidcAutoRedirect, startOIDCLogin]);
+
+  return (
+    <Box sx={{ overflow: "hidden" }}>
+      <Typography variant={"h6"}>{oauthConsent ? t("oauth.authorize") : t("login.signIn")}</Typography>
+      <Typography variant={"body2"} color={"text.secondary"} sx={{ mt: 1, mb: 3 }}>
+        {t("login.oidcUnifiedAuthHint", { provider: oidcDisplayName })}
+      </Typography>
+      <LoadingButton
+        type="button"
+        fullWidth
+        variant="contained"
+        color="primary"
+        loading={loading}
+        onClick={() => void startOIDCLogin()}
+      >
+        <span>{t("login.continueWithProvider", { provider: oidcDisplayName })}</span>
+      </LoadingButton>
+      {error && (
+        <Typography variant={"body2"} color={"error"} sx={{ mt: 2 }}>
+          {error}
+        </Typography>
+      )}
+    </Box>
+  );
+};
+
 const SignIn = ({ oauthConsent }: SignInProps) => {
   const { t } = useTranslation();
   const isOAuthFlow = !!oauthConsent;
+  const oidcEnabled = useAppSelector((state) => state.siteConfig.login.config.oidc_enabled);
 
   return (
     <Box>
       <PageTitle title={isOAuthFlow ? t("oauth.authorize") : t("login.signIn")} />
-      <EmailLogin oauthConsent={oauthConsent} />
+      {/* 开关关闭时继续走原有邮箱/密码/Passkey 流程，保证回退成本最低。 */}
+      {oidcEnabled ? <OIDCLogin oauthConsent={oauthConsent} /> : <EmailLogin oauthConsent={oauthConsent} />}
     </Box>
   );
 };
