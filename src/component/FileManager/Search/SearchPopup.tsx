@@ -145,7 +145,7 @@ const SearchPopup = () => {
         setFullTextLoading(true);
         setFullTextResults([]);
         setFullTextTotal(0);
-        dispatch(sendFullTextSearch(query))
+        dispatch(sendFullTextSearch(query, undefined, path))
           .then((res: FullTextSearchResults) => {
             setFullTextResults(res.hits ?? []);
             setFullTextTotal(res.total);
@@ -177,7 +177,7 @@ const SearchPopup = () => {
   const loadMoreFullText = useCallback(() => {
     if (fullTextLoading) return;
     setFullTextLoading(true);
-    dispatch(sendFullTextSearch(keywords, fullTextResults.length))
+    dispatch(sendFullTextSearch(keywords, fullTextResults.length, path))
       .then((res: FullTextSearchResults) => {
         setFullTextResults((prev) => [...prev, ...(res.hits ?? [])]);
         setFullTextTotal(res.total);

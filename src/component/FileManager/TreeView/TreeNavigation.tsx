@@ -4,7 +4,12 @@ import { ChevronRight, ExpandMore } from "@mui/icons-material";
 import { TreeView } from "@mui/x-tree-view";
 import React, { useEffect } from "react";
 import { TransitionGroup } from "react-transition-group";
-import { defaultPath, defaultSharedWithMePath, defaultTrashPath } from "../../../hooks/useNavigation.tsx";
+import {
+  defaultPath,
+  defaultPublicPath,
+  defaultSharedWithMePath,
+  defaultTrashPath,
+} from "../../../hooks/useNavigation.tsx";
 import { useAppSelector } from "../../../redux/hooks.ts";
 import SessionManager, { UserSettings } from "../../../session";
 import CrUri, { Filesystem } from "../../../util/uri.ts";
@@ -90,6 +95,13 @@ const TreeNavigation = React.memo(
                       path={defaultPath}
                       key={defaultPath}
                       elements={currentFs == Filesystem.my ? elements : undefined}
+                    />
+                    <TreeFiles
+                      canDrop
+                      level={0}
+                      path={defaultPublicPath}
+                      key={defaultPublicPath}
+                      elements={currentFs == Filesystem.public ? elements : undefined}
                     />
                     {index == FileManagerIndex.main && (
                       <>

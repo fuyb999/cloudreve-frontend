@@ -7,6 +7,7 @@ const HttpUriPrefix = "http://";
 
 export const Filesystem = {
   my: "my",
+  public: "public",
   share: "share",
   shared_by_me: "shared_by_me",
   shared_with_me: "shared_with_me",
@@ -318,4 +319,8 @@ export default class CrUri {
 
 export const newMyUri = (uid?: string): CrUri => {
   return uid ? new CrUri(`cloudreve://${uid}@my`) : new CrUri("cloudreve://my");
+};
+
+export const newPublicUri = (): CrUri => {
+  return new CrUri("cloudreve://public");
 };

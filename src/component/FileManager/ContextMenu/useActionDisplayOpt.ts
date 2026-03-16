@@ -116,10 +116,16 @@ export const getActionOpt = (
       return display;
     }
 
+    const parentUri = new CrUri(parent.path ?? defaultPath);
+    const publicWritableParent = parentUri.fs() == Filesystem.public;
     const parentCap = new Boolset(parent.capability);
-    display.showCreateFolder = parentCap.enabled(NavigatorCapability.create_file) && parent.owned;
+    display.showCreateFolder =
+      parentCap.enabled(NavigatorCapability.create_file) && (parent.owned || publicWritableParent);
     display.showCreateFile = display.showCreateFolder && fmIndex == FileManagerIndex.main;
-    display.showUpload = display.showCreateFile;
+    display.showUpload =
+      parentCap.enabled(NavigatorCapability.upload_file) &&
+      (parent.owned || publicWritableParent) &&
+      fmIndex == FileManagerIndex.main;
     if (display.showCreateFile) {
       const allViewers = Object.entries(ViewersByID);
       for (let i = 0; i < allViewers.length; i++) {
@@ -140,7 +146,25 @@ export const getActionOpt = (
   const parentUrl = new CrUri(targets?.[0]?.path ?? defaultPath);
   targets.forEach((target) => {
     let readable = true;
+    let bs: Boolset | undefined;
+    if (target.capability) {
+      bs = capabilityMap[target.capability];
+      if (!bs) {
+        bs = new Boolset(target.capability);
+        capabilityMap[target.capability] = bs;
+      }
+    }
+
     let updatable = target.owned && parentUrl.fs() != Filesystem.share;
+    if (parentUrl.fs() == Filesystem.public && bs) {
+      updatable =
+        bs.enabled(NavigatorCapability.upload_file) ||
+        bs.enabled(NavigatorCapability.create_file) ||
+        bs.enabled(NavigatorCapability.rename_file) ||
+        bs.enabled(NavigatorCapability.delete_file) ||
+        bs.enabled(NavigatorCapability.soft_delete) ||
+        bs.enabled(NavigatorCapability.update_metadata);
+    }
 
     if (display.allReadable && !readable) {
       display.allReadable = false;
@@ -177,13 +201,7 @@ export const getActionOpt = (
       display.hasOwned = true;
     }
 
-    if (target.capability) {
-      let bs = capabilityMap[target.capability];
-      if (!bs) {
-        bs = new Boolset(target.capability);
-        capabilityMap[target.capability] = bs;
-      }
-
+    if (bs) {
       if (!display.andCapability) {
         display.andCapability = bs;
       }
@@ -210,7 +228,7 @@ export const getActionOpt = (
     display.allUpdatable &&
     display.orCapability &&
     display.orCapability.enabled(NavigatorCapability.rename_file);
-  display.showCopy = display.hasUpdatable && !!display.orCapability;
+  display.showCopy = display.hasUpdatable && !!display.orCapability && parentUrl.fs() != Filesystem.public;
   display.showShare =
     targets.length == 1 &&
     !!currentUser &&
@@ -221,7 +239,7 @@ export const getActionOpt = (
     display.orCapability.enabled(NavigatorCapability.share) &&
     (!targets[0].metadata ||
       (!targets[0].metadata[Metadata.share_redirect] && !targets[0].metadata[Metadata.restore_uri]));
-  display.showMove = display.hasUpdatable && !!display.orCapability;
+  display.showMove = display.hasUpdatable && !!display.orCapability && parentUrl.fs() != Filesystem.public;
   display.showTags =
     display.hasUpdatable && display.orCapability && display.orCapability.enabled(NavigatorCapability.update_metadata);
   display.showChangeFolderColor =

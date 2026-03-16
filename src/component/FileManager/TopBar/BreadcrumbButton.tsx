@@ -17,6 +17,8 @@ import Delete from "../../Icons/Delete.tsx";
 import DeleteOutlined from "../../Icons/DeleteOutlined.tsx";
 import DocumentText from "../../Icons/DocumentText.tsx";
 import DocumentTextOutlined from "../../Icons/DocumentTextOutlined.tsx";
+import Folder from "../../Icons/Folder.tsx";
+import FolderOutlined from "../../Icons/FolderOutlined.tsx";
 import Home from "../../Icons/Home.tsx";
 import HomeOutlined from "../../Icons/HomeOutlined.tsx";
 import Image from "../../Icons/Image.tsx";
@@ -132,6 +134,8 @@ export const useBreadcrumbButtons = ({
           return t("navbar.myFiles");
         case Filesystem.trash:
           return t("navbar.trash");
+        case Filesystem.public:
+          return t("navbar.publicFiles");
         case Filesystem.shared_by_me:
           return t("navbar.myShare");
         case Filesystem.shared_with_me:
@@ -189,6 +193,8 @@ export const useBreadcrumbButtons = ({
           return { Icons: [Home, HomeOutlined] };
         case Filesystem.trash:
           return { Icons: [Delete, DeleteOutlined] };
+        case Filesystem.public:
+          return { Icons: [Folder, FolderOutlined] };
         case Filesystem.shared_with_me:
           return { Icons: [PeopleTeam, PeopleTeamOutlined] };
         case Filesystem.share:

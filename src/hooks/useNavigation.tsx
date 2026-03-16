@@ -13,6 +13,7 @@ import { Filesystem } from "../util/uri.ts";
 
 const pathQueryKey = "path";
 export const defaultPath = "cloudreve://my";
+export const defaultPublicPath = "cloudreve://public";
 export const defaultTrashPath = "cloudreve://trash";
 export const defaultSharedWithMePath = "cloudreve://" + Filesystem.shared_with_me;
 
