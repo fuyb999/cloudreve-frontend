@@ -55,7 +55,7 @@ export interface PrepareOIDCResponse {
   state: string;
 }
 
-// OIDC 回调页把 code/state 交给后端，由后端完成远端换票、影子用户同步和本地 token 签发。
+// OIDC 回调页把 code/state 交给后端，由后端完成远端换票、影子用户同步，并返回统一认证中心签发的 token。
 export interface OIDCExchangeRequest {
   code: string;
   state: string;
@@ -75,6 +75,7 @@ export interface Token {
   refresh_token: string;
   access_expires: string;
   refresh_expires: string;
+  id_token?: string;
 }
 
 export interface LoginResponse {
@@ -82,7 +83,7 @@ export interface LoginResponse {
   token: Token;
 }
 
-// 第一版统一认证成功后依旧返回 Cloudreve 本地 token，后续接口不需要每次远程校验。
+// 统一认证模式下返回的是 provider token；Cloudreve 会在服务端缓存校验结果并复用现有 Bearer 发送方式。
 export interface OIDCLoginResponse extends LoginResponse {
   redirect_to?: string;
 }
@@ -94,6 +95,13 @@ export interface TwoFALoginRequest {
 
 export interface RefreshTokenRequest {
   refresh_token: string;
+  id_token?: string;
+}
+
+export interface SignoutRequest {
+  refresh_token: string;
+  access_token?: string;
+  id_token?: string;
 }
 
 export interface Capacity {

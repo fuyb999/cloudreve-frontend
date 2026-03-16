@@ -107,6 +107,7 @@ import {
   RefreshTokenRequest,
   ResetPasswordService,
   SendResetEmailService,
+  SignoutRequest,
   SignUpService,
   Token,
   TwoFALoginRequest,
@@ -222,7 +223,7 @@ export function sendPrepareOIDCLogin(req: PrepareOIDCRequest): ThunkResponse<Pre
 
 export function sendOIDCExchange(req: OIDCExchangeRequest): ThunkResponse<OIDCLoginResponse> {
   return async (dispatch, _getState) => {
-    // 回调页用授权码换取 Cloudreve 本地会话，后续请求继续走现有 token 流程。
+    // 回调页用授权码换取统一认证 token，后续请求仍沿用现有 Bearer 发送方式。
     return await dispatch(
       send(
         "/session/oidc/exchange",
@@ -275,6 +276,7 @@ export function getUserMe(): ThunkResponse<User> {
 
 export function sendRefreshToken(req: RefreshTokenRequest): ThunkResponse<Token> {
   return async (dispatch, _getState) => {
+    // 透传当前 id_token，便于上游刷新接口未返回新 id_token 时继续保留登出所需的 hint。
     return await dispatch(
       send(
         "/session/token/refresh",
@@ -292,7 +294,7 @@ export function sendRefreshToken(req: RefreshTokenRequest): ThunkResponse<Token>
   };
 }
 
-export function sendSignout(req: RefreshTokenRequest): ThunkResponse<string> {
+export function sendSignout(req: SignoutRequest): ThunkResponse<string> {
   return async (dispatch, _getState) => {
     return await dispatch(
       send(

@@ -179,7 +179,12 @@ function getAccessToken(): AppThunk<Promise<string | undefined>> {
 function refreshToken(): AppThunk<Promise<string>> {
   return async (dispatch, _getState) => {
     const user = SessionManager.currentLogin();
-    const token = await dispatch(sendRefreshToken({ refresh_token: user.token.refresh_token }));
+    const token = await dispatch(
+      sendRefreshToken({
+        refresh_token: user.token.refresh_token,
+        id_token: user.token.id_token,
+      }),
+    );
     SessionManager.refreshToken(user.user.id, token);
     return token.access_token;
   };

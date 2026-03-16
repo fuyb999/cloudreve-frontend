@@ -258,6 +258,7 @@ export class Manager {
         refresh_token: "",
         access_expires: "",
         refresh_expires: "",
+        id_token: "",
       };
     }
 

@@ -22,7 +22,7 @@ const OIDCCallback = () => {
       return;
     }
 
-    // 前端回调页不直接信任第三方返回结果，只把 code/state 交回后端换取本地会话。
+    // 前端回调页不直接信任第三方返回结果，只把 code/state 交回后端换取统一认证 token。
     dispatch(sendOIDCExchange({ code, state }))
       .then((response) => {
         dispatch(

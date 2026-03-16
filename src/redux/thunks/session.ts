@@ -69,14 +69,24 @@ export function signout(): AppThunk<void> {
       return;
     }
 
-    await longRunningTaskWithSnackbar(
-      dispatch(sendSignout({ refresh_token: current.token.refresh_token })),
+    const redirectURL = await longRunningTaskWithSnackbar(
+      dispatch(
+        sendSignout({
+          refresh_token: current.token.refresh_token,
+          access_token: current.token.access_token,
+          id_token: current.token.id_token,
+        }),
+      ),
       "application:login.signingOut",
     );
 
-    router.navigate("/session");
     dispatch(closeMusicPlayer());
     SessionManager.signOutCurrent();
+    if (redirectURL) {
+      window.location.assign(redirectURL);
+      return;
+    }
+    router.navigate("/session");
   };
 }
 
