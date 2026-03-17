@@ -192,7 +192,7 @@
     "unifiedAuthAutoRedirect": "自动跳转到统一认证",
     "unifiedAuthAutoRedirectDes": "用户打开登录页后自动跳转到统一认证入口，不再停留在 Cloudreve 本地登录页。",
     "oidcSsoUrl": "SSO 登录入口 URL",
-    "oidcSsoUrlDes": "Yudao 前端单点登录页面地址，通常为 /sso；留空时会尝试根据 Issuer 自动拼接。",
+    "oidcSsoUrlDes": "Yudao 前端单点登录页面地址，通常为 /sso；如果当前是前后端分离开发环境，请填写真实前端地址，例如 http://localhost:5173/sso。留空时会尝试根据 Issuer 自动拼接。",
     "unifiedAuthScopeDes": "建议至少包含 openid、user_info、user.read，以便 Cloudreve 拉取用户身份并建立本地会话。",
     "oidcCallbackUrl": "Cloudreve 回调地址",
     "oidcCallbackUrlDes": "请将此地址加入 Yudao OAuth2 客户端的回调地址白名单。",

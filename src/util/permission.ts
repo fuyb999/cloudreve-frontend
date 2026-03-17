@@ -6,14 +6,21 @@ export function canCopyMoveTo(files: FileResponse[], dst: string, isCopy: boolea
   const dstUri = new CrUri(dst);
   const srcUri = new CrUri(files[0].path);
   if (isCopy) {
-    return srcUri.fs() == dstUri.fs() && srcUri.fs() == Filesystem.my;
-  } else {
     switch (srcUri.fs()) {
       case Filesystem.my:
-        return dstUri.fs() == Filesystem.my || dstUri.fs() == Filesystem.trash;
-      case Filesystem.trash:
-        return dstUri.fs() == Filesystem.my;
+      case Filesystem.public:
+        return dstUri.fs() == Filesystem.my || dstUri.fs() == Filesystem.public;
     }
+    return false;
+  }
+
+  switch (srcUri.fs()) {
+    case Filesystem.my:
+      return dstUri.fs() == Filesystem.my || dstUri.fs() == Filesystem.trash || dstUri.fs() == Filesystem.public;
+    case Filesystem.trash:
+      return dstUri.fs() == Filesystem.my;
+    case Filesystem.public:
+      return dstUri.fs() == Filesystem.public;
   }
 
   return false;

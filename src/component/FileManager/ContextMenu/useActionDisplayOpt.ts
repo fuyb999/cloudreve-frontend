@@ -144,8 +144,9 @@ export const getActionOpt = (
   }
 
   const parentUrl = new CrUri(targets?.[0]?.path ?? defaultPath);
+  const publicContext = parentUrl.fs() == Filesystem.public;
   targets.forEach((target) => {
-    let readable = true;
+    const readable = true;
     let bs: Boolset | undefined;
     if (target.capability) {
       bs = capabilityMap[target.capability];
@@ -156,7 +157,7 @@ export const getActionOpt = (
     }
 
     let updatable = target.owned && parentUrl.fs() != Filesystem.share;
-    if (parentUrl.fs() == Filesystem.public && bs) {
+    if (publicContext && bs) {
       updatable =
         bs.enabled(NavigatorCapability.upload_file) ||
         bs.enabled(NavigatorCapability.create_file) ||
@@ -228,18 +229,20 @@ export const getActionOpt = (
     display.allUpdatable &&
     display.orCapability &&
     display.orCapability.enabled(NavigatorCapability.rename_file);
-  display.showCopy = display.hasUpdatable && !!display.orCapability && parentUrl.fs() != Filesystem.public;
+  display.showCopy =
+    display.hasReadable && !!display.orCapability && display.orCapability.enabled(NavigatorCapability.copy_file);
   display.showShare =
     targets.length == 1 &&
     !!currentUser &&
-    groupBs.enabled(GroupPermission.share) &&
-    display.allUpdatable &&
-    (targets[0].owned || groupBs.enabled(GroupPermission.is_admin)) &&
+    (publicContext || groupBs.enabled(GroupPermission.share)) &&
+    display.hasReadable &&
+    (publicContext || targets[0].owned || groupBs.enabled(GroupPermission.is_admin)) &&
     display.orCapability &&
     display.orCapability.enabled(NavigatorCapability.share) &&
     (!targets[0].metadata ||
       (!targets[0].metadata[Metadata.share_redirect] && !targets[0].metadata[Metadata.restore_uri]));
-  display.showMove = display.hasUpdatable && !!display.orCapability && parentUrl.fs() != Filesystem.public;
+  display.showMove =
+    display.hasReadable && !!display.orCapability && display.orCapability.enabled(NavigatorCapability.move_file);
   display.showTags =
     display.hasUpdatable && display.orCapability && display.orCapability.enabled(NavigatorCapability.update_metadata);
   display.showChangeFolderColor =
@@ -250,13 +253,19 @@ export const getActionOpt = (
   display.showChangeIcon =
     display.hasUpdatable && display.orCapability && display.orCapability.enabled(NavigatorCapability.update_metadata);
   display.showCustomProps = display.showChangeIcon;
+  // “下载”只面向文件本体；文件夹统一走“创建压缩包”，避免在前端暴露错误的直接下载入口。
   display.showDownload =
-    display.hasReadable && display.orCapability && display.orCapability.enabled(NavigatorCapability.download_file);
+    display.hasReadable &&
+    !!display.hasFile &&
+    !display.hasFolder &&
+    display.orCapability &&
+    display.orCapability.enabled(NavigatorCapability.download_file);
   display.showDirectLink =
-    (display.hasOwned || groupBs.enabled(GroupPermission.is_admin)) &&
+    display.hasReadable &&
     display.orCapability &&
     (currentUserAnonymous?.group?.direct_link_batch_size ?? 0) >= targets.length &&
-    display.orCapability.enabled(NavigatorCapability.download_file);
+    display.orCapability.enabled(NavigatorCapability.direct_link) &&
+    (publicContext || display.hasOwned || groupBs.enabled(GroupPermission.is_admin));
   display.showDirectLinkManagement = display.showDirectLink && targets.length == 1 && display.hasFile;
   display.showOpen =
     targets.length == 1 &&
@@ -307,14 +316,14 @@ export const getActionOpt = (
     targets[0].shared &&
     display.orCapability &&
     !!currentUser &&
-    groupBs.enabled(GroupPermission.share) &&
+    (publicContext || groupBs.enabled(GroupPermission.share)) &&
     display.orCapability.enabled(NavigatorCapability.share);
   display.showCreateArchive =
     display.hasReadable &&
     !!currentUser &&
-    groupBs.enabled(GroupPermission.archive_task) &&
+    (publicContext || groupBs.enabled(GroupPermission.archive_task)) &&
     display.orCapability &&
-    display.orCapability.enabled(NavigatorCapability.download_file);
+    display.orCapability.enabled(NavigatorCapability.create_archive);
   display.showResetThumb =
     display.hasFile &&
     !display.hasFolder &&

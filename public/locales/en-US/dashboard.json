@@ -192,7 +192,7 @@
     "unifiedAuthAutoRedirect": "Auto redirect to unified auth",
     "unifiedAuthAutoRedirectDes": "Redirect users to the unified-auth entry automatically when they open the login page.",
     "oidcSsoUrl": "SSO Entry URL",
-    "oidcSsoUrlDes": "The Yudao frontend SSO page, usually /sso. Leave empty to derive it from the issuer.",
+    "oidcSsoUrlDes": "The Yudao frontend SSO page, usually /sso. In a split frontend/backend dev setup, fill the real frontend URL such as http://localhost:5173/sso. Leave empty to derive it from the issuer.",
     "unifiedAuthScopeDes": "It should include at least openid, user_info, and user.read so Cloudreve can fetch identity details and issue a local session.",
     "oidcCallbackUrl": "Cloudreve Callback URL",
     "oidcCallbackUrlDes": "Add this URL to the redirect URI allowlist of the Yudao OAuth2 client.",

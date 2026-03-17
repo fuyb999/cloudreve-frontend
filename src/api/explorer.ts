@@ -265,6 +265,10 @@ export interface RenameFileService {
 export const NavigatorCapability = {
   create_file: 0,
   rename_file: 1,
+  copy_file: 2,
+  move_file: 3,
+  direct_link: 4,
+  create_archive: 5,
   upload_file: 6,
   download_file: 7,
   update_metadata: 8,
@@ -278,6 +282,7 @@ export const NavigatorCapability = {
   info: 19,
   version_control: 20,
   enter_folder: 23,
+  modify_props: 24,
 };
 
 export interface PinFileService {

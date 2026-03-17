@@ -56,13 +56,9 @@ const FileList = ({ file }: { file: FileResponse }) => {
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
   const isTouch = useMediaQuery("(pointer: coarse)");
 
-  const { uploading, noThumb, fileTag, isSelected, thumbWidth, thumbHeight } = useFileBlockState({
+  const { noThumb, fileTag, thumbWidth, thumbHeight } = useFileBlockState({
     file,
   });
-
-  const user = useMemo(() => {
-    return SessionManager.currentLoginOrNull();
-  }, []);
 
   const popupState = usePopupState({
     variant: "popover",
@@ -116,7 +112,7 @@ const FileList = ({ file }: { file: FileResponse }) => {
     </>
   );
 };
-const SingleFileView = forwardRef((_props, ref: React.Ref<any>) => {
+const SingleFileView = forwardRef<HTMLDivElement>((_props, ref) => {
   const { t } = useTranslation();
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
@@ -134,7 +130,7 @@ const SingleFileView = forwardRef((_props, ref: React.Ref<any>) => {
         .then((info) => {
           setShareInfo(info);
         })
-        .catch((_e) => {
+        .catch(() => {
           setShareInfo(null);
         })
         .finally(() => {
@@ -146,7 +142,7 @@ const SingleFileView = forwardRef((_props, ref: React.Ref<any>) => {
   }, [file]);
 
   const openMore = useCallback(
-    (e: React.MouseEvent<any>) => {
+    (e: React.MouseEvent<HTMLElement>) => {
       if (file) {
         dispatch(openFileContextMenu(fmIndex, file, true, e));
       }
@@ -192,6 +188,7 @@ const SingleFileView = forwardRef((_props, ref: React.Ref<any>) => {
                   i18nKey="application:share.sharedBy"
                   components={[
                     <Link
+                      key="owner-link"
                       underline="hover"
                       color="inherit"
                       component={RouterLink}
@@ -261,14 +258,16 @@ const SingleFileView = forwardRef((_props, ref: React.Ref<any>) => {
                     {t("application:fileManager.open")}
                   </SecondaryButton>
                 )}
-                <ButtonGroup disableElevation variant="contained">
-                  <Button onClick={download} disabled={loading} startIcon={<Download />}>
-                    {t("application:fileManager.download")}
-                  </Button>
-                  <Button size="small" onClick={openMore}>
-                    <CaretDown sx={{ fontSize: "12px!important" }} />
-                  </Button>
-                </ButtonGroup>
+                {displayOpt.showDownload && (
+                  <ButtonGroup disableElevation variant="contained">
+                    <Button onClick={download} disabled={loading} startIcon={<Download />}>
+                      {t("application:fileManager.download")}
+                    </Button>
+                    <Button size="small" onClick={openMore}>
+                      <CaretDown sx={{ fontSize: "12px!important" }} />
+                    </Button>
+                  </ButtonGroup>
+                )}
               </Box>
             </Box>
           </ShareContainer>
@@ -277,5 +276,7 @@ const SingleFileView = forwardRef((_props, ref: React.Ref<any>) => {
     </Stack>
   );
 });
+
+SingleFileView.displayName = "SingleFileView";
 
 export default SingleFileView;
