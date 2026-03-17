@@ -1,3 +1,4 @@
+import dayjs from "dayjs";
 import { ArrowBackIos } from "@mui/icons-material";
 import { LoadingButton } from "@mui/lab";
 import { Box, Button, Typography } from "@mui/material";
@@ -73,6 +74,21 @@ export interface SignInProps {
   oauthConsent?: OAuthConsentProps;
 }
 
+function isReusableOAuthSession(session: Session | null): boolean {
+  if (!session || session.signedOut) {
+    return false;
+  }
+
+  // OAuth 授权页只在本地 refresh token 仍可用时复用 Cloudreve 会话，
+  // 避免拿着一个已经失效的缓存会话继续走 consent，导致页面再次进入异常跳转。
+  const refreshExpires = session.token.refresh_expires;
+  if (!refreshExpires) {
+    return false;
+  }
+
+  return dayjs(refreshExpires).isAfter(dayjs().add(10, "minute"));
+}
+
 const EmailLogin = ({ oauthConsent }: SignInProps) => {
   const { t } = useTranslation();
   const dispatch = useAppDispatch();
@@ -116,7 +132,11 @@ const EmailLogin = ({ oauthConsent }: SignInProps) => {
       dispatch(setOAuthApp(registration));
       return registration;
     } catch (e) {
-      setOauthError(t("oauth.appNotFound"));
+      // 授权页上的本地会话如果刚好失效，请求层会自动清理会话并跳回登录页，
+      // 这里不再把它误提示成“应用不存在”。
+      if (!(e instanceof AppError) || (e.code !== Code.CodeLoginRequired && e.code !== Code.CredentialInvalid)) {
+        setOauthError(e instanceof AppError ? e.message : t("oauth.appNotFound"));
+      }
       dispatch(setOAuthAppLoading(false));
       return null;
     }
@@ -581,12 +601,21 @@ const SignIn = ({ oauthConsent }: SignInProps) => {
   const { t } = useTranslation();
   const isOAuthFlow = !!oauthConsent;
   const oidcEnabled = useAppSelector((state) => state.siteConfig.login.config.oidc_enabled);
+  const hasLocalSession = isReusableOAuthSession(SessionManager.currentLoginOrNull());
+  // OAuth 授权页要区分两类场景：
+  // 1. 已有 Cloudreve 本地会话：直接进入 consent/code 流程，不能再次跳 Yudao，否则会形成 authorize -> OIDC -> authorize 的循环。
+  // 2. 没有本地会话：才需要先走统一认证，把外部身份落成 Cloudreve 本地会话。
+  const shouldReuseOAuthSession = oidcEnabled && isOAuthFlow && hasLocalSession;
 
   return (
     <Box>
       <PageTitle title={isOAuthFlow ? t("oauth.authorize") : t("login.signIn")} />
       {/* 开关关闭时继续走原有邮箱/密码/Passkey 流程，保证回退成本最低。 */}
-      {oidcEnabled ? <OIDCLogin oauthConsent={oauthConsent} /> : <EmailLogin oauthConsent={oauthConsent} />}
+      {!oidcEnabled || shouldReuseOAuthSession ? (
+        <EmailLogin oauthConsent={oauthConsent} />
+      ) : (
+        <OIDCLogin oauthConsent={oauthConsent} />
+      )}
     </Box>
   );
 };
