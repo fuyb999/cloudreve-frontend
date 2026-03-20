@@ -8,7 +8,6 @@ import ResponsiveTabs, { Tab } from "../../Common/ResponsiveTabs.tsx";
 import Bot from "../../Icons/Bot.tsx";
 import Color from "../../Icons/Color.tsx";
 import CubeSync from "../../Icons/CubeSync.tsx";
-import Currency from "../../Icons/Currency.tsx";
 import FilmstripImage from "../../Icons/FilmstripImage.tsx";
 import Globe from "../../Icons/Globe.tsx";
 import MailOutlined from "../../Icons/MailOutlined.tsx";
@@ -27,7 +26,6 @@ import ServerSetting from "./Server/ServerSetting.tsx";
 import SettingsWrapper from "./SettingWrapper.tsx";
 import SiteInformation from "./SiteInformation/SiteInformation.tsx";
 import UserSession from "./UserSession/UserSession.tsx";
-import VAS from "./VAS/VAS.tsx";
 
 export const StyledInputAdornment = styled(InputAdornment)(({ theme }) => ({
   fontSize: theme.typography.body2.fontSize,
@@ -71,7 +69,6 @@ export enum SettingsPageTab {
   Captcha = "captcha",
   FileSystem = "fileSystem",
   MediaProcessing = "mediaProcessing",
-  VAS = "vas",
   Email = "email",
   Queue = "queue",
   Appearance = "appearance",
@@ -108,11 +105,6 @@ const Settings = () => {
           icon: <FilmstripImage />,
         },
         {
-          label: t("vas.vas"),
-          value: SettingsPageTab.VAS,
-          icon: <Currency />,
-        },
-        {
           label: t("nav.email"),
           value: SettingsPageTab.Email,
           icon: <MailOutlined />,
@@ -142,23 +134,21 @@ const Settings = () => {
     return res;
   }, [t]);
 
+  const activeTab = tabs.some((item) => item.value === tab) ? tab : SettingsPageTab.SiteInformation;
+
   return (
     <PageContainer>
       <Container maxWidth="xl">
         <PageHeader title={t("dashboard:nav.settings")} />
-        <ResponsiveTabs
-          value={tab ?? SettingsPageTab.SiteInformation}
-          onChange={(_e, newValue) => setTab(newValue)}
-          tabs={tabs}
-        />
+        <ResponsiveTabs value={activeTab} onChange={(_e, newValue) => setTab(newValue)} tabs={tabs} />
         <SwitchTransition>
           <CSSTransition
             addEndListener={(node, done) => node.addEventListener("transitionend", done, false)}
             classNames="fade"
-            key={`${tab}`}
+            key={`${activeTab}`}
           >
             <Box>
-              {(!tab || tab === SettingsPageTab.SiteInformation) && (
+              {activeTab === SettingsPageTab.SiteInformation && (
                 <SettingsWrapper
                   settings={[
                     "siteName",
@@ -182,7 +172,7 @@ const Settings = () => {
                   <SiteInformation />
                 </SettingsWrapper>
               )}
-              {tab === SettingsPageTab.UserSession && (
+              {activeTab === SettingsPageTab.UserSession && (
                 <SettingsWrapper
                   settings={[
                     "register_enabled",
@@ -206,7 +196,7 @@ const Settings = () => {
                   <UserSession />
                 </SettingsWrapper>
               )}
-              {tab === SettingsPageTab.Captcha && (
+              {activeTab === SettingsPageTab.Captcha && (
                 <SettingsWrapper
                   settings={[
                     "login_captcha",
@@ -235,7 +225,7 @@ const Settings = () => {
                   <Captcha />
                 </SettingsWrapper>
               )}
-              {tab === SettingsPageTab.MediaProcessing && (
+              {activeTab === SettingsPageTab.MediaProcessing && (
                 <SettingsWrapper
                   settings={[
                     "thumb_width",
@@ -285,12 +275,7 @@ const Settings = () => {
                   <Media />
                 </SettingsWrapper>
               )}
-              {tab === SettingsPageTab.VAS && (
-                <SettingsWrapper settings={[]}>
-                  <VAS />
-                </SettingsWrapper>
-              )}
-              {tab === SettingsPageTab.Email && (
+              {activeTab === SettingsPageTab.Email && (
                 <SettingsWrapper
                   settings={[
                     "mail_keepalive",
@@ -309,12 +294,12 @@ const Settings = () => {
                   <Email />
                 </SettingsWrapper>
               )}
-              {tab === SettingsPageTab.Queue && (
+              {activeTab === SettingsPageTab.Queue && (
                 <SettingsWrapper settings={allQueueSettings}>
                   <Queue />
                 </SettingsWrapper>
               )}
-              {tab === SettingsPageTab.Appearance && (
+              {activeTab === SettingsPageTab.Appearance && (
                 <SettingsWrapper
                   settings={[
                     "theme_options",
@@ -328,12 +313,12 @@ const Settings = () => {
                   <Appearance />
                 </SettingsWrapper>
               )}
-              {tab === SettingsPageTab.Events && (
+              {activeTab === SettingsPageTab.Events && (
                 <SettingsWrapper settings={["audit_log_enabled_types"]}>
                   <Events />
                 </SettingsWrapper>
               )}
-              {tab === SettingsPageTab.Server && (
+              {activeTab === SettingsPageTab.Server && (
                 <SettingsWrapper
                   settings={[
                     "temp_path",

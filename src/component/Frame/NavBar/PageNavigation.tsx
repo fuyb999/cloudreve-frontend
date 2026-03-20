@@ -22,8 +22,6 @@ import DataHistogramFilled from "../../Icons/DataHistogramFilled.tsx";
 import Folder from "../../Icons/Folder.tsx";
 import FolderOutlined from "../../Icons/FolderOutlined.tsx";
 import HomeOutlined from "../../Icons/HomeOutlined.tsx";
-import Payment from "../../Icons/Payment.tsx";
-import PaymentFilled from "../../Icons/PaymentFilled.tsx";
 import People from "../../Icons/People.tsx";
 import PeopleFilled from "../../Icons/PeopleFilled.tsx";
 import Person from "../../Icons/Person.tsx";
@@ -42,10 +40,7 @@ import ShieldLock from "../../Icons/ShieldLock.tsx";
 import ShieldLockFilled from "../../Icons/ShieldLockFilled.tsx";
 import Storage from "../../Icons/Storage.tsx";
 import StorageOutlined from "../../Icons/StorageOutlined.tsx";
-import Warning from "../../Icons/Warning.tsx";
-import WarningOutlined from "../../Icons/WarningOutlined.tsx";
 import WrenchSettings from "../../Icons/WrenchSettings.tsx";
-import { ProChip } from "../../Pages/Setting/SettingForm.tsx";
 import NavIconTransition from "./NavIconTransition.tsx";
 import SideNavItem from "./SideNavItem.tsx";
 
@@ -101,24 +96,7 @@ export const SideNavItemComponent = ({ item }: { item: NavigationItem }) => {
         onClick={() =>
           item.pro ? setProOpen(true) : item.iconifyName ? window.open(item.path, "_blank") : navigate(item.path)
         }
-        label={
-          item.pro ? (
-            <Box sx={{ display: "flex", alignItems: "center" }}>
-              {t(item.label)}
-              <ProChip
-                sx={{
-                  height: "16px",
-                  fontSize: (t) => t.typography.caption.fontSize,
-                }}
-                label="Pro"
-                color="primary"
-                size="small"
-              />
-            </Box>
-          ) : (
-            t(item.label)
-          )
-        }
+        label={t(item.label)}
         active={active}
         icon={
           !item.icon ? (
@@ -208,21 +186,9 @@ AdminNavigationItems = [
     path: "/admin/task",
   },
   {
-    label: "dashboard:vas.orders",
-    icon: [PaymentFilled, Payment],
-    path: "/admin/payment",
-    pro: true,
-  },
-  {
     label: "dashboard:nav.events",
     icon: [SendLoggingFilled, SendLogging],
     path: "/admin/event",
-  },
-  {
-    label: "dashboard:nav.abuseReport",
-    icon: [Warning, WarningOutlined],
-    path: "/admin/abuse",
-    pro: true,
   },
   {
     label: "dashboard:nav.oauthClients",
@@ -252,7 +218,6 @@ export const AdminPageNavigation = memo(() => {
 });
 
 const PageNavigation = () => {
-  const shopNavEnabled = useAppSelector((state) => state.siteConfig.basic.config.shop_nav_enabled);
   const user = SessionManager.currentLoginOrNull();
   const isAdmin = useMemo(() => {
     return GroupBS(user?.user).enabled(GroupPermission.is_admin);

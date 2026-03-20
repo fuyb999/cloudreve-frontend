@@ -15,11 +15,31 @@ i18n
   .use(LanguageDetector)
   .use(initReactI18next)
   .init({
-    fallbackLng: "en-US",
+    lng: "zh-CN",
+    fallbackLng: "zh-CN",
+    supportedLngs: [
+      "zh-CN",
+      "zh-TW",
+      "en-US",
+      "ja-JP",
+      "ru-RU",
+      "de-DE",
+      "fr-FR",
+      "es-ES",
+      "pt-BR",
+      "it-IT",
+      "ko-KR",
+      "pl-PL",
+    ],
     debug: true,
     ns: ["common", "application", "dashboard"],
     load: "currentOnly",
     defaultNS: "application",
+    detection: {
+      order: ["localStorage"],
+      lookupLocalStorage: "i18nextLng",
+      caches: ["localStorage"],
+    },
     interpolation: {
       escapeValue: false,
     },
