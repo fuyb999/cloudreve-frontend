@@ -996,6 +996,8 @@
     "syncthingUnbound": "Unbound",
     "syncthingUnbind": "Unbind",
     "syncthingUnbindConfirm": "Unbind device {{device}}? After that, a new client from the same IP will automatically inherit the latest reported configuration.",
+    "syncthingDelete": "Delete Device",
+    "syncthingDeleteConfirm": "Delete device {{device}} permanently? This removes its binding record and preserved configuration snapshot, and the client must sign in and register again.",
     "syncthingRestoreHint": "This device is already unbound. A new client registering from the same IP will automatically restore the latest preserved configuration snapshot.",
     "syncthingBindURI": "Bound URI",
     "syncthingIP": "Last IP",

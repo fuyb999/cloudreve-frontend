@@ -1,12 +1,13 @@
 import { Alert, Box, Button, Card, CardContent, Chip, Grid, Skeleton, Stack, Typography } from "@mui/material";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { getSyncthingDevices, sendUnbindSyncthingDevice } from "../../../api/api.ts";
+import { getSyncthingDevices, sendDeleteSyncthingDevice, sendUnbindSyncthingDevice } from "../../../api/api.ts";
 import { SyncthingDevice } from "../../../api/setting.ts";
 import { useAppDispatch, useAppSelector } from "../../../redux/hooks.ts";
 import { confirmOperation } from "../../../redux/thunks/dialog.ts";
 import TimeBadge from "../../Common/TimeBadge.tsx";
 import ArrowClockwiseFilled from "../../Icons/ArrowClockwiseFilled.tsx";
+import DeleteOutlined from "../../Icons/DeleteOutlined.tsx";
 import Download from "../../Icons/Download.tsx";
 
 const SyncthingClient = () => {
@@ -24,6 +25,7 @@ const SyncthingClient = () => {
   const [devices, setDevices] = useState<SyncthingDevice[]>([]);
   const [loading, setLoading] = useState(false);
   const [unbindingDeviceID, setUnbindingDeviceID] = useState("");
+  const [deletingDeviceID, setDeletingDeviceID] = useState("");
 
   const currentPlatform = useMemo(() => {
     if (typeof navigator === "undefined") {
@@ -63,6 +65,24 @@ const SyncthingClient = () => {
           })
           .finally(() => {
             setUnbindingDeviceID("");
+          });
+      });
+    },
+    [dispatch, loadDevices, t],
+  );
+
+  const deleteDevice = useCallback(
+    (device: SyncthingDevice) => {
+      dispatch(
+        confirmOperation(t("setting.syncthingDeleteConfirm", { device: device.short_id || device.device_id })),
+      ).then(() => {
+        setDeletingDeviceID(device.device_id);
+        dispatch(sendDeleteSyncthingDevice(device.device_id))
+          .then(() => {
+            loadDevices();
+          })
+          .finally(() => {
+            setDeletingDeviceID("");
           });
       });
     },
@@ -234,9 +254,23 @@ const SyncthingClient = () => {
                       color="warning"
                       variant="outlined"
                       onClick={() => unbindDevice(device)}
-                      disabled={!device.is_bound || unbindingDeviceID === device.device_id}
+                      disabled={
+                        !device.is_bound ||
+                        unbindingDeviceID === device.device_id ||
+                        deletingDeviceID === device.device_id
+                      }
                     >
                       {t("setting.syncthingUnbind")}
+                    </Button>
+                    <Button
+                      size="small"
+                      color="error"
+                      variant="outlined"
+                      startIcon={<DeleteOutlined />}
+                      onClick={() => deleteDevice(device)}
+                      disabled={deletingDeviceID === device.device_id || unbindingDeviceID === device.device_id}
+                    >
+                      {t("setting.syncthingDelete")}
                     </Button>
                   </Stack>
                 </Box>

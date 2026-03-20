@@ -996,6 +996,8 @@
     "syncthingUnbound": "已解绑",
     "syncthingUnbind": "解除绑定",
     "syncthingUnbindConfirm": "确认解除设备 {{device}} 的绑定吗？解绑后，同 IP 的新客户端重新注册时会自动继承最近一次上报的配置。",
+    "syncthingDelete": "删除设备",
+    "syncthingDeleteConfirm": "确认永久删除设备 {{device}} 吗？删除后会移除该设备的绑定记录和配置快照，客户端需要重新登录并重新注册。",
     "syncthingRestoreHint": "当前设备已解绑。来自相同 IP 的新客户端完成注册后，会自动恢复这里保留的最近一次配置快照。",
     "syncthingBindURI": "绑定目录 URI",
     "syncthingIP": "最近 IP",
