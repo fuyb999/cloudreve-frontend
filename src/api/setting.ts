@@ -31,6 +31,7 @@ export interface SyncthingDevice {
   last_seen_at?: string;
   last_sync_at?: string;
   online: boolean;
+  is_bound: boolean;
 }
 
 export interface ListSyncthingDevicesResponse {

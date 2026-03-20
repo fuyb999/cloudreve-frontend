@@ -40,9 +40,7 @@ import PhaseConsent from "../Phases/PhaseConsent.tsx";
 import PhaseForgetPassword from "../Phases/PhaseForgetPassword.tsx";
 import PhaseSignupNeeded from "../Phases/PhaseSignupNeeded.tsx";
 import "../SideTransition.css";
-
-// Local storage key for OAuth redirect
-export const OAUTH_REDIRECT_KEY = "oauth_redirect_url";
+import { clearPersistedOAuthConsent, OAuthConsentProps, persistOAuthConsent } from "./oauthConsent.ts";
 
 enum EmailLoginPhase {
   CollectEmail,
@@ -64,16 +62,6 @@ interface phaseSetting {
   showBackButton: boolean;
   previous?: EmailLoginPhase;
   control?: Control;
-}
-
-export interface OAuthConsentProps {
-  clientId: string;
-  responseType: string;
-  redirectUri: string;
-  state: string;
-  scope: string;
-  codeChallenge?: string;
-  codeChallengeMethod?: string;
 }
 
 export interface SignInProps {
@@ -167,7 +155,7 @@ const EmailLogin = ({ oauthConsent }: SignInProps) => {
 
       // Clear OAuth state before redirecting
       dispatch(clearOAuthApp());
-      localStorage.removeItem(OAUTH_REDIRECT_KEY);
+      clearPersistedOAuthConsent();
 
       // Redirect to the app with the authorization code
       // Handle both absolute URLs and relative paths
@@ -600,6 +588,9 @@ const OIDCLogin = ({ oauthConsent }: SignInProps) => {
       setLoading(true);
       setManualHold(false);
       setError(null);
+      if (oauthConsent) {
+        persistOAuthConsent(oauthConsent);
+      }
       clearOIDCAuthFlowState();
       reloadAuthFlowState();
       // 先向后端申请 state 和重定向地址，避免前端自行拼接造成配置分叉。

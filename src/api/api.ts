@@ -1076,6 +1076,22 @@ export function getSyncthingDevices(): ThunkResponse<ListSyncthingDevicesRespons
   };
 }
 
+export function sendUnbindSyncthingDevice(deviceID: string): ThunkResponse {
+  return async (dispatch, _getState) => {
+    return await dispatch(
+      send(
+        `/devices/syncthing/${encodeURIComponent(deviceID)}`,
+        {
+          method: "DELETE",
+        },
+        {
+          ...defaultOpts,
+        },
+      ),
+    );
+  };
+}
+
 export function getFileDirectLinks(req: MultipleUriService): ThunkResponse<DirectLink[]> {
   return async (dispatch, _getState) => {
     return await dispatch(

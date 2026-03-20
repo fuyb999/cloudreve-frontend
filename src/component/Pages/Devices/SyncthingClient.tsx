@@ -1,9 +1,10 @@
 import { Alert, Box, Button, Card, CardContent, Chip, Grid, Skeleton, Stack, Typography } from "@mui/material";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { getSyncthingDevices } from "../../../api/api.ts";
+import { getSyncthingDevices, sendUnbindSyncthingDevice } from "../../../api/api.ts";
 import { SyncthingDevice } from "../../../api/setting.ts";
 import { useAppDispatch, useAppSelector } from "../../../redux/hooks.ts";
+import { confirmOperation } from "../../../redux/thunks/dialog.ts";
 import TimeBadge from "../../Common/TimeBadge.tsx";
 import ArrowClockwiseFilled from "../../Icons/ArrowClockwiseFilled.tsx";
 import Download from "../../Icons/Download.tsx";
@@ -22,6 +23,7 @@ const SyncthingClient = () => {
     "";
   const [devices, setDevices] = useState<SyncthingDevice[]>([]);
   const [loading, setLoading] = useState(false);
+  const [unbindingDeviceID, setUnbindingDeviceID] = useState("");
 
   const currentPlatform = useMemo(() => {
     if (typeof navigator === "undefined") {
@@ -48,6 +50,24 @@ const SyncthingClient = () => {
         setLoading(false);
       });
   }, [dispatch]);
+
+  const unbindDevice = useCallback(
+    (device: SyncthingDevice) => {
+      dispatch(
+        confirmOperation(t("setting.syncthingUnbindConfirm", { device: device.short_id || device.device_id })),
+      ).then(() => {
+        setUnbindingDeviceID(device.device_id);
+        dispatch(sendUnbindSyncthingDevice(device.device_id))
+          .then(() => {
+            loadDevices();
+          })
+          .finally(() => {
+            setUnbindingDeviceID("");
+          });
+      });
+    },
+    [dispatch, loadDevices, t],
+  );
 
   useEffect(() => {
     loadDevices();
@@ -116,6 +136,9 @@ const SyncthingClient = () => {
             </Stack>
             <Alert severity="info" sx={{ mb: 2 }}>
               {t("setting.syncthingDownloadHint")}
+            </Alert>
+            <Alert severity="warning" sx={{ mb: 2 }}>
+              {t("setting.syncthingBindingHint")}
             </Alert>
             <Box
               color="text.secondary"
@@ -195,12 +218,33 @@ const SyncthingClient = () => {
                       {device.device_id}
                     </Typography>
                   </Box>
-                  <Chip
-                    color={device.online ? "success" : "default"}
-                    label={device.online ? t("setting.syncthingOnline") : t("setting.syncthingOffline")}
-                    size="small"
-                  />
+                  <Stack direction="row" spacing={1} alignItems="center" flexWrap="wrap" useFlexGap>
+                    <Chip
+                      color={device.online ? "success" : "default"}
+                      label={device.online ? t("setting.syncthingOnline") : t("setting.syncthingOffline")}
+                      size="small"
+                    />
+                    <Chip
+                      color={device.is_bound ? "primary" : "warning"}
+                      label={device.is_bound ? t("setting.syncthingBound") : t("setting.syncthingUnbound")}
+                      size="small"
+                    />
+                    <Button
+                      size="small"
+                      color="warning"
+                      variant="outlined"
+                      onClick={() => unbindDevice(device)}
+                      disabled={!device.is_bound || unbindingDeviceID === device.device_id}
+                    >
+                      {t("setting.syncthingUnbind")}
+                    </Button>
+                  </Stack>
                 </Box>
+                {!device.is_bound && (
+                  <Alert severity="info" sx={{ mb: 1.5 }}>
+                    {t("setting.syncthingRestoreHint")}
+                  </Alert>
+                )}
                 <Grid container spacing={1.5}>
                   <Grid item xs={12} sm={6}>
                     <Typography variant="caption" color="text.secondary">
