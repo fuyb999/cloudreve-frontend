@@ -8,6 +8,8 @@ import SettingForm from "../../Pages/Setting/SettingForm";
 import GroupSelectionInput from "../Common/GroupSelectionInput";
 
 export interface UserFilterPopoverProps extends PopoverProps {
+  username: string;
+  setUsername: (username: string) => void;
   email: string;
   setEmail: (email: string) => void;
   nick: string;
@@ -20,6 +22,8 @@ export interface UserFilterPopoverProps extends PopoverProps {
 }
 
 const UserFilterPopover = ({
+  username,
+  setUsername,
   email,
   setEmail,
   nick,
@@ -36,6 +40,7 @@ const UserFilterPopover = ({
   const { t } = useTranslation("dashboard");
 
   // Create local state to track changes before applying
+  const [localUsername, setLocalUsername] = useState(username);
   const [localEmail, setLocalEmail] = useState(email);
   const [localNick, setLocalNick] = useState(nick);
   const [localGroup, setLocalGroup] = useState(group);
@@ -44,15 +49,17 @@ const UserFilterPopover = ({
   // Initialize local state when popup opens
   useEffect(() => {
     if (open) {
+      setLocalUsername(username);
       setLocalEmail(email);
       setLocalNick(nick);
       setLocalGroup(group);
       setLocalStatus(status);
     }
-  }, [open]);
+  }, [open, username, email, nick, group, status]);
 
   // Apply filters and close popover
   const handleApplyFilters = () => {
+    setUsername(localUsername);
     setEmail(localEmail);
     setNick(localNick);
     setGroup(localGroup == " " ? "" : localGroup);
@@ -62,6 +69,7 @@ const UserFilterPopover = ({
 
   // Reset filters and close popover
   const handleResetFilters = () => {
+    setLocalUsername("");
     setLocalEmail("");
     setLocalNick("");
     setLocalGroup("");
@@ -94,6 +102,15 @@ const UserFilterPopover = ({
       {...rest}
     >
       <Stack spacing={2}>
+        <SettingForm title={t("user.username")} noContainer lgWidth={12}>
+          <DenseFilledTextField
+            fullWidth
+            value={localUsername}
+            onChange={(e) => setLocalUsername(e.target.value)}
+            placeholder={t("user.emptyNoFilter")}
+            size="small"
+          />
+        </SettingForm>
         <SettingForm title={t("user.email")} noContainer lgWidth={12}>
           <DenseFilledTextField
             fullWidth

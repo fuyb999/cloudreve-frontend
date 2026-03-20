@@ -49,6 +49,7 @@ const SignUp = () => {
 
   const [phase, setPhase] = useState<SignUpPhase>(SignUpPhase.Main);
   const formRef = useRef<HTMLFormElement>(null);
+  const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [passwordRepeat, setPasswordRepeat] = useState("");
@@ -59,8 +60,8 @@ const SignUp = () => {
   const showFooter = tos || privacyPolicy;
 
   useEffect(() => {
-    if (!!query.get("email")) {
-      setEmail(query.get("email") ?? "");
+    if (!!query.get("username")) {
+      setUsername(query.get("username") ?? "");
     }
   }, []);
 
@@ -86,6 +87,7 @@ const SignUp = () => {
     setLoading(true);
     dispatch(
       sendSinUp({
+        username,
         email,
         password,
         language: i18next.language,
@@ -93,7 +95,7 @@ const SignUp = () => {
       }),
     )
       .then(() => {
-        navigate("/session?phase=email&email=" + encodeURIComponent(email));
+        navigate("/session?phase=email&username=" + encodeURIComponent(username));
         enqueueSnackbar({
           message: t("login.signUpSuccess"),
           variant: "success",
@@ -156,6 +158,22 @@ const SignUp = () => {
                   <Box>
                     <FormControl variant="standard" margin="normal" required fullWidth>
                       <OutlineIconTextField
+                        label={t("login.username")}
+                        variant={"outlined"}
+                        inputProps={{
+                          id: "username",
+                          type: "text",
+                          name: "username",
+                          required: "true",
+                        }}
+                        onChange={(e) => setUsername(e.target.value)}
+                        icon={<MailOutlined />}
+                        value={username}
+                        autoFocus={true}
+                      />
+                    </FormControl>
+                    <FormControl variant="standard" margin="normal" required fullWidth>
+                      <OutlineIconTextField
                         label={t("login.email")}
                         variant={"outlined"}
                         inputProps={{
@@ -167,7 +185,6 @@ const SignUp = () => {
                         onChange={(e) => setEmail(e.target.value)}
                         icon={<MailOutlined />}
                         value={email}
-                        autoFocus={true}
                       />
                     </FormControl>
                     <FormControl variant="standard" margin="normal" required fullWidth>

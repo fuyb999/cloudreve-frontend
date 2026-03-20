@@ -144,14 +144,14 @@ export function getSiteConfig(section: string): ThunkResponse<SiteConfig> {
   };
 }
 
-export function sendPrepareLogin(email: string): ThunkResponse<PrepareLoginResponse> {
+export function sendPrepareLogin(username: string): ThunkResponse<PrepareLoginResponse> {
   return async (dispatch, _getState) => {
     return await dispatch(
       send(
         "/session/prepare",
         {
           params: {
-            email: email,
+            username,
           },
           method: "GET",
         },

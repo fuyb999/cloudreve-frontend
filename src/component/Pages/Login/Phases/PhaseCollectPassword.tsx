@@ -10,7 +10,7 @@ import { Control } from "../Signin/SignIn.tsx";
 
 interface PhaseCollectPasswordProps {
   pwd: string;
-  email: string;
+  username: string;
   setPwd: (pwd: string) => void;
   control?: Control;
   loginOptions?: PrepareLoginResponse;
@@ -22,7 +22,7 @@ interface PhaseCollectPasswordProps {
 
 const PhaseCollectPassword = ({
   pwd,
-  email,
+  username,
   setPwd,
   control,
   loginOptions,
@@ -39,7 +39,7 @@ const PhaseCollectPassword = ({
     <>
       {loginOptions?.password_enabled && (
         <>
-          <Typography color={"text.secondary"}>{t("login.enterPasswordHint", { email: email })}</Typography>
+          <Typography color={"text.secondary"}>{t("login.enterPasswordHint", { username })}</Typography>
           <FormControl variant="standard" margin="normal" required fullWidth>
             <OutlineIconTextField
               autoFocus={true}
@@ -79,7 +79,7 @@ const PhaseCollectPassword = ({
       )}
       {!loginOptions?.password_enabled && (
         <Typography color={"text.secondary"} sx={{ mb: 2 }}>
-          {t("login.paswordlessHint", { email: email })}
+          {t("login.paswordlessHint", { username })}
         </Typography>
       )}
       <Stack spacing={1}>

@@ -42,6 +42,8 @@ const InfoTextField = ({ label, value }: { label: string; value: string }) => {
 const ConnectionInfoDialog = ({ onClose, account, ...rest }: ConnectionInfoDialogProps) => {
   const { t } = useTranslation();
   const dispatch = useAppDispatch();
+  const currentLogin = SessionManager.currentLoginOrNull();
+  const currentAccount = currentLogin?.user.username ?? currentLogin?.user.email ?? "";
 
   return (
     <DraggableDialog
@@ -59,10 +61,7 @@ const ConnectionInfoDialog = ({ onClose, account, ...rest }: ConnectionInfoDialo
       <DialogContent sx={{ pt: 1 }}>
         <Stack spacing={2} direction={"column"}>
           <InfoTextField label={t("application:setting.webdavServer")} value={window.location.origin + "/dav"} />
-          <InfoTextField
-            label={t("application:setting.userName")}
-            value={SessionManager.currentLoginOrNull()?.user.email ?? ""}
-          />
+          <InfoTextField label={t("application:setting.userName")} value={currentAccount} />
           <InfoTextField label={t("application:login.password")} value={account?.password ?? ""} />
         </Stack>
       </DialogContent>

@@ -48,6 +48,13 @@ const UserForm = ({ reload, setLoading }: { reload: () => void; setLoading: (loa
     [setUser],
   );
 
+  const onUsernameChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      setUser((prev) => ({ ...prev, username: e.target.value }));
+    },
+    [setUser],
+  );
+
   const onNickChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
       setUser((prev) => ({ ...prev, nick: e.target.value }));
@@ -147,6 +154,9 @@ const UserForm = ({ reload, setLoading }: { reload: () => void; setLoading: (loa
         <Divider orientation="vertical" flexItem />
         <Box sx={{ flexGrow: 1 }}>
           <Grid container spacing={isMobile ? 2 : 3}>
+            <SettingForm title={t("user.username")} noContainer lgWidth={6}>
+              <DenseFilledTextField fullWidth value={values.username ?? ""} required onChange={onUsernameChange} />
+            </SettingForm>
             <SettingForm title={t("user.email")} noContainer lgWidth={6}>
               <DenseFilledTextField fullWidth type="email" value={values.email} required onChange={onEmailChange} />
             </SettingForm>

@@ -5,7 +5,6 @@ import { FormControl } from "@mui/material";
 import { Captcha, CaptchaParams } from "../../../Common/Captcha/Captcha.tsx";
 
 interface PhaseForgetPasswordProps {
-  email: string;
   control?: Control;
   captchaGen: number;
   setCaptchaState: (state: CaptchaParams) => void;

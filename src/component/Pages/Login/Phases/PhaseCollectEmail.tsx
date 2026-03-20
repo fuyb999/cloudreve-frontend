@@ -6,7 +6,7 @@ import { LoginResponse } from "../../../../api/user.ts";
 import { useAppSelector } from "../../../../redux/hooks.ts";
 import { useQuery } from "../../../../util";
 import { OutlineIconTextField } from "../../../Common/Form/OutlineIconTextField.tsx";
-import MailOutlined from "../../../Icons/MailOutlined.tsx";
+import PersonOutlined from "../../../Icons/PersonOutlined.tsx";
 import PasskeyLoginButton from "../Signin/PasskeyLoginButton.tsx";
 import { Control } from "../Signin/SignIn.tsx";
 
@@ -43,13 +43,13 @@ export const LegalLinks = () => {
 };
 
 interface PhaseCollectEmailProps {
-  email: string;
-  setEmail: (email: string) => void;
+  username: string;
+  setUsername: (username: string) => void;
   control?: Control;
   onOAuthPasskeyLogin?: (response: LoginResponse) => void;
 }
 
-const PhaseCollectEmail = ({ email, setEmail, control, onOAuthPasskeyLogin }: PhaseCollectEmailProps) => {
+const PhaseCollectEmail = ({ username, setUsername, control, onOAuthPasskeyLogin }: PhaseCollectEmailProps) => {
   const { t } = useTranslation();
   const query = useQuery();
   const { register_enabled, authn } = useAppSelector((state) => state.siteConfig.login.config);
@@ -59,8 +59,8 @@ const PhaseCollectEmail = ({ email, setEmail, control, onOAuthPasskeyLogin }: Ph
   const showFooter = tos || privacyPolicy || authn;
 
   useEffect(() => {
-    if (!!query.get("email")) {
-      setEmail(query.get("email") ?? "");
+    if (!!query.get("username")) {
+      setUsername(query.get("username") ?? "");
     }
   }, []);
 
@@ -68,18 +68,18 @@ const PhaseCollectEmail = ({ email, setEmail, control, onOAuthPasskeyLogin }: Ph
     <>
       <FormControl variant="standard" margin="normal" required fullWidth>
         <OutlineIconTextField
-          label={t("login.email")}
+          label={t("login.username")}
           variant={"outlined"}
           inputProps={{
-            id: "email",
-            type: "email",
-            name: "email",
+            id: "username",
+            type: "text",
+            name: "username",
             required: "true",
           }}
-          onChange={(e) => setEmail(e.target.value)}
-          icon={<MailOutlined />}
+          onChange={(e) => setUsername(e.target.value)}
+          icon={<PersonOutlined />}
           autoComplete={"username webauthn"}
-          value={email}
+          value={username}
           autoFocus
         />
       </FormControl>

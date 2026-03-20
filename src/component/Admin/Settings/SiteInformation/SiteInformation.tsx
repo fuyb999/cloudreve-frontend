@@ -1,8 +1,7 @@
-import { Box, FormControl, FormControlLabel, Stack, Switch, Typography } from "@mui/material";
+import { Box, FormControl, Stack, Typography } from "@mui/material";
 import Grid from "@mui/material/Grid";
 import { useContext } from "react";
 import { useTranslation } from "react-i18next";
-import { isTrueVal } from "../../../../session/utils.ts";
 import { DenseFilledTextField } from "../../../Common/StyledComponents.tsx";
 import SettingForm from "../../../Pages/Setting/SettingForm.tsx";
 import { NoMarginHelperText, SettingSection, SettingSectionContent, StyledInputAdornment } from "../Settings.tsx";
@@ -11,33 +10,9 @@ import GeneralImagePreview from "./GeneralImagePreview.tsx";
 import LogoPreview from "./LogoPreview.tsx";
 import SiteURLInput from "./SiteURLInput.tsx";
 
-const syncthingUpgradeVersionPattern = "^v?\\d+\\.\\d+\\.\\d+(?:-[0-9A-Za-z.-]+)?$";
-const syncthingDownloadURLPattern = "https?://.+";
-const syncthingUpgradeVersionRegex = /^v?\d+\.\d+\.\d+(?:-[0-9A-Za-z.-]+)?$/;
-const syncthingDownloadURLRegex = /^https?:\/\/.+/i;
-
-const isOptionalSyncthingUpgradeVersion = (value?: string) => {
-  const trimmed = value?.trim() ?? "";
-  return trimmed === "" || syncthingUpgradeVersionRegex.test(trimmed);
-};
-
-const isOptionalSyncthingDownloadURL = (value?: string) => {
-  const trimmed = value?.trim() ?? "";
-  return trimmed === "" || syncthingDownloadURLRegex.test(trimmed);
-};
-
 const SiteInformation = () => {
   const { t } = useTranslation("dashboard");
   const { formRef, setSettings, values } = useContext(SettingContext);
-  const syncthingWindowsURL = values.syncthing_download_windows_url ?? "";
-  const syncthingLinuxURL = values.syncthing_download_linux_url ?? "";
-  const syncthingUpgradeVersion = values.syncthing_upgrade_version ?? "";
-  const hasSyncthingDownloadURL = syncthingWindowsURL.trim() !== "" || syncthingLinuxURL.trim() !== "";
-  const syncthingWindowsURLValid = isOptionalSyncthingDownloadURL(syncthingWindowsURL);
-  const syncthingLinuxURLValid = isOptionalSyncthingDownloadURL(syncthingLinuxURL);
-  const syncthingUpgradeVersionValid = isOptionalSyncthingUpgradeVersion(syncthingUpgradeVersion);
-  const syncthingUpgradeVersionError =
-    (hasSyncthingDownloadURL && syncthingUpgradeVersion.trim() === "") || !syncthingUpgradeVersionValid;
 
   return (
     <Box component={"form"} ref={formRef} onSubmit={(e) => e.preventDefault()}>
@@ -226,129 +201,6 @@ const SiteInformation = () => {
                   required
                 />
                 <NoMarginHelperText>{t("settings.largeIconDes")}</NoMarginHelperText>
-              </FormControl>
-            </SettingForm>
-          </SettingSectionContent>
-        </SettingSection>
-        <SettingSection>
-          <Typography variant="h6" gutterBottom>
-            {t("vas.mobileApp")}
-          </Typography>
-          <SettingSectionContent>
-            <SettingForm lgWidth={5}>
-              <FormControl fullWidth>
-                <FormControlLabel
-                  control={
-                    <Switch
-                      checked={isTrueVal(values.show_app_promotion)}
-                      onChange={(e) =>
-                        setSettings({
-                          show_app_promotion: e.target.checked ? "1" : "0",
-                        })
-                      }
-                    />
-                  }
-                  label={t("vas.showAppPromotion")}
-                />
-                <NoMarginHelperText>{t("vas.showAppPromotionDes")}</NoMarginHelperText>
-              </FormControl>
-            </SettingForm>
-            <SettingForm title={t("vas.appFeedback")} lgWidth={5} pro>
-              <FormControl fullWidth>
-                <DenseFilledTextField
-                  fullWidth
-                  slotProps={{
-                    input: {
-                      readOnly: true,
-                    },
-                  }}
-                />
-                <NoMarginHelperText>{t("vas.appLinkDes")}</NoMarginHelperText>
-              </FormControl>
-            </SettingForm>
-            <SettingForm title={t("vas.appForum")} lgWidth={5} pro>
-              <FormControl fullWidth>
-                <DenseFilledTextField fullWidth slotProps={{ input: { readOnly: true } }} />
-                <NoMarginHelperText>{t("vas.appLinkDes")}</NoMarginHelperText>
-              </FormControl>
-            </SettingForm>
-          </SettingSectionContent>
-        </SettingSection>
-        <SettingSection>
-          <Typography variant="h6" gutterBottom>
-            {t("vas.desktopApp")}
-          </Typography>
-          <SettingSectionContent>
-            <SettingForm lgWidth={5}>
-              <FormControl fullWidth>
-                <FormControlLabel
-                  control={
-                    <Switch
-                      checked={isTrueVal(values.show_desktop_app_promotion)}
-                      onChange={(e) =>
-                        setSettings({
-                          show_desktop_app_promotion: e.target.checked ? "1" : "0",
-                        })
-                      }
-                    />
-                  }
-                  label={t("vas.showDesktopAppPromotion")}
-                />
-                <NoMarginHelperText>{t("vas.showDesktopAppPromotionDes")}</NoMarginHelperText>
-              </FormControl>
-            </SettingForm>
-            <SettingForm title={t("settings.syncthingWindowsDownloadURL")} lgWidth={5}>
-              <FormControl fullWidth>
-                <DenseFilledTextField
-                  fullWidth
-                  type="url"
-                  onChange={(e) => setSettings({ syncthing_download_windows_url: e.target.value })}
-                  value={values.syncthing_download_windows_url}
-                  placeholder="https://downloads.example/syncthing-windows-amd64-v1.30.0.zip"
-                  error={!syncthingWindowsURLValid}
-                  inputProps={{ pattern: syncthingDownloadURLPattern }}
-                />
-                <NoMarginHelperText error={!syncthingWindowsURLValid}>
-                  {syncthingWindowsURLValid
-                    ? t("settings.syncthingWindowsDownloadURLDes")
-                    : t("settings.syncthingDownloadURLInvalid")}
-                </NoMarginHelperText>
-              </FormControl>
-            </SettingForm>
-            <SettingForm title={t("settings.syncthingUpgradeVersion")} lgWidth={5}>
-              <FormControl fullWidth>
-                <DenseFilledTextField
-                  fullWidth
-                  onChange={(e) => setSettings({ syncthing_upgrade_version: e.target.value })}
-                  value={values.syncthing_upgrade_version}
-                  placeholder="v1.30.0"
-                  required={hasSyncthingDownloadURL}
-                  error={syncthingUpgradeVersionError}
-                  inputProps={{ pattern: syncthingUpgradeVersionPattern }}
-                />
-                <NoMarginHelperText error={syncthingUpgradeVersionError}>
-                  {syncthingUpgradeVersionError
-                    ? t("settings.syncthingUpgradeVersionInvalid")
-                    : t("settings.syncthingUpgradeVersionDes")}
-                </NoMarginHelperText>
-              </FormControl>
-            </SettingForm>
-            <SettingForm title={t("settings.syncthingLinuxDownloadURL")} lgWidth={5}>
-              <FormControl fullWidth>
-                <DenseFilledTextField
-                  fullWidth
-                  type="url"
-                  onChange={(e) => setSettings({ syncthing_download_linux_url: e.target.value })}
-                  value={values.syncthing_download_linux_url}
-                  placeholder="https://downloads.example/syncthing-linux-amd64-v1.30.0.tar.gz"
-                  error={!syncthingLinuxURLValid}
-                  inputProps={{ pattern: syncthingDownloadURLPattern }}
-                />
-                <NoMarginHelperText error={!syncthingLinuxURLValid}>
-                  {syncthingLinuxURLValid
-                    ? t("settings.syncthingLinuxDownloadURLDes")
-                    : t("settings.syncthingDownloadURLInvalid")}
-                </NoMarginHelperText>
               </FormControl>
             </SettingForm>
           </SettingSectionContent>

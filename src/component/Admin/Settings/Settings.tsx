@@ -25,6 +25,7 @@ import Queue from "./Queue/Queue.tsx";
 import ServerSetting from "./Server/ServerSetting.tsx";
 import SettingsWrapper from "./SettingWrapper.tsx";
 import SiteInformation from "./SiteInformation/SiteInformation.tsx";
+import SyncthingSettings from "./Syncthing/SyncthingSettings.tsx";
 import UserSession from "./UserSession/UserSession.tsx";
 
 export const StyledInputAdornment = styled(InputAdornment)(({ theme }) => ({
@@ -70,6 +71,7 @@ export enum SettingsPageTab {
   FileSystem = "fileSystem",
   MediaProcessing = "mediaProcessing",
   Email = "email",
+  Syncthing = "syncthing",
   Queue = "queue",
   Appearance = "appearance",
   Events = "events",
@@ -108,6 +110,11 @@ const Settings = () => {
           label: t("nav.email"),
           value: SettingsPageTab.Email,
           icon: <MailOutlined />,
+        },
+        {
+          label: t("application:setting.syncthingClient"),
+          value: SettingsPageTab.Syncthing,
+          icon: <CubeSync />,
         },
         {
           label: t("nav.queue"),
@@ -162,11 +169,6 @@ const Settings = () => {
                     "site_logo_light",
                     "tos_url",
                     "privacy_policy_url",
-                    "show_app_promotion",
-                    "show_desktop_app_promotion",
-                    "syncthing_upgrade_version",
-                    "syncthing_download_linux_url",
-                    "syncthing_download_windows_url",
                   ]}
                 >
                   <SiteInformation />
@@ -292,6 +294,17 @@ const Settings = () => {
                   ]}
                 >
                   <Email />
+                </SettingsWrapper>
+              )}
+              {activeTab === SettingsPageTab.Syncthing && (
+                <SettingsWrapper
+                  settings={[
+                    "syncthing_upgrade_version",
+                    "syncthing_download_linux_url",
+                    "syncthing_download_windows_url",
+                  ]}
+                >
+                  <SyncthingSettings />
                 </SettingsWrapper>
               )}
               {activeTab === SettingsPageTab.Queue && (

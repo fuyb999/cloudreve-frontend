@@ -64,34 +64,41 @@ const UserSearchInput = (props: UserSearchInputProps) => {
 
   const filterOptions = useMemo(() => {
     return createFilterOptions<User>({
-      stringify: (option) => option.nickname + " " + option.email,
+      stringify: (option) => `${option.nickname} ${option.username ?? ""} ${option.email ?? ""}`,
     });
   }, []);
 
   return (
     <DenseAutocomplete
       value={value}
-      filterOptions={filterOptions}
+      filterOptions={filterOptions as any}
       options={options}
       loading={loading}
       blurOnSelect
-      onChange={(_event: any, newValue: User | null) => {
-        setValue(newValue);
-        if (newValue) {
-          props.onUserSelected(newValue);
+      onChange={(_event: any, newValue: any) => {
+        const selectedUser = newValue as User | null;
+        setValue(selectedUser);
+        if (selectedUser) {
+          props.onUserSelected(selectedUser);
         }
       }}
       onInputChange={(_event, newInputValue) => {
         setInputValue(newInputValue);
       }}
-      getOptionLabel={(option) => (typeof option === "string" ? option : `${option.nickname} <${option.email}>`)}
+      getOptionLabel={(option: any) => {
+        const user = option as User;
+        return typeof option === "string"
+          ? option
+          : `${user.nickname}${user.username ? ` (${user.username})` : ""}${user.email ? ` <${user.email}>` : ""}`;
+      }}
       noOptionsText={t("application:modals.noResults")}
-      renderOption={(props, option) => {
+      renderOption={(props, option: any) => {
+        const user = option as User;
         return (
           <li {...props}>
             <Box sx={{ display: "flex", width: "100%", alignItems: "center" }}>
               <Box>
-                <UserAvatar user={option} />
+                <UserAvatar user={user} />
               </Box>
               <NoWrapBox
                 sx={{
@@ -99,8 +106,8 @@ const UserSearchInput = (props: UserSearchInputProps) => {
                   ml: 2,
                 }}
               >
-                {option.nickname}
-                {option.email && (
+                {user.nickname}
+                {user.username && (
                   <NoWrapTypography
                     sx={{
                       width: "100%",
@@ -108,7 +115,18 @@ const UserSearchInput = (props: UserSearchInputProps) => {
                     variant="body2"
                     color="text.secondary"
                   >
-                    {option.email}
+                    {user.username}
+                  </NoWrapTypography>
+                )}
+                {user.email && (
+                  <NoWrapTypography
+                    sx={{
+                      width: "100%",
+                    }}
+                    variant="body2"
+                    color="text.secondary"
+                  >
+                    {user.email}
                   </NoWrapTypography>
                 )}
               </NoWrapBox>

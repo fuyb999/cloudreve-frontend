@@ -95,7 +95,7 @@
     "40079": "Max walked files limit exceeded, try to narrow down the scope of the operation.",
     "40081": "Operation not fully succeeded.",
     "40082": "Only file owner can perform this action.",
-    "40080": "Incorrect email or password.",
+    "40080": "Incorrect username or password.",
     "50001": "Database operation failed. ({{message}})",
     "50002": "Failed to sign the URL or request. ({{message}})",
     "50004": "I/O operation failed. ({{message}})",

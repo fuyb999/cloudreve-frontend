@@ -99,7 +99,7 @@ const EmailLogin = ({ oauthConsent }: SignInProps) => {
   const app = useAppSelector((state) => state.globalState.oauthApp);
 
   const [phase, setPhase] = useState<EmailLoginPhase>(EmailLoginPhase.CollectEmail);
-  const [email, setEmail] = useState("");
+  const [username, setUsername] = useState("");
   const [pwd, setPwd] = useState("");
   const [otp, setOTP] = useState("");
   const [captchaGen, setCaptchaGen] = useState(0);
@@ -210,7 +210,7 @@ const EmailLogin = ({ oauthConsent }: SignInProps) => {
   const prepareLogin = useCallback(async () => {
     try {
       setLoading(true);
-      const opts = await dispatch(sendPrepareLogin(email));
+      const opts = await dispatch(sendPrepareLogin(username));
       setLoginOptions(opts);
       setPhase(EmailLoginPhase.CollectPassword);
     } catch (e) {
@@ -221,13 +221,13 @@ const EmailLogin = ({ oauthConsent }: SignInProps) => {
     } finally {
       setLoading(false);
     }
-  }, [dispatch, email, setPhase]);
+  }, [dispatch, username, setPhase]);
 
   const passwordLogin = useCallback(
-    async (email: string, password: string, captcha?: CaptchaParams) => {
+    async (username: string, password: string, captcha?: CaptchaParams) => {
       try {
         setLoading(true);
-        const loginRes = await dispatch(sendLogin({ email, password, ...captcha }));
+        const loginRes = await dispatch(sendLogin({ username, password, ...captcha }));
         if (isOAuthFlow) {
           await handleOAuthSessionSwitch(loginRes);
         } else {
@@ -267,10 +267,10 @@ const EmailLogin = ({ oauthConsent }: SignInProps) => {
   );
 
   const submitSendResetEmail = useCallback(
-    async (email: string, captcha?: CaptchaParams) => {
+    async (username: string, captcha?: CaptchaParams) => {
       try {
         setLoading(true);
-        await dispatch(sendResetEmail({ email, ...captcha }));
+        await dispatch(sendResetEmail({ username, ...captcha }));
         setPhase(EmailLoginPhase.CollectEmail);
         enqueueSnackbar({
           message: t("login.resetEmailSent"),
@@ -293,16 +293,16 @@ const EmailLogin = ({ oauthConsent }: SignInProps) => {
         prepareLogin();
         break;
       case EmailLoginPhase.SignupNeeded:
-        navigate(`/session/signup?email=${email}`);
+        navigate(`/session/signup?username=${encodeURIComponent(username)}`);
         break;
       case EmailLoginPhase.CollectPassword:
-        passwordLogin(email, pwd, captchaState.current);
+        passwordLogin(username, pwd, captchaState.current);
         break;
       case EmailLoginPhase.Collect2FA:
         finish2FA(otp, twoFaSession.current);
         break;
       case EmailLoginPhase.ForgetPassword:
-        submitSendResetEmail(email, captchaState.current);
+        submitSendResetEmail(username, captchaState.current);
         break;
       case EmailLoginPhase.Consent:
         sendConsent();
@@ -466,7 +466,7 @@ const EmailLogin = ({ oauthConsent }: SignInProps) => {
             <Box>
               {phase === EmailLoginPhase.CollectPassword && (
                 <PhaseCollectPassword
-                  email={email}
+                  username={username}
                   pwd={pwd}
                   onForget={() => setPhase(EmailLoginPhase.ForgetPassword)}
                   setPwd={setPwd}
@@ -478,7 +478,7 @@ const EmailLogin = ({ oauthConsent }: SignInProps) => {
                 />
               )}
               {phase === EmailLoginPhase.SignupNeeded && (
-                <PhaseSignupNeeded email={email} control={phaseConfig.control} />
+                <PhaseSignupNeeded username={username} control={phaseConfig.control} />
               )}
               {phase === EmailLoginPhase.Collect2FA && (
                 <Phase2FA
@@ -490,8 +490,8 @@ const EmailLogin = ({ oauthConsent }: SignInProps) => {
               )}
               {phase === EmailLoginPhase.CollectEmail && (
                 <PhaseCollectEmail
-                  email={email}
-                  setEmail={setEmail}
+                  username={username}
+                  setUsername={setUsername}
                   control={phaseConfig.control}
                   onOAuthPasskeyLogin={isOAuthFlow ? handleOAuthSessionSwitch : undefined}
                 />
@@ -507,7 +507,6 @@ const EmailLogin = ({ oauthConsent }: SignInProps) => {
               )}
               {phase === EmailLoginPhase.ForgetPassword && (
                 <PhaseForgetPassword
-                  email={email}
                   captchaGen={captchaGen}
                   setCaptchaState={(s) => (captchaState.current = s)}
                   control={phaseConfig.control}

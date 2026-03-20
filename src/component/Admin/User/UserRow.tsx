@@ -35,7 +35,7 @@ const UserRow = ({ user, loading, deleting, selected, onDelete, onDetails, onSel
   const onDeleteClick = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.stopPropagation();
     e.preventDefault();
-    dispatch(confirmOperation(t("user.confirmDelete", { user: user?.email }))).then(() => {
+    dispatch(confirmOperation(t("user.confirmDelete", { user: user?.username || user?.email }))).then(() => {
       if (user?.id) {
         setDeleteLoading(true);
         dispatch(batchDeleteUser({ ids: [user.id] }))
@@ -80,6 +80,12 @@ const UserRow = ({ user, loading, deleting, selected, onDelete, onDetails, onSel
         </NoWrapTableCell>
         <NoWrapTableCell>
           <Skeleton variant="text" width={60} />
+        </NoWrapTableCell>
+        <NoWrapTableCell>
+          <NoWrapTypography variant="inherit">{user?.username}</NoWrapTypography>
+        </NoWrapTableCell>
+        <NoWrapTableCell>
+          <Skeleton variant="text" width={140} />
         </NoWrapTableCell>
         <NoWrapTableCell>
           <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>

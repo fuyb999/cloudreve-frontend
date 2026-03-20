@@ -240,6 +240,7 @@ export interface PolicySetting {
 }
 
 export interface User extends CommonMixin {
+  username?: string;
   email: string;
   nick: string;
   password?: string;

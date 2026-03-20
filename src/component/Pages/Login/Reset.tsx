@@ -51,7 +51,7 @@ const Reset = () => {
       }),
     )
       .then((u) => {
-        navigate("/session?phase=email&email=" + encodeURIComponent(u?.email ?? ""));
+        navigate("/session?phase=email&username=" + encodeURIComponent(u?.username ?? ""));
         enqueueSnackbar({
           message: t("login.passwordReset"),
           variant: "success",

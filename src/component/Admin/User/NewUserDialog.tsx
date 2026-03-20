@@ -19,6 +19,7 @@ export interface NewUserDialogProps {
 const defaultUser: User = {
   edges: {},
   id: 0,
+  username: "",
   email: "",
   nick: "",
   password: "",
@@ -46,7 +47,7 @@ const NewUserDialog = ({ open, onClose, onCreated }: NewUserDialogProps) => {
       return;
     }
 
-    let newUser = { ...user, nick: user.email.split("@")[0] };
+    let newUser = { ...user, nick: user.nick || user.username || user.email.split("@")[0] };
 
     setLoading(true);
     dispatch(upsertUser({ user: newUser, password: user.password }))
@@ -76,6 +77,14 @@ const NewUserDialog = ({ open, onClose, onCreated }: NewUserDialogProps) => {
       <DialogContent>
         <form ref={formRef}>
           <Stack spacing={2}>
+            <SettingForm title={t("user.username")} lgWidth={12}>
+              <DenseFilledTextField
+                fullWidth
+                required
+                value={user.username ?? ""}
+                onChange={(e) => setUser({ ...user, username: e.target.value })}
+              />
+            </SettingForm>
             <SettingForm title={t("user.email")} lgWidth={12}>
               <DenseFilledTextField
                 fullWidth

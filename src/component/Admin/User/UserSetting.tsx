@@ -38,6 +38,7 @@ import UserDialog from "./UserDialog/UserDialog";
 import UserFilterPopover from "./UserFilterPopover";
 import UserRow from "./UserRow";
 export const EmailQuery = "email";
+export const UsernameQuery = "username";
 export const NickQuery = "nick";
 export const GroupQuery = "group";
 export const StatusQuery = "status";
@@ -57,6 +58,7 @@ const UserSetting = () => {
     defaultValue: "",
   });
   const [orderDirection, setOrderDirection] = useQueryState(OrderDirectionQuery, { defaultValue: "desc" });
+  const [username, setUsername] = useQueryState(UsernameQuery, { defaultValue: "" });
   const [email, setEmail] = useQueryState(EmailQuery, { defaultValue: "" });
   const [nick, setNick] = useQueryState(NickQuery, { defaultValue: "" });
   const [group, setGroup] = useQueryState(GroupQuery, { defaultValue: "" });
@@ -77,15 +79,16 @@ const UserSetting = () => {
   const pageSizeInt = parseInt(pageSize) ?? 11;
 
   const clearFilters = useCallback(() => {
+    setUsername("");
     setEmail("");
     setNick("");
     setGroup("");
     setStatus("");
-  }, [setEmail, setNick, setGroup, setStatus]);
+  }, [setUsername, setEmail, setNick, setGroup, setStatus]);
 
   useEffect(() => {
     fetchUsers();
-  }, [page, pageSize, orderBy, orderDirection, email, nick, group, status]);
+  }, [page, pageSize, orderBy, orderDirection, username, email, nick, group, status]);
 
   const fetchUsers = () => {
     setLoading(true);
@@ -97,6 +100,7 @@ const UserSetting = () => {
         order_by: orderBy ?? "",
         order_direction: orderDirection ?? "desc",
         conditions: {
+          user_username: username,
           user_email: email,
           user_nick: nick,
           user_group: group,
@@ -169,8 +173,8 @@ const UserSetting = () => {
   };
 
   const hasActiveFilters = useMemo(() => {
-    return !!(email || nick || group || status);
-  }, [email, nick, group, status]);
+    return !!(username || email || nick || group || status);
+  }, [username, email, nick, group, status]);
 
   const handleUserDialogOpen = (id: number) => {
     setUserDialogID(id);
@@ -202,6 +206,8 @@ const UserSetting = () => {
 
           <UserFilterPopover
             {...bindPopover(filterPopupState)}
+            username={username}
+            setUsername={setUsername}
             email={email}
             setEmail={setEmail}
             nick={nick}
@@ -259,11 +265,20 @@ const UserSetting = () => {
                   </TableSortLabel>
                 </NoWrapTableCell>
                 <NoWrapTableCell width={250}>
+                  <TableSortLabel
+                    active={orderBy === "username"}
+                    direction={direction}
+                    onClick={onSortClick("username")}
+                  >
+                    {t("user.username")}
+                  </TableSortLabel>
+                </NoWrapTableCell>
+                <NoWrapTableCell width={220}>
                   <TableSortLabel active={orderBy === "nick"} direction={direction} onClick={onSortClick("nick")}>
                     {t("user.nick")}
                   </TableSortLabel>
                 </NoWrapTableCell>
-                <NoWrapTableCell width={250}>
+                <NoWrapTableCell width={240}>
                   <TableSortLabel active={orderBy === "email"} direction={direction} onClick={onSortClick("email")}>
                     {t("user.email")}
                   </TableSortLabel>
