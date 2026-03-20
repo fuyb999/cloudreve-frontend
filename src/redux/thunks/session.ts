@@ -17,6 +17,7 @@ import {
   setUserInfoCache,
 } from "../globalStateSlice.ts";
 import { AppThunk } from "../store.ts";
+import { clearOIDCAuthFlowState } from "../../session/oidcAuthFlow.ts";
 import { longRunningTaskWithSnackbar } from "./file.ts";
 import { updateSiteConfig } from "./site.ts";
 
@@ -36,6 +37,7 @@ export function refreshUserSession(session: LoginResponse, redirect: string | nu
 export function setTargetSession(session: LoginResponse): AppThunk {
   return async (dispatch, _getState) => {
     SessionManager.upsert(session);
+    clearOIDCAuthFlowState();
     dispatch(setPreferredTheme(session.user.preferred_theme ?? ""));
     if (session.user.language) {
       i18next.changeLanguage(session.user.language);

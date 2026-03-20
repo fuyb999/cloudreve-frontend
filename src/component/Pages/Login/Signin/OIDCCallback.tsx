@@ -1,16 +1,19 @@
 import { Box, Typography } from "@mui/material";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { useNavigate } from "react-router-dom";
 import { sendOIDCExchange } from "../../../../api/api.ts";
 import { AppError } from "../../../../api/request.ts";
 import { useAppDispatch } from "../../../../redux/hooks.ts";
 import { refreshUserSession } from "../../../../redux/thunks/session.ts";
+import { markOIDCAuthFailure } from "../../../../session/oidcAuthFlow.ts";
 import { useQuery } from "../../../../util";
 
 const OIDCCallback = () => {
   const { t } = useTranslation();
   const dispatch = useAppDispatch();
   const query = useQuery();
+  const navigate = useNavigate();
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -36,9 +39,12 @@ const OIDCCallback = () => {
         );
       })
       .catch((e) => {
-        setError(e instanceof AppError ? e.message : String(e));
+        const message = e instanceof AppError ? e.message : String(e);
+        markOIDCAuthFailure(message, "/home");
+        setError(message);
+        navigate("/session", { replace: true });
       });
-  }, [dispatch, query, t]);
+  }, [dispatch, navigate, query, t]);
 
   return (
     <Box sx={{ py: 8 }}>

@@ -23,6 +23,12 @@ import { useAppDispatch, useAppSelector } from "../../../../redux/hooks.ts";
 import { refreshUserSession, setTargetSession } from "../../../../redux/thunks/session.ts";
 import PageTitle from "../../../../router/PageTitle.tsx";
 import SessionManager, { Session } from "../../../../session/index.ts";
+import {
+  clearOIDCAuthFlowState,
+  getOIDCAuthFlowState,
+  isOIDCAutoRedirectBlocked,
+  markOIDCAuthFailure,
+} from "../../../../session/oidcAuthFlow.ts";
 import { useQuery } from "../../../../util";
 import { CaptchaParams } from "../../../Common/Captcha/Captcha.tsx";
 import { DefaultCloseAction } from "../../../Common/Snackbar/snackbar.tsx";
@@ -533,8 +539,13 @@ const OIDCLogin = ({ oauthConsent }: SignInProps) => {
   const query = useQuery();
   const oidcDisplayName = useAppSelector((state) => state.siteConfig.login.config.oidc_display_name) ?? "OIDC";
   const oidcAutoRedirect = useAppSelector((state) => state.siteConfig.login.config.oidc_auto_redirect);
+  const [authFlowState, setAuthFlowState] = useState(() => getOIDCAuthFlowState());
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(() =>
+    getOIDCAuthFlowState()?.mode === "failed" ? getOIDCAuthFlowState()?.message ?? null : null,
+  );
+  const [countdown, setCountdown] = useState(() => (getOIDCAuthFlowState()?.mode === "reauth_required" ? 3 : 0));
+  const [manualHold, setManualHold] = useState(false);
 
   const nextTarget = useMemo(() => {
     // OAuth 授权页场景需要完整保留当前 query，避免统一认证回来后丢掉下游应用授权参数。
@@ -544,6 +555,42 @@ const OIDCLogin = ({ oauthConsent }: SignInProps) => {
     return query.get("redirect") ?? "/home";
   }, [oauthConsent, query]);
 
+  const authRedirectTarget = authFlowState?.redirect ?? nextTarget;
+  const autoRedirectBlocked = isOIDCAutoRedirectBlocked(authFlowState);
+  const reauthMessage =
+    authFlowState?.message ??
+    t("login.oidcReauthRequired", {
+      defaultValue: "当前统一认证会话已失效，需要重新登录后继续使用网盘。",
+    });
+  const failureMessage =
+    error ??
+    (authFlowState?.mode === "failed"
+      ? authFlowState.message ??
+        t("login.oidcLoginFailed", {
+          defaultValue: "统一认证登录失败，请确认后手动重试。",
+        })
+      : null);
+
+  const reloadAuthFlowState = useCallback(() => {
+    setAuthFlowState(getOIDCAuthFlowState());
+  }, []);
+
+  const holdAutoRedirect = useCallback(
+    (message?: string) => {
+      setManualHold(true);
+      markOIDCAuthFailure(
+        message ??
+          t("login.oidcAutoRedirectPaused", {
+            defaultValue: "已暂停自动跳转，请手动决定是否继续统一认证。",
+          }),
+        authRedirectTarget,
+      );
+      reloadAuthFlowState();
+      setCountdown(0);
+    },
+    [authRedirectTarget, reloadAuthFlowState, t],
+  );
+
   const startOIDCLogin = useCallback(async () => {
     if (loading) {
       return;
@@ -551,26 +598,50 @@ const OIDCLogin = ({ oauthConsent }: SignInProps) => {
 
     try {
       setLoading(true);
+      setManualHold(false);
       setError(null);
+      clearOIDCAuthFlowState();
+      reloadAuthFlowState();
       // 先向后端申请 state 和重定向地址，避免前端自行拼接造成配置分叉。
       const response = await dispatch(
         sendPrepareOIDCLogin({
-          next: nextTarget,
+          next: authRedirectTarget,
         }),
       );
       window.location.assign(response.redirect_url);
     } catch (e) {
+      const message = e instanceof AppError ? e.message : String(e);
+      markOIDCAuthFailure(message, authRedirectTarget);
+      reloadAuthFlowState();
       setLoading(false);
-      setError(e instanceof AppError ? e.message : String(e));
+      setError(message);
     }
-  }, [dispatch, loading, nextTarget]);
+  }, [authRedirectTarget, dispatch, loading, reloadAuthFlowState]);
 
   useEffect(() => {
-    // 开启自动跳转后，用户打开登录页就会直达统一认证中心。
+    if (manualHold || loading || autoRedirectBlocked || authFlowState?.mode === "failed") {
+      return;
+    }
+
+    // 业务页会话失效后，不要立刻强跳统一认证，先给用户几秒缓冲和取消机会。
+    if (authFlowState?.mode === "reauth_required") {
+      if (countdown <= 0) {
+        void startOIDCLogin();
+        return;
+      }
+
+      const timer = window.setTimeout(() => {
+        setCountdown((current) => Math.max(0, current - 1));
+      }, 1000);
+
+      return () => window.clearTimeout(timer);
+    }
+
+    // 开启自动跳转后，用户主动打开登录页仍保持直接进入统一认证中心。
     if (oidcAutoRedirect) {
       void startOIDCLogin();
     }
-  }, [oidcAutoRedirect, startOIDCLogin]);
+  }, [authFlowState?.mode, autoRedirectBlocked, countdown, loading, manualHold, oidcAutoRedirect, startOIDCLogin]);
 
   return (
     <Box sx={{ overflow: "hidden" }}>
@@ -578,6 +649,15 @@ const OIDCLogin = ({ oauthConsent }: SignInProps) => {
       <Typography variant={"body2"} color={"text.secondary"} sx={{ mt: 1, mb: 3 }}>
         {t("login.oidcUnifiedAuthHint", { provider: oidcDisplayName })}
       </Typography>
+      {authFlowState?.mode === "reauth_required" && !manualHold && (
+        <Typography variant={"body2"} color={"warning.main"} sx={{ mt: -1, mb: 2 }}>
+          {t("login.oidcReauthCountdown", {
+            defaultValue: "{{message}} {{countdown}} 秒后将自动跳转到统一认证。",
+            message: reauthMessage,
+            countdown,
+          })}
+        </Typography>
+      )}
       <LoadingButton
         type="button"
         fullWidth
@@ -586,11 +666,32 @@ const OIDCLogin = ({ oauthConsent }: SignInProps) => {
         loading={loading}
         onClick={() => void startOIDCLogin()}
       >
-        <span>{t("login.continueWithProvider", { provider: oidcDisplayName })}</span>
+        <span>
+          {failureMessage || authFlowState?.mode === "reauth_required"
+            ? t("login.retryWithProvider", {
+                defaultValue: "重新使用 {{provider}} 认证",
+                provider: oidcDisplayName,
+              })
+            : t("login.continueWithProvider", { provider: oidcDisplayName })}
+        </span>
       </LoadingButton>
-      {error && (
+      {(authFlowState?.mode === "reauth_required" || failureMessage) && (
+        <Button
+          type="button"
+          fullWidth
+          variant="text"
+          sx={{ mt: 1 }}
+          disabled={loading}
+          onClick={() => holdAutoRedirect()}
+        >
+          {t("login.pauseAutoRedirect", {
+            defaultValue: authFlowState?.mode === "reauth_required" ? "暂不自动跳转" : "暂不重试",
+          })}
+        </Button>
+      )}
+      {failureMessage && (
         <Typography variant={"body2"} color={"error"} sx={{ mt: 2 }}>
-          {error}
+          {failureMessage}
         </Typography>
       )}
     </Box>

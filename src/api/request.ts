@@ -7,6 +7,7 @@ import { openLockConflictDialog } from "../redux/thunks/dialog.ts";
 import { router } from "../router";
 import SessionManager from "../session";
 import { ErrNames } from "../session/errors.ts";
+import { markOIDCReauthRequired } from "../session/oidcAuthFlow.ts";
 import { sendRefreshToken } from "./api.ts";
 
 export interface requestOpts {
@@ -221,16 +222,20 @@ export function send<T = any>(
           case Code.CredentialInvalid:
           case Code.CodeLoginRequired:
             if (!signOutLock) {
+              const redirectTarget = window.location.pathname + window.location.search;
+              const isSessionRoute = window.location.pathname.startsWith("/session");
+              markOIDCReauthRequired(redirectTarget, "当前统一认证会话已失效，请重新登录后继续操作。");
               SessionManager.signOutCurrent();
-              router.navigate(
-                "/session?redirect=" + encodeURIComponent(window.location.pathname + window.location.search),
-              );
+              if (!isSessionRoute) {
+                router.navigate("/session?redirect=" + encodeURIComponent(redirectTarget));
+                signOutLock = true;
+              }
             }
-            signOutLock = true;
         }
 
         throw new AppError(resp.data);
       }
+      signOutLock = false;
       return resp.data.data;
     } catch (e) {
       let partialSuccessResponse: any = undefined;
