@@ -453,7 +453,16 @@
     "noEncryption": "Not encrypted",
     "ftsStatus": "Full-text index",
     "ftsIndexed": "Indexed",
-    "ftsNotIndexed": "Not indexed"
+    "ftsNotIndexed": "Not indexed",
+    "fullTextArtifacts": "Extracted content",
+    "fullTextArtifactsEmpty": "No extracted text, images, or attachments are available.",
+    "fullTextArtifactsLoadFailed": "Failed to load extracted content.",
+    "fullTextExtractedAt": "Extracted at",
+    "fullTextArtifactText": "Extracted text",
+    "fullTextArtifactMetadata": "Tika metadata",
+    "fullTextArtifactArchive": "Recursive archive",
+    "fullTextArtifactAssets": "Embedded assets",
+    "fullTextArtifactDocxMedia": "DOCX media"
   },
   "modals": {
     "includePasswordInShareLink": "Include password in share link",

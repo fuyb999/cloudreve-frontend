@@ -7,6 +7,7 @@ import { FileManagerIndex } from "../FileManager.tsx";
 import BasicInfo from "./BasicInfo.tsx";
 import CustomProps from "./CustomProps/CustomProps.tsx";
 import Data from "./Data.tsx";
+import FullTextArtifacts from "./FullTextArtifacts.tsx";
 import MediaInfo from "./MediaInfo.tsx";
 import Tags from "./Tags.tsx";
 import { DisplayOption } from "../ContextMenu/useActionDisplayOpt.ts";
@@ -59,6 +60,7 @@ const Details = ({ target, inPhotoViewer, setTarget, targetDisplayOptions }: Det
       <MediaInfo target={target} />
       <CustomProps file={target} setTarget={setTarget} targetDisplayOptions={targetDisplayOptions} />
       <BasicInfo target={target} />
+      <FullTextArtifacts target={target} />
       <Tags target={target} />
       <Data target={target} />
     </Stack>

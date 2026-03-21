@@ -351,6 +351,31 @@ export interface GetFileInfoService {
   folder_summary?: boolean;
 }
 
+export interface FullTextSidecarService {
+  uri: string;
+}
+
+export interface FullTextSidecarObject {
+  id: string;
+  parent_id?: string;
+  depth?: number;
+  kind?: string;
+  name: string;
+  path: string;
+  mime_type: string;
+  size: number;
+  url: string;
+}
+
+export interface FullTextSidecarResponse {
+  version: number;
+  file_id: number;
+  entity_id: number;
+  source_path: string;
+  extracted_at: string;
+  objects: FullTextSidecarObject[];
+}
+
 export enum EntityType {
   version = 0,
   thumbnail = 1,

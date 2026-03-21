@@ -453,7 +453,16 @@
     "noEncryption": "未加密",
     "ftsStatus": "全文索引",
     "ftsIndexed": "已索引",
-    "ftsNotIndexed": "未索引"
+    "ftsNotIndexed": "未索引",
+    "fullTextArtifacts": "提取内容",
+    "fullTextArtifactsEmpty": "没有可用的提取文本、图片或附件。",
+    "fullTextArtifactsLoadFailed": "加载提取内容失败。",
+    "fullTextExtractedAt": "提取时间",
+    "fullTextArtifactText": "提取文本",
+    "fullTextArtifactMetadata": "Tika 元数据",
+    "fullTextArtifactArchive": "递归压缩包",
+    "fullTextArtifactAssets": "嵌入附件",
+    "fullTextArtifactDocxMedia": "DOCX 图片"
   },
   "modals": {
     "includePasswordInShareLink": "在链接中包含密码",

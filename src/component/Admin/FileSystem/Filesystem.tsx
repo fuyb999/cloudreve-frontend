@@ -141,8 +141,15 @@ const FileSystem = () => {
                     "fts_elasticsearch_skip_tls_verify",
                     "fts_chunk_size",
                     "fts_tika_endpoint",
-                    "fts_tika_exts",
+                    "fts_tika_document_enabled",
+                    "fts_tika_document_exts",
+                    "fts_tika_archive_enabled",
+                    "fts_tika_archive_exts",
                     "fts_tika_max_file_size",
+                    "fts_tika_sidecar_enabled",
+                    "fts_tika_sidecar_text_enabled",
+                    "fts_tika_sidecar_assets_enabled",
+                    "fts_tika_extract_inline_images",
                   ]}
                 >
                   <FullTextSearchSetting />

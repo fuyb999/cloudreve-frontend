@@ -1,5 +1,6 @@
 import { BuildOutlined } from "@mui/icons-material";
 import {
+  Alert,
   Box,
   CircularProgress,
   Collapse,
@@ -360,18 +361,74 @@ const FullTextSearchSetting = () => {
                   />
                   <NoMarginHelperText>{t("settings.ftsTikaEndpointDes")}</NoMarginHelperText>
                 </SettingForm>
-                <SettingForm title={t("settings.ftsTikaExts")} lgWidth={5}>
-                  <DenseFilledTextField
-                    fullWidth
-                    value={values.fts_tika_exts}
-                    onChange={(e) =>
-                      setSettings({
-                        fts_tika_exts: e.target.value,
-                      })
-                    }
-                  />
-                  <NoMarginHelperText>{t("settings.ftsTikaExtsDes")}</NoMarginHelperText>
+                <SettingForm lgWidth={5}>
+                  <FormControl fullWidth>
+                    <FormControlLabel
+                      control={
+                        <Switch
+                          checked={isTrueVal(values.fts_tika_document_enabled)}
+                          onChange={(e) =>
+                            setSettings({
+                              fts_tika_document_enabled: e.target.checked ? "1" : "0",
+                            })
+                          }
+                        />
+                      }
+                      label={t("settings.ftsTikaDocumentEnabled")}
+                    />
+                    <NoMarginHelperText>{t("settings.ftsTikaDocumentEnabledDes")}</NoMarginHelperText>
+                  </FormControl>
                 </SettingForm>
+                <Collapse in={isTrueVal(values.fts_tika_document_enabled)} unmountOnExit>
+                  <SettingForm title={t("settings.ftsTikaDocumentExts")} lgWidth={8}>
+                    <DenseFilledTextField
+                      fullWidth
+                      multiline
+                      minRows={3}
+                      value={values.fts_tika_document_exts}
+                      onChange={(e) =>
+                        setSettings({
+                          fts_tika_document_exts: e.target.value,
+                        })
+                      }
+                    />
+                    <NoMarginHelperText>{t("settings.ftsTikaDocumentExtsDes")}</NoMarginHelperText>
+                  </SettingForm>
+                </Collapse>
+                <SettingForm lgWidth={5}>
+                  <FormControl fullWidth>
+                    <FormControlLabel
+                      control={
+                        <Switch
+                          checked={isTrueVal(values.fts_tika_archive_enabled)}
+                          onChange={(e) =>
+                            setSettings({
+                              fts_tika_archive_enabled: e.target.checked ? "1" : "0",
+                            })
+                          }
+                        />
+                      }
+                      label={t("settings.ftsTikaArchiveEnabled")}
+                    />
+                    <NoMarginHelperText>{t("settings.ftsTikaArchiveEnabledDes")}</NoMarginHelperText>
+                  </FormControl>
+                </SettingForm>
+                <Collapse in={isTrueVal(values.fts_tika_archive_enabled)} unmountOnExit>
+                  <SettingForm title={t("settings.ftsTikaArchiveExts")} lgWidth={8}>
+                    <DenseFilledTextField
+                      fullWidth
+                      multiline
+                      minRows={2}
+                      value={values.fts_tika_archive_exts}
+                      onChange={(e) =>
+                        setSettings({
+                          fts_tika_archive_exts: e.target.value,
+                        })
+                      }
+                    />
+                    <NoMarginHelperText>{t("settings.ftsTikaArchiveExtsDes")}</NoMarginHelperText>
+                  </SettingForm>
+                </Collapse>
                 <SettingForm title={t("settings.ftsTikaMaxFileSize")} lgWidth={5}>
                   <FormControl>
                     <SizeInput
@@ -388,6 +445,87 @@ const FullTextSearchSetting = () => {
                   </FormControl>
                   <NoMarginHelperText>{t("settings.ftsTikaMaxFileSizeDes")}</NoMarginHelperText>
                 </SettingForm>
+                <SettingForm lgWidth={5}>
+                  <FormControl fullWidth>
+                    <FormControlLabel
+                      control={
+                        <Switch
+                          checked={isTrueVal(values.fts_tika_sidecar_enabled)}
+                          onChange={(e) =>
+                            setSettings({
+                              fts_tika_sidecar_enabled: e.target.checked ? "1" : "0",
+                            })
+                          }
+                        />
+                      }
+                      label={t("settings.ftsTikaSidecarEnabled")}
+                    />
+                    <NoMarginHelperText>{t("settings.ftsTikaSidecarEnabledDes")}</NoMarginHelperText>
+                  </FormControl>
+                </SettingForm>
+                <Collapse in={isTrueVal(values.fts_tika_sidecar_enabled)} unmountOnExit>
+                  <Stack spacing={3}>
+                    <SettingForm lgWidth={5}>
+                      <FormControl fullWidth>
+                        <FormControlLabel
+                          control={
+                            <Switch
+                              checked={isTrueVal(values.fts_tika_sidecar_text_enabled)}
+                              onChange={(e) =>
+                                setSettings({
+                                  fts_tika_sidecar_text_enabled: e.target.checked ? "1" : "0",
+                                })
+                              }
+                            />
+                          }
+                          label={t("settings.ftsTikaSidecarTextEnabled")}
+                        />
+                        <NoMarginHelperText>{t("settings.ftsTikaSidecarTextEnabledDes")}</NoMarginHelperText>
+                      </FormControl>
+                    </SettingForm>
+                    <SettingForm lgWidth={5}>
+                      <FormControl fullWidth>
+                        <FormControlLabel
+                          control={
+                            <Switch
+                              checked={isTrueVal(values.fts_tika_sidecar_assets_enabled)}
+                              onChange={(e) =>
+                                setSettings({
+                                  fts_tika_sidecar_assets_enabled: e.target.checked ? "1" : "0",
+                                })
+                              }
+                            />
+                          }
+                          label={t("settings.ftsTikaSidecarAssetsEnabled")}
+                        />
+                        <NoMarginHelperText>{t("settings.ftsTikaSidecarAssetsEnabledDes")}</NoMarginHelperText>
+                      </FormControl>
+                    </SettingForm>
+                    <SettingForm lgWidth={5}>
+                      <FormControl fullWidth>
+                        <FormControlLabel
+                          control={
+                            <Switch
+                              checked={isTrueVal(values.fts_tika_extract_inline_images)}
+                              onChange={(e) =>
+                                setSettings({
+                                  fts_tika_extract_inline_images: e.target.checked ? "1" : "0",
+                                })
+                              }
+                            />
+                          }
+                          label={t("settings.ftsTikaInlineImages")}
+                        />
+                        <NoMarginHelperText>{t("settings.ftsTikaInlineImagesDes")}</NoMarginHelperText>
+                      </FormControl>
+                    </SettingForm>
+                    <SettingForm lgWidth={8}>
+                      <Alert severity="info" variant="outlined">
+                        {t("settings.ftsTikaSidecarRebuildHint")}
+                      </Alert>
+                    </SettingForm>
+                  </Stack>
+                </Collapse>
               </SettingSectionContent>
             </SettingSection>
 

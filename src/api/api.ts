@@ -54,6 +54,8 @@ import {
   DeleteUploadSessionService,
   DirectLink,
   FileResponse,
+  FullTextSidecarResponse,
+  FullTextSidecarService,
   FileThumbResponse,
   FileUpdateService,
   FileURLResponse,
@@ -670,6 +672,27 @@ export function getFileInfo(req: GetFileInfoService, skipError = false): ThunkRe
     return await dispatch(
       send(
         "/file/info",
+        {
+          method: "GET",
+          params: req,
+        },
+        {
+          ...defaultOpts,
+          bypassSnackbar: () => skipError,
+        },
+      ),
+    );
+  };
+}
+
+export function getFullTextSidecar(
+  req: FullTextSidecarService,
+  skipError = false,
+): ThunkResponse<FullTextSidecarResponse> {
+  return async (dispatch, _getState) => {
+    return await dispatch(
+      send(
+        "/file/fulltext/sidecar",
         {
           method: "GET",
           params: req,
