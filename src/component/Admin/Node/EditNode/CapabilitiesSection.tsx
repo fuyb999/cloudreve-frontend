@@ -328,6 +328,20 @@ const CapabilitiesSection = () => {
               <NoMarginHelperText>{t("node.remoteDownloadDes")}</NoMarginHelperText>
             </FormControl>
           </SettingForm>
+          <SettingForm lgWidth={5}>
+            <FormControl fullWidth>
+              <FormControlLabel
+                control={
+                  <Switch
+                    checked={capabilities.enabled(NodeCapability.content_processing)}
+                    onChange={onCapabilityChange(NodeCapability.content_processing)}
+                  />
+                }
+                label={t("node.contentProcessing")}
+              />
+              <NoMarginHelperText>{t("node.contentProcessingDes")}</NoMarginHelperText>
+            </FormControl>
+          </SettingForm>
           {values.type === NodeType.slave && (
             <SettingForm lgWidth={5}>
               <FormControl fullWidth>

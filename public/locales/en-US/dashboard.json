@@ -1222,6 +1222,8 @@
     "createArchiveDes": "Accept create archive task requests.",
     "extractArchiveDes": "Accept extract archive task requests.",
     "remoteDownloadDes": "Accept remote download task requests. After enabled, you also need to configure the remote download related information below.",
+    "contentProcessing": "Content processing",
+    "contentProcessingDes": "Accept content processing task requests such as full-text extraction, document inspection, media metadata extraction, and thumbnail generation.",
     "downloader": "Downloader",
     "aria2Des": "Start Aria2 as the same user/access level running Cloudreve on the target node server, enable the RPC service in the Aria2 config file, for more information and guidelines, refer the \"Remote download\" section of the documentation.",
     "qbittorrentDes": "Start qBittorrent as the same user running Cloudreve on the target node server, enable the Web UI service in the qBittorrent settings, for more information and guidelines, refer the \"Remote download\" section of the documentation.",

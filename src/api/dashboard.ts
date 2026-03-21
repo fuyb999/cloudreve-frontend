@@ -102,6 +102,7 @@ export interface TestSMTPService {
 export enum QueueType {
   IO_INTENSE = "io_intense",
   MEDIA_META = "media_meta",
+  CONTENT_PROCESSING = "content_processing",
   RECYCLE = "recycle",
   THUMB = "thumb",
   REMOTE_DOWNLOAD = "remote_download",

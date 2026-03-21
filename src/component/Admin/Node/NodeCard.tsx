@@ -70,6 +70,9 @@ const NodeCard = ({ node, onRefresh, loading }: NodeCardProps) => {
     if (boolset.enabled(NodeCapability.remote_download)) {
       capabilities.push({ id: NodeCapability.remote_download, name: t("application:navbar.remoteDownload") });
     }
+    if (boolset.enabled(NodeCapability.content_processing)) {
+      capabilities.push({ id: NodeCapability.content_processing, name: t("node.contentProcessing") });
+    }
 
     return capabilities;
   }, [node, t]);

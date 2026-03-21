@@ -89,7 +89,8 @@ export const NodeCapability = {
   create_archive: 1,
   extract_archive: 2,
   remote_download: 3,
-  //relocate: 4,
+  content_processing: 4,
+  //relocate: 5,
 };
 
 export interface RelocateWorkflowService {
