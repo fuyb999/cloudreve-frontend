@@ -1603,6 +1603,28 @@
     "await_slave_extract": "等待从节点提取结果",
     "await_slave_inspect": "等待从节点识别结果"
   },
+  "taskSummaryFields": {
+    "kind": "处理子类型",
+    "fileID": "文件 ID",
+    "ownerID": "所有者 ID",
+    "entityID": "Blob ID",
+    "policyID": "存储策略 ID",
+    "fileName": "文件名",
+    "fileSize": "文件大小",
+    "fileExt": "文件扩展名",
+    "language": "语言",
+    "ext": "扩展名",
+    "mimeType": "MIME 类型",
+    "parser": "解析器",
+    "title": "标题",
+    "author": "作者",
+    "manifestPath": "Manifest 路径",
+    "savePath": "保存路径",
+    "outputSize": "输出大小",
+    "metaCount": "媒体元数据数量",
+    "metadataCount": "文档元数据数量",
+    "notAvailable": "结果不可用"
+  },
   "payment": {
     "tradeNo": "交易单号",
     "productType": "商品类型",

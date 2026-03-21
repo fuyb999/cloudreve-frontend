@@ -32,6 +32,7 @@ export interface TaskResponse {
 export interface TaskSummary {
   phase?: string;
   props: {
+    kind?: string;
     src?: string;
     src_str?: string;
     dst?: string;
@@ -39,7 +40,27 @@ export interface TaskSummary {
     dst_policy_id?: string;
     failed?: number;
     total?: number;
+    file_id?: number;
+    owner_id?: number;
+    entity_id?: number;
+    policy_id?: number;
+    file_name?: string;
+    file_size?: number;
+    file_ext?: string;
+    language?: string;
+    ext?: string;
+    manifest_path?: string;
+    meta_count?: number;
+    save_path?: string;
+    size?: number;
+    not_available?: boolean;
+    mime_type?: string;
+    parser?: string;
+    title?: string;
+    author?: string;
+    metadata_count?: number;
     download?: DownloadTaskStatus;
+    [key: string]: unknown;
   };
 }
 
@@ -154,21 +175,26 @@ export type ContentProcessingTaskKind =
 
 const hiddenTaskTypes = new Set<string>([TaskType.full_text_delete, TaskType.slave_content_processing]);
 
-const parseTaskPrivateState = (state?: unknown): any => {
+type TaskPrivateState = Record<string, unknown>;
+
+const parseTaskPrivateState = (state?: unknown): TaskPrivateState => {
   if (!state) {
     return {};
   }
 
   if (typeof state === "string") {
     try {
-      return JSON.parse(state);
-    } catch (_error) {
+      const parsed = JSON.parse(state);
+      if (typeof parsed === "object" && parsed !== null && !Array.isArray(parsed)) {
+        return parsed as TaskPrivateState;
+      }
+    } catch {
       return {};
     }
   }
 
-  if (typeof state === "object") {
-    return state;
+  if (typeof state === "object" && state !== null && !Array.isArray(state)) {
+    return state as TaskPrivateState;
   }
 
   return {};
@@ -208,7 +234,7 @@ export const getTaskDisplayType = (type?: string, privateState?: unknown): strin
 
 export const visibleTaskTypes = Object.values(TaskType).filter((type) => !hiddenTaskTypes.has(type));
 
-export const getFullTextTaskFileIDs = (state: any): number[] => {
+export const getFullTextTaskFileIDs = (state: TaskPrivateState): number[] => {
   const result: number[] = [];
   const seen = new Set<number>();
   const append = (fileID: unknown) => {
@@ -224,10 +250,16 @@ export const getFullTextTaskFileIDs = (state: any): number[] => {
   }
 
   if (Array.isArray(state?.files)) {
-    state.files.forEach((item: any) => append(item?.file_id));
+    state.files.forEach((item) => {
+      if (typeof item === "object" && item !== null && !Array.isArray(item)) {
+        append((item as TaskPrivateState).file_id);
+      }
+    });
   }
 
-  append(state?.payload?.file_id);
+  if (typeof state?.payload === "object" && state.payload !== null && !Array.isArray(state.payload)) {
+    append((state.payload as TaskPrivateState).file_id);
+  }
   append(state?.file_id);
   return result;
 };

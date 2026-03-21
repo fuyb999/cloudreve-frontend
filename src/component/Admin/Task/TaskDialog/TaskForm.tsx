@@ -15,7 +15,8 @@ import {
 } from "@mui/material";
 import dayjs from "dayjs";
 import duration from "dayjs/plugin/duration";
-import { lazy, Suspense, useMemo, useState } from "react";
+import { TFunction } from "i18next";
+import React, { lazy, Suspense, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Link as RouterLink } from "react-router-dom";
 import { Task } from "../../../../api/dashboard";
@@ -29,6 +30,7 @@ import UserAvatar from "../../../Common/User/UserAvatar";
 import FileBadge from "../../../FileManager/FileBadge";
 import SettingForm from "../../../Pages/Setting/SettingForm";
 import DownloadFileList from "../../../Pages/Tasks/DownloadFileList";
+import { getTaskDiagnosticFields } from "../../../Pages/Tasks/TaskDiagnosticFields";
 import TaskProgress from "../../../Pages/Tasks/TaskProgress";
 import { getTaskStatusText } from "../../../Pages/Tasks/TaskProps";
 import UserDialog from "../../User/UserDialog/UserDialog";
@@ -38,7 +40,7 @@ dayjs.extend(duration);
 
 const MonacoEditor = lazy(() => import("../../../Viewers/CodeViewer/MonacoEditor"));
 
-const translateTaskPhase = (phase: string | undefined, t: (key: string, options?: any) => string) => {
+const translateTaskPhase = (phase: string | undefined, t: TFunction<"dashboard">) => {
   if (!phase) {
     return "-";
   }
@@ -68,8 +70,8 @@ const TaskForm = ({ values }: { values: Task }) => {
     [values.display_type, values.type, values.private_state],
   );
 
-  const privateState = useMemo((): any => {
-    let res: any = {};
+  const privateState = useMemo((): Record<string, unknown> => {
+    let res: Record<string, unknown> = {};
     if (values.private_state) {
       try {
         res = JSON.parse(values.private_state);
@@ -83,6 +85,7 @@ const TaskForm = ({ values }: { values: Task }) => {
   const isUserTask = useMemo(() => {
     return userTaskTypes.includes(values.type ?? "");
   }, [values]);
+  const diagnosticFields = useMemo(() => getTaskDiagnosticFields(processedSummary, t), [processedSummary, t]);
 
   return (
     <>
@@ -236,6 +239,18 @@ const TaskForm = ({ values }: { values: Task }) => {
               />
             </SettingForm>
           )}
+
+          {diagnosticFields.map((field) => (
+            <SettingForm key={field.key} title={field.label} noContainer lgWidth={4}>
+              <Typography
+                variant={"body2"}
+                color={"textSecondary"}
+                sx={{ overflowWrap: "anywhere", whiteSpace: "pre-wrap" }}
+              >
+                {field.value}
+              </Typography>
+            </SettingForm>
+          ))}
 
           {values?.public_state?.error && (
             <SettingForm title={t("task.errorMsg")} noContainer lgWidth={12}>

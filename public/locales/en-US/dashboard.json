@@ -1604,6 +1604,28 @@
     "await_slave_extract": "Waiting for slave extraction result",
     "await_slave_inspect": "Waiting for slave inspection result"
   },
+  "taskSummaryFields": {
+    "kind": "Processing kind",
+    "fileID": "File ID",
+    "ownerID": "Owner ID",
+    "entityID": "Blob ID",
+    "policyID": "Storage policy ID",
+    "fileName": "File name",
+    "fileSize": "File size",
+    "fileExt": "File extension",
+    "language": "Language",
+    "ext": "Extension",
+    "mimeType": "MIME type",
+    "parser": "Parser",
+    "title": "Title",
+    "author": "Author",
+    "manifestPath": "Manifest path",
+    "savePath": "Saved path",
+    "outputSize": "Output size",
+    "metaCount": "Media metadata count",
+    "metadataCount": "Document metadata count",
+    "notAvailable": "Result unavailable"
+  },
   "payment": {
     "tradeNo": "Trade No.",
     "productType": "Product type",

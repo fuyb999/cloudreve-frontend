@@ -2,7 +2,7 @@ import { Grid, Stack, Typography } from "@mui/material";
 import dayjs from "dayjs";
 import duration from "dayjs/plugin/duration";
 import { TFunction } from "i18next";
-import { useMemo } from "react";
+import React, { useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { FileType } from "../../../api/explorer.ts";
 import { getTaskDisplayType, TaskResponse, TaskStatus, TaskType } from "../../../api/workflow.ts";
@@ -10,6 +10,7 @@ import { sizeToString } from "../../../util";
 import { formatDuration } from "../../../util/datetime.ts";
 import TimeBadge from "../../Common/TimeBadge.tsx";
 import FileBadge from "../../FileManager/FileBadge.tsx";
+import { getTaskDiagnosticFields } from "./TaskDiagnosticFields.tsx";
 
 dayjs.extend(duration);
 
@@ -72,6 +73,7 @@ const TaskProps = ({ task }: TaskPropsProps) => {
     () => task.display_type ?? getTaskDisplayType(task.type),
     [task.display_type, task.type],
   );
+  const diagnosticFields = useMemo(() => getTaskDiagnosticFields(task.summary, t), [task.summary, t]);
 
   return (
     <Grid container spacing={1} rowSpacing={1.5}>
@@ -159,6 +161,9 @@ const TaskProps = ({ task }: TaskPropsProps) => {
           }
         />
       )}
+      {diagnosticFields.map((field) => (
+        <TaskPropsBlock key={field.key} label={field.label} value={field.value} />
+      ))}
       <TaskPropsBlock label={t("setting.executeDuration")} value={formatDuration(dayjs.duration(task.duration ?? 0))} />
       {task.resume_time && (task.status == TaskStatus.suspending || task.status == TaskStatus.processing) && (
         <TaskPropsBlock
