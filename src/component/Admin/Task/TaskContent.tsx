@@ -1,5 +1,5 @@
 import { Link, Typography } from "@mui/material";
-import { memo, useCallback, useMemo } from "react";
+import React, { memo, useCallback, useMemo } from "react";
 import { Trans, useTranslation } from "react-i18next";
 import { Task } from "../../../api/dashboard";
 import { getFullTextTaskFileIDs, getTaskDisplayType, TaskSummary, TaskType } from "../../../api/workflow";
@@ -21,18 +21,50 @@ export interface TaskContentProps {
   openFile?: (fileID: number) => void;
 }
 
-const resolveTaskEntityID = (state: any): number => {
+type TaskPrivateState = Record<string, unknown>;
+
+const parseTaskPrivateState = (state?: string): TaskPrivateState => {
+  if (!state) {
+    return {};
+  }
+
+  try {
+    const parsed = JSON.parse(state);
+    if (typeof parsed === "object" && parsed !== null && !Array.isArray(parsed)) {
+      return parsed as TaskPrivateState;
+    }
+  } catch (error) {
+    console.error(error);
+  }
+
+  return {};
+};
+
+const nestedRecord = (value: unknown): TaskPrivateState | undefined => {
+  if (typeof value === "object" && value !== null && !Array.isArray(value)) {
+    return value as TaskPrivateState;
+  }
+  return undefined;
+};
+
+const resolveTaskEntityID = (summary: TaskSummary | undefined, state: TaskPrivateState): number => {
   const candidates = [
+    summary?.props?.entity_id,
     state?.entity_id,
-    state?.result?.entity_id,
-    state?.payload?.entity_id,
-    state?.payload?.entity?.id,
+    nestedRecord(state?.result)?.entity_id,
+    nestedRecord(state?.payload)?.entity_id,
+    nestedRecord(nestedRecord(state?.payload)?.entity)?.id,
   ];
   return candidates.find((value) => typeof value === "number" && value > 0) ?? 0;
 };
 
-const resolveTaskFileID = (state: any): number => {
-  const candidates = [state?.file_id, state?.result?.file_id, state?.payload?.file_id];
+const resolveTaskFileID = (summary: TaskSummary | undefined, state: TaskPrivateState): number => {
+  const candidates = [
+    summary?.props?.file_id,
+    state?.file_id,
+    nestedRecord(state?.result)?.file_id,
+    nestedRecord(state?.payload)?.file_id,
+  ];
   return candidates.find((value) => typeof value === "number" && value > 0) ?? 0;
 };
 
@@ -92,21 +124,21 @@ export const TaskContent = memo(({ task, openEntity, openFile }: TaskContentProp
   );
 
   const content = useMemo(() => {
-    let privateState: any = {};
-    try {
-      privateState = JSON.parse(task.private_state ?? "{}");
-    } catch (error) {
-      console.error(error);
-    }
-
+    const privateState = parseTaskPrivateState(task.private_state);
     const fullTextFileIDs = getFullTextTaskFileIDs(privateState);
+    const summaryFileID = typeof processedSummary?.props?.file_id === "number" ? processedSummary.props.file_id : 0;
     const primaryFullTextFileID = fullTextFileIDs[0] ?? 0;
-    const entityID = resolveTaskEntityID(privateState);
-    const fileID = resolveTaskFileID(privateState);
+    const entityID = resolveTaskEntityID(processedSummary, privateState);
+    const fileID = resolveTaskFileID(processedSummary, privateState);
+    const explicitEntityIDs = Array.isArray(privateState?.entity_ids)
+      ? privateState.entity_ids.filter((id): id is number => typeof id === "number" && id > 0)
+      : [];
 
     switch (taskDisplayType) {
       case TaskType.upload_sentinel_check:
-        return t("task.uploadSentinelCheck", { uploadSessionID: privateState?.session?.Props?.UploadSessionID });
+        return t("task.uploadSentinelCheck", {
+          uploadSessionID: nestedRecord(nestedRecord(privateState?.session)?.Props)?.UploadSessionID,
+        });
       case TaskType.media_metadata:
         return (
           <Trans
@@ -132,7 +164,7 @@ export const TaskContent = memo(({ task, openEntity, openFile }: TaskContentProp
         return t("task.entityRecycleRoutine");
       case TaskType.explicit_entity_recycle:
         return t("task.explicitEntityRecycle", {
-          blobs: privateState?.entity_ids?.map((id: number) => `#${id}`).join(", "),
+          blobs: explicitEntityIDs.map((id) => `#${id}`).join(", "),
         });
       case TaskType.full_text_index:
         if (fullTextFileIDs.length > 1) {
@@ -141,33 +173,33 @@ export const TaskContent = memo(({ task, openEntity, openFile }: TaskContentProp
             defaultValue: "Reconcile full-text index for {{count}} files",
           });
         }
-        if (!primaryFullTextFileID) {
+        if (!primaryFullTextFileID && !summaryFileID) {
           return t("task.full_text_index");
         }
         return (
           <Trans
             ns="dashboard"
-            values={{ fileID: primaryFullTextFileID }}
+            values={{ fileID: primaryFullTextFileID || summaryFileID }}
             i18nKey="task.fullTextIndex"
-            components={[<Link key={0} href={"#/"} onClick={fileLinkClick(primaryFullTextFileID)} />]}
+            components={[<Link key={0} href={"#/"} onClick={fileLinkClick(primaryFullTextFileID || summaryFileID)} />]}
           />
         );
       case TaskType.full_text_copy:
         return (
           <Trans
             ns="dashboard"
-            values={{ fileID: privateState?.file_id ?? 0 }}
+            values={{ fileID }}
             i18nKey="task.fullTextCopy"
-            components={[<Link key={0} href={"#/"} onClick={fileLinkClick(privateState?.file_id ?? 0)} />]}
+            components={[<Link key={0} href={"#/"} onClick={fileLinkClick(fileID)} />]}
           />
         );
       case TaskType.full_text_change_owner:
         return (
           <Trans
             ns="dashboard"
-            values={{ fileID: privateState?.file_id ?? 0 }}
+            values={{ fileID }}
             i18nKey="task.fullTextChangeOwner"
-            components={[<Link key={0} href={"#/"} onClick={fileLinkClick(privateState?.file_id ?? 0)} />]}
+            components={[<Link key={0} href={"#/"} onClick={fileLinkClick(fileID)} />]}
           />
         );
       case TaskType.thumbnail_generate:
@@ -197,7 +229,7 @@ export const TaskContent = memo(({ task, openEntity, openFile }: TaskContentProp
       default:
         return "";
     }
-  }, [entityLinkClick, fileLinkClick, task, taskDisplayType, t]);
+  }, [entityLinkClick, fileLinkClick, processedSummary, task.private_state, taskDisplayType, t]);
 
   if (isUserTask) {
     return (
@@ -209,3 +241,5 @@ export const TaskContent = memo(({ task, openEntity, openFile }: TaskContentProp
 
   return <Typography variant="body2">{content}</Typography>;
 });
+
+TaskContent.displayName = "TaskContent";
