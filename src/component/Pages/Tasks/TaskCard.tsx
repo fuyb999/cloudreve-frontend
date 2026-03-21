@@ -119,7 +119,10 @@ const TaskCard = ({ loading, showProgress, onLoad, task }: TaskCardProps) => {
   });
 
   const [expanded, setExpanded] = useState(false);
-  const taskDisplayType = useMemo(() => getTaskDisplayType(task?.type, undefined), [task?.type]);
+  const taskDisplayType = useMemo(
+    () => task?.display_type ?? getTaskDisplayType(task?.type),
+    [task?.display_type, task?.type],
+  );
 
   useEffect(() => {
     if (!inView) {

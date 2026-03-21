@@ -19,6 +19,7 @@ export interface TaskResponse {
   id: string;
   status: string;
   type: string;
+  display_type?: string;
   node?: NodeSummary;
   summary?: TaskSummary;
   error?: string;

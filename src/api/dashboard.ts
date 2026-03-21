@@ -519,6 +519,7 @@ export interface SlaveTaskProps {
 
 export interface Task extends CommonMixin {
   type?: string;
+  display_type?: string;
   status?: TaskStatus;
   public_state?: TaskPublicState;
   private_state?: string;

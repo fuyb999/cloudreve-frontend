@@ -68,7 +68,10 @@ export const getTaskStatusText = (status: TaskStatus, t: TFunction) => {
 const TaskProps = ({ task }: TaskPropsProps) => {
   const { t } = useTranslation();
   const status = useMemo(() => getTaskStatusText(task.status as TaskStatus, t), [task.status, t]);
-  const taskDisplayType = useMemo(() => getTaskDisplayType(task.type), [task.type]);
+  const taskDisplayType = useMemo(
+    () => task.display_type ?? getTaskDisplayType(task.type),
+    [task.display_type, task.type],
+  );
 
   return (
     <Grid container spacing={1} rowSpacing={1.5}>

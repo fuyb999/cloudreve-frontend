@@ -64,8 +64,8 @@ const TaskForm = ({ values }: { values: Task }) => {
     return processTaskContent({ ...values.summary } as TaskSummary, values?.user_hash_id ?? "");
   }, [values]);
   const taskDisplayType = useMemo(
-    () => getTaskDisplayType(values.type, values.private_state),
-    [values.type, values.private_state],
+    () => values.display_type ?? getTaskDisplayType(values.type, values.private_state),
+    [values.display_type, values.type, values.private_state],
   );
 
   const privateState = useMemo((): any => {

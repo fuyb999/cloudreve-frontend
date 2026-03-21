@@ -62,8 +62,8 @@ export const TaskContent = memo(({ task, openEntity, openFile }: TaskContentProp
   const { t } = useTranslation("dashboard");
   const isUserTask = userTaskTypes.includes(task.type ?? "");
   const taskDisplayType = useMemo(
-    () => getTaskDisplayType(task.type, task.private_state),
-    [task.type, task.private_state],
+    () => task.display_type ?? getTaskDisplayType(task.type, task.private_state),
+    [task.display_type, task.type, task.private_state],
   );
   const processedSummary = useMemo(() => {
     return processTaskContent({ ...task.summary } as TaskSummary, task?.user_hash_id ?? "");
@@ -202,11 +202,7 @@ export const TaskContent = memo(({ task, openEntity, openFile }: TaskContentProp
   if (isUserTask) {
     return (
       <Typography variant="body2">
-        <TaskSummaryTitle
-          type={getTaskDisplayType(task.type?.toString(), task.private_state)}
-          summary={processedSummary}
-          isInDashboard
-        />
+        <TaskSummaryTitle type={taskDisplayType} summary={processedSummary} isInDashboard />
       </Typography>
     );
   }

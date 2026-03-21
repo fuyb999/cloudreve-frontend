@@ -24,7 +24,7 @@ export interface TaskDetailProps {
 
 const TaskDetail = ({ task, downloading }: TaskDetailProps) => {
   const { t } = useTranslation();
-  const taskDisplayType = getTaskDisplayType(task.type);
+  const taskDisplayType = task.display_type ?? getTaskDisplayType(task.type);
   return (
     <Stack spacing={2}>
       <Stack spacing={1}>
