@@ -151,7 +151,7 @@ export type ContentProcessingTaskKind =
   | "thumbnail_generate"
   | "document_inspect";
 
-const hiddenTaskTypes = new Set<string>([TaskType.full_text_delete, TaskType.thumbnail_generate]);
+const hiddenTaskTypes = new Set<string>([TaskType.full_text_delete, TaskType.slave_content_processing]);
 
 const parseTaskPrivateState = (state?: unknown): any => {
   if (!state) {
