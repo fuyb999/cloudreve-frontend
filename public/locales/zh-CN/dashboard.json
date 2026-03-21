@@ -132,6 +132,8 @@
     "queueName_io_intenseDes": "用于处理大量 IO 操作的队列，包括：转移存储策略、解压缩、压缩。",
     "queueName_media_meta": "媒体元数据提取",
     "queueName_media_metaDes": "用于提取媒体文件的元数据。",
+    "queueName_content_processing": "内容处理",
+    "queueName_content_processingDes": "用于处理全文抽取、文档识别、媒体元数据提取、缩略图生成等内容处理任务。",
     "queueName_recycle": "Blob 回收",
     "queueName_recycleDes": "用于删除过期的文件 Blob。",
     "queueName_thumb": "缩略图生成",

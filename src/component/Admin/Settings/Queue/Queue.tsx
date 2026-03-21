@@ -51,7 +51,7 @@ const Queue = () => {
             />
           ))}
         {loading &&
-          Array.from(Array(5)).map((_, index) => (
+          Array.from(Array(6)).map((_, index) => (
             <QueueCard key={`loading-${index}`} settings={values} setSettings={setSettings} loading={true} />
           ))}
       </Grid>

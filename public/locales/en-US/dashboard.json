@@ -132,6 +132,8 @@
     "queueName_io_intenseDes": "Queue for handling large amounts of IO operations, including: storage policy transfer, decompression, compression.",
     "queueName_media_meta": "Media Metadata Extraction",
     "queueName_media_metaDes": "Used to extract metadata from media files.",
+    "queueName_content_processing": "Content Processing",
+    "queueName_content_processingDes": "Used to process content-related tasks such as full-text extraction, document inspection, media metadata extraction, and thumbnail generation.",
     "queueName_recycle": "Blob Recycling",
     "queueName_recycleDes": "Used to delete expired file blobs.",
     "queueName_thumb": "Thumbnail Generation",

@@ -22,6 +22,13 @@ export const QueueCard = ({ queue, settings, metrics, setSettings, loading }: Qu
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
   const [settingDialogOpen, setSettingDialogOpen] = useState(false);
+  const progressWidth = (value: number, total: number) => {
+    if (total <= 0 || value <= 0) {
+      return "0%";
+    }
+
+    return `${Math.min((value / total) * 100, 100)}%`;
+  };
 
   if (loading) {
     return (
@@ -65,25 +72,25 @@ export const QueueCard = ({ queue, settings, metrics, setSettings, loading }: Qu
               <StoragePart
                 sx={{
                   backgroundColor: (theme) => theme.palette.success.light,
-                  width: `${(metrics.success_tasks / metrics.submitted_tasks) * 100}%`,
+                  width: progressWidth(metrics.success_tasks, metrics.submitted_tasks),
                 }}
               />
               <StoragePart
                 sx={{
                   backgroundColor: (theme) => theme.palette.error.light,
-                  width: `${(metrics.failure_tasks / metrics.submitted_tasks) * 100}%`,
+                  width: progressWidth(metrics.failure_tasks, metrics.submitted_tasks),
                 }}
               />
               <StoragePart
                 sx={{
                   backgroundColor: (theme) => theme.palette.action.active,
-                  width: `${(metrics.suspending_tasks / metrics.submitted_tasks) * 100}%`,
+                  width: progressWidth(metrics.suspending_tasks, metrics.submitted_tasks),
                 }}
               />
               <StoragePart
                 sx={{
                   backgroundColor: (theme) => theme.palette.info.light,
-                  width: `${(metrics.busy_workers / metrics.submitted_tasks) * 100}%`,
+                  width: progressWidth(metrics.busy_workers, metrics.submitted_tasks),
                 }}
               />
             </StorageBar>
