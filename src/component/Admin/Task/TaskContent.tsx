@@ -21,6 +21,21 @@ export interface TaskContentProps {
   openFile?: (fileID: number) => void;
 }
 
+const resolveTaskEntityID = (state: any): number => {
+  const candidates = [
+    state?.entity_id,
+    state?.result?.entity_id,
+    state?.payload?.entity_id,
+    state?.payload?.entity?.id,
+  ];
+  return candidates.find((value) => typeof value === "number" && value > 0) ?? 0;
+};
+
+const resolveTaskFileID = (state: any): number => {
+  const candidates = [state?.file_id, state?.result?.file_id, state?.payload?.file_id];
+  return candidates.find((value) => typeof value === "number" && value > 0) ?? 0;
+};
+
 const processUrl = (url: string, userHashId: string) => {
   const crUrl = new CrUri(url);
   if (crUrl.fs() == Filesystem.my && !crUrl.id()) {
@@ -46,6 +61,10 @@ export const processTaskContent = (summary: TaskSummary, userHashId: string): Ta
 export const TaskContent = memo(({ task, openEntity, openFile }: TaskContentProps) => {
   const { t } = useTranslation("dashboard");
   const isUserTask = userTaskTypes.includes(task.type ?? "");
+  const taskDisplayType = useMemo(
+    () => getTaskDisplayType(task.type, task.private_state),
+    [task.type, task.private_state],
+  );
   const processedSummary = useMemo(() => {
     return processTaskContent({ ...task.summary } as TaskSummary, task?.user_hash_id ?? "");
   }, [task.summary, task.user_hash_id]);
@@ -79,19 +98,34 @@ export const TaskContent = memo(({ task, openEntity, openFile }: TaskContentProp
     } catch (error) {
       console.error(error);
     }
+
     const fullTextFileIDs = getFullTextTaskFileIDs(privateState);
     const primaryFullTextFileID = fullTextFileIDs[0] ?? 0;
+    const entityID = resolveTaskEntityID(privateState);
+    const fileID = resolveTaskFileID(privateState);
 
-    switch (getTaskDisplayType(task.type)) {
+    switch (taskDisplayType) {
       case TaskType.upload_sentinel_check:
         return t("task.uploadSentinelCheck", { uploadSessionID: privateState?.session?.Props?.UploadSessionID });
       case TaskType.media_metadata:
         return (
           <Trans
             ns="dashboard"
-            values={{ entityID: privateState?.entity_id ?? 0 }}
+            values={{ entityID }}
             i18nKey="task.mediaMetadata"
-            components={[<Link key={0} href={"#/"} onClick={entityLinkClick(privateState?.entity_id ?? 0)} />]}
+            components={[<Link key={0} href={"#/"} onClick={entityLinkClick(entityID)} />]}
+          />
+        );
+      case TaskType.document_inspect:
+        if (!entityID) {
+          return t("task.document_inspect");
+        }
+        return (
+          <Trans
+            ns="dashboard"
+            values={{ entityID }}
+            i18nKey="task.documentInspect"
+            components={[<Link key={0} href={"#/"} onClick={entityLinkClick(entityID)} />]}
           />
         );
       case TaskType.entity_recycle_routine:
@@ -136,15 +170,43 @@ export const TaskContent = memo(({ task, openEntity, openFile }: TaskContentProp
             components={[<Link key={0} href={"#/"} onClick={fileLinkClick(privateState?.file_id ?? 0)} />]}
           />
         );
+      case TaskType.thumbnail_generate:
+        if (fileID > 0) {
+          return (
+            <Trans
+              ns="dashboard"
+              values={{ fileID }}
+              i18nKey="task.thumbnailGenerateFile"
+              components={[<Link key={0} href={"#/"} onClick={fileLinkClick(fileID)} />]}
+            />
+          );
+        }
+        if (entityID > 0) {
+          return (
+            <Trans
+              ns="dashboard"
+              values={{ entityID }}
+              i18nKey="task.thumbnailGenerateEntity"
+              components={[<Link key={0} href={"#/"} onClick={entityLinkClick(entityID)} />]}
+            />
+          );
+        }
+        return t("task.thumbnail_generate");
+      case TaskType.slave_content_processing:
+        return t("task.slaveContentProcessing");
       default:
         return "";
     }
-  }, [task, t]);
+  }, [entityLinkClick, fileLinkClick, task, taskDisplayType, t]);
 
   if (isUserTask) {
     return (
       <Typography variant="body2">
-        <TaskSummaryTitle type={getTaskDisplayType(task.type?.toString())} summary={processedSummary} isInDashboard />
+        <TaskSummaryTitle
+          type={getTaskDisplayType(task.type?.toString(), task.private_state)}
+          summary={processedSummary}
+          isInDashboard
+        />
       </Typography>
     );
   }

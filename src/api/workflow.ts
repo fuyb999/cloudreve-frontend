@@ -131,6 +131,7 @@ export enum TaskType {
   extract_archive = "extract_archive",
   remote_download = "remote_download",
   media_metadata = "media_meta",
+  document_inspect = "document_inspect",
   entity_recycle_routine = "entity_recycle_routine",
   explicit_entity_recycle = "explicit_entity_recycle",
   upload_sentinel_check = "upload_sentinel_check",
@@ -140,13 +141,65 @@ export enum TaskType {
   full_text_change_owner = "full_text_change_owner",
   full_text_delete = "full_text_delete",
   full_text_rebuild = "full_text_rebuild",
+  slave_content_processing = "slave_content_processing",
+  thumbnail_generate = "thumbnail_generate",
 }
 
-const hiddenTaskTypes = new Set<string>([TaskType.full_text_delete]);
+export type ContentProcessingTaskKind =
+  | "full_text_extract"
+  | "media_meta_extract"
+  | "thumbnail_generate"
+  | "document_inspect";
 
-export const getTaskDisplayType = (type?: string): string => {
+const hiddenTaskTypes = new Set<string>([TaskType.full_text_delete, TaskType.thumbnail_generate]);
+
+const parseTaskPrivateState = (state?: unknown): any => {
+  if (!state) {
+    return {};
+  }
+
+  if (typeof state === "string") {
+    try {
+      return JSON.parse(state);
+    } catch (_error) {
+      return {};
+    }
+  }
+
+  if (typeof state === "object") {
+    return state;
+  }
+
+  return {};
+};
+
+export const getContentProcessingTaskKind = (state?: unknown): ContentProcessingTaskKind | "" => {
+  const parsed = parseTaskPrivateState(state);
+  if (typeof parsed?.kind !== "string") {
+    return "";
+  }
+
+  return parsed.kind as ContentProcessingTaskKind;
+};
+
+export const getTaskDisplayType = (type?: string, privateState?: unknown): string => {
   if (type === TaskType.full_text_delete) {
     return TaskType.full_text_index;
+  }
+
+  if (type === TaskType.slave_content_processing) {
+    switch (getContentProcessingTaskKind(privateState)) {
+      case "full_text_extract":
+        return TaskType.full_text_index;
+      case "media_meta_extract":
+        return TaskType.media_metadata;
+      case "thumbnail_generate":
+        return TaskType.thumbnail_generate;
+      case "document_inspect":
+        return TaskType.document_inspect;
+      default:
+        return TaskType.slave_content_processing;
+    }
   }
 
   return type ?? "";
@@ -173,6 +226,7 @@ export const getFullTextTaskFileIDs = (state: any): number[] => {
     state.files.forEach((item: any) => append(item?.file_id));
   }
 
+  append(state?.payload?.file_id);
   append(state?.file_id);
   return result;
 };
