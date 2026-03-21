@@ -38,6 +38,15 @@ dayjs.extend(duration);
 
 const MonacoEditor = lazy(() => import("../../../Viewers/CodeViewer/MonacoEditor"));
 
+const translateTaskPhase = (phase: string | undefined, t: (key: string, options?: any) => string) => {
+  if (!phase) {
+    return "-";
+  }
+
+  const translated = t(`taskPhase.${phase}`, { defaultValue: phase });
+  return translated || phase;
+};
+
 const TaskForm = ({ values }: { values: Task }) => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
@@ -173,6 +182,14 @@ const TaskForm = ({ values }: { values: Task }) => {
             </Typography>
           </SettingForm>
 
+          {processedSummary?.phase && (
+            <SettingForm title={t("task.phase")} noContainer lgWidth={4}>
+              <Typography variant={"body2"} color={"textSecondary"}>
+                {translateTaskPhase(processedSummary.phase, t)}
+              </Typography>
+            </SettingForm>
+          )}
+
           {processedSummary?.props?.src && (
             <SettingForm title={t("application:setting.input")} noContainer lgWidth={4}>
               <FileBadge
@@ -214,7 +231,7 @@ const TaskForm = ({ values }: { values: Task }) => {
                 variant={"outlined"}
                 simplifiedFile={{
                   path: processedSummary?.props.dst,
-                  type: values?.type == TaskType.extract_archive ? FileType.folder : FileType.file,
+                  type: taskDisplayType == TaskType.extract_archive ? FileType.folder : FileType.file,
                 }}
               />
             </SettingForm>

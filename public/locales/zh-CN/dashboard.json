@@ -1563,6 +1563,7 @@
     "owner": "所有者",
     "content": "内容",
     "status": "状态",
+    "phase": "阶段",
     "create_archive": "创建压缩文件",
     "extract_archive": "解压文件",
     "relocate": "转移存储策略",
@@ -1597,6 +1598,10 @@
     "canceled": "取消/停止",
     "unknown": "未知",
     "errorMsg": "错误信息"
+  },
+  "taskPhase": {
+    "await_slave_extract": "等待从节点提取结果",
+    "await_slave_inspect": "等待从节点识别结果"
   },
   "payment": {
     "tradeNo": "交易单号",

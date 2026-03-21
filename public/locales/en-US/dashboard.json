@@ -1564,6 +1564,7 @@
     "owner": "Owner",
     "content": "Content",
     "status": "Status",
+    "phase": "Phase",
     "create_archive": "Create archive",
     "extract_archive": "Extract archive",
     "relocate": "Relocate",
@@ -1598,6 +1599,10 @@
     "canceled": "Canceled/Stopped",
     "unknown": "Unknown",
     "errorMsg": "Error message"
+  },
+  "taskPhase": {
+    "await_slave_extract": "Waiting for slave extraction result",
+    "await_slave_inspect": "Waiting for slave inspection result"
   },
   "payment": {
     "tradeNo": "Trade No.",

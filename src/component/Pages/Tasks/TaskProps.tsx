@@ -5,7 +5,7 @@ import { TFunction } from "i18next";
 import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { FileType } from "../../../api/explorer.ts";
-import { TaskResponse, TaskStatus, TaskType } from "../../../api/workflow.ts";
+import { getTaskDisplayType, TaskResponse, TaskStatus, TaskType } from "../../../api/workflow.ts";
 import { sizeToString } from "../../../util";
 import { formatDuration } from "../../../util/datetime.ts";
 import TimeBadge from "../../Common/TimeBadge.tsx";
@@ -68,6 +68,7 @@ export const getTaskStatusText = (status: TaskStatus, t: TFunction) => {
 const TaskProps = ({ task }: TaskPropsProps) => {
   const { t } = useTranslation();
   const status = useMemo(() => getTaskStatusText(task.status as TaskStatus, t), [task.status, t]);
+  const taskDisplayType = useMemo(() => getTaskDisplayType(task.type), [task.type]);
 
   return (
     <Grid container spacing={1} rowSpacing={1.5}>
@@ -138,16 +139,16 @@ const TaskProps = ({ task }: TaskPropsProps) => {
             <FileBadge
               variant={"outlined"}
               clickable={
-                task.type == TaskType.remote_download ||
-                task.type == TaskType.extract_archive ||
-                task.type == TaskType.import
+                taskDisplayType == TaskType.remote_download ||
+                taskDisplayType == TaskType.extract_archive ||
+                taskDisplayType == TaskType.import
               }
               simplifiedFile={{
                 path: task.summary?.props.dst,
                 type:
-                  task.type == TaskType.remote_download ||
-                  task.type == TaskType.extract_archive ||
-                  task.type == TaskType.import
+                  taskDisplayType == TaskType.remote_download ||
+                  taskDisplayType == TaskType.extract_archive ||
+                  taskDisplayType == TaskType.import
                     ? FileType.folder
                     : FileType.file,
               }}

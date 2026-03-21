@@ -17,7 +17,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useInView } from "react-intersection-observer";
 import { FileType } from "../../../api/explorer.ts";
-import { TaskResponse, TaskType } from "../../../api/workflow.ts";
+import { getTaskDisplayType, TaskResponse, TaskType } from "../../../api/workflow.ts";
 import { useAppDispatch } from "../../../redux/hooks.ts";
 import { DefaultButton } from "../../Common/StyledComponents.tsx";
 import FileIcon from "../../FileManager/Explorer/FileIcon.tsx";
@@ -119,6 +119,7 @@ const TaskCard = ({ loading, showProgress, onLoad, task }: TaskCardProps) => {
   });
 
   const [expanded, setExpanded] = useState(false);
+  const taskDisplayType = useMemo(() => getTaskDisplayType(task?.type, undefined), [task?.type]);
 
   useEffect(() => {
     if (!inView) {
@@ -138,8 +139,8 @@ const TaskCard = ({ loading, showProgress, onLoad, task }: TaskCardProps) => {
   };
 
   const TaskIcon = useMemo(() => {
-    return taskIconsMap[task?.type ?? ""] ?? Archive;
-  }, [task?.type]);
+    return taskIconsMap[taskDisplayType] ?? Archive;
+  }, [taskDisplayType]);
 
   return (
     <Accordion expanded={expanded} onChange={handleChange} TransitionProps={{ unmountOnExit: true }}>
@@ -193,7 +194,7 @@ const TaskCard = ({ loading, showProgress, onLoad, task }: TaskCardProps) => {
                 <Skeleton variant={"text"} width={150} />
               ) : (
                 <Box component={"span"} sx={{ verticalAlign: "sub" }}>
-                  <TaskSummaryTitle type={task.type} summary={task.summary} />
+                  <TaskSummaryTitle type={taskDisplayType} summary={task.summary} />
                 </Box>
               )}
             </Typography>
@@ -204,7 +205,7 @@ const TaskCard = ({ loading, showProgress, onLoad, task }: TaskCardProps) => {
               ) : (
                 <TaskSummaryStatus
                   simplified={isMobile}
-                  type={task.type}
+                  type={taskDisplayType}
                   status={task.status}
                   error={task.error}
                   summary={task.summary}

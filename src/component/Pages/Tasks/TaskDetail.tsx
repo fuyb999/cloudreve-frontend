@@ -11,7 +11,7 @@ import {
   Typography,
 } from "@mui/material";
 import { useTranslation } from "react-i18next";
-import { TaskResponse, TaskStatus } from "../../../api/workflow.ts";
+import { getTaskDisplayType, TaskResponse, TaskStatus } from "../../../api/workflow.ts";
 import { StyledTableContainerPaper } from "../../Common/StyledComponents.tsx";
 import DownloadFileList from "./DownloadFileList.tsx";
 import TaskProgress from "./TaskProgress.tsx";
@@ -24,6 +24,7 @@ export interface TaskDetailProps {
 
 const TaskDetail = ({ task, downloading }: TaskDetailProps) => {
   const { t } = useTranslation();
+  const taskDisplayType = getTaskDisplayType(task.type);
   return (
     <Stack spacing={2}>
       <Stack spacing={1}>
@@ -50,7 +51,7 @@ const TaskDetail = ({ task, downloading }: TaskDetailProps) => {
         <TaskProgress
           taskId={task.id}
           taskStatus={task.status}
-          taskType={task.type}
+          taskType={taskDisplayType}
           summary={task.summary}
           node={task.node}
         />
