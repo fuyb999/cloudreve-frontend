@@ -1,5 +1,6 @@
 import { Delete } from "@mui/icons-material";
 import {
+  Alert,
   Badge,
   Box,
   Button,
@@ -19,8 +20,10 @@ import {
 } from "@mui/material";
 import { bindPopover, bindTrigger, usePopupState } from "material-ui-popup-state/hooks";
 import { useQueryState } from "nuqs";
+import React from "react";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { Link as RouterLink } from "react-router-dom";
 import { batchDeleteTasks, getTaskList } from "../../../api/api";
 import { AdminListService, Task } from "../../../api/dashboard";
 import { useAppDispatch } from "../../../redux/hooks";
@@ -218,6 +221,26 @@ const TaskList = () => {
       />
       <Container maxWidth="xl">
         <PageHeader title={t("dashboard:nav.tasks")} />
+        {type === "content_processing" && (
+          <Alert severity="info" sx={{ mb: 2 }}>
+            <Box sx={{ display: "flex", flexDirection: "column", gap: 0.5 }}>
+              <Box>{t("task.contentProcessingAggregateHint", { count })}</Box>
+              <Stack direction="row" spacing={1}>
+                <Button component={RouterLink} to="/admin/settings/queue" size="small" sx={{ px: 0, minWidth: "auto" }}>
+                  {t("task.openContentProcessingQueue")}
+                </Button>
+                <Button
+                  component={RouterLink}
+                  to="/admin/node?capability=content_processing"
+                  size="small"
+                  sx={{ px: 0, minWidth: "auto" }}
+                >
+                  {t("task.openContentProcessingNodes")}
+                </Button>
+              </Stack>
+            </Box>
+          </Alert>
+        )}
         <Stack direction="row" spacing={1} sx={{ mb: 2 }}>
           <TaskFilterPopover
             {...bindPopover(filterPopupState)}
