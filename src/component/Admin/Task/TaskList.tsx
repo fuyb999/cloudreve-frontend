@@ -35,6 +35,7 @@ import Broom from "../../Icons/Broom";
 import Filter from "../../Icons/Filter";
 import PageContainer from "../../Pages/PageContainer";
 import PageHeader from "../../Pages/PageHeader";
+import ContentProcessingSubtypeLinks from "../Common/ContentProcessingSubtypeLinks";
 import TablePagination from "../Common/TablePagination";
 import EntityDialog from "../Entity/EntityDialog/EntityDialog";
 import FileDialog from "../File/FileDialog/FileDialog";
@@ -262,19 +263,8 @@ const TaskList = () => {
                   {t("task.openContentProcessingNodes")}
                 </Button>
               </Stack>
-              <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1, mt: 0.5 }}>
-                {contentProcessingTaskTypes.map((taskType) => (
-                  <Button
-                    key={taskType}
-                    component={RouterLink}
-                    to={`/admin/task?type=${taskType}`}
-                    size="small"
-                    variant={type === taskType ? "contained" : "text"}
-                    sx={{ px: 0.5, minWidth: "auto" }}
-                  >
-                    {t(`task.${taskType}`)}
-                  </Button>
-                ))}
+              <Box sx={{ mt: 0.5 }}>
+                <ContentProcessingSubtypeLinks selectedType={type} />
               </Box>
             </Box>
           </Alert>

@@ -17,9 +17,10 @@ import { useTranslation } from "react-i18next";
 import { Link as RouterLink } from "react-router-dom";
 import { getNodeList } from "../../../api/api";
 import { Node, NodeStatus, NodeType } from "../../../api/dashboard";
-import { contentProcessingTaskTypes, NodeCapability } from "../../../api/workflow";
+import { NodeCapability } from "../../../api/workflow";
 import { useAppDispatch } from "../../../redux/hooks";
 import Boolset from "../../../util/boolset";
+import ContentProcessingSubtypeLinks from "../Common/ContentProcessingSubtypeLinks";
 import { SecondaryButton } from "../../Common/StyledComponents";
 import ArrowSync from "../../Icons/ArrowSync";
 import QuestionCircle from "../../Icons/QuestionCircle";
@@ -148,18 +149,8 @@ const NodeSetting = () => {
                 {t("node.openContentProcessingTasks")}
               </Button>
             </Stack>
-            <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1, mb: 0.5 }}>
-              {contentProcessingTaskTypes.map((taskType) => (
-                <Button
-                  key={taskType}
-                  component={RouterLink}
-                  to={`/admin/task?type=${taskType}`}
-                  size="small"
-                  sx={{ px: 0.5, minWidth: "auto" }}
-                >
-                  {t(`task.${taskType}`)}
-                </Button>
-              ))}
+            <Box sx={{ mb: 0.5 }}>
+              <ContentProcessingSubtypeLinks />
             </Box>
             <Typography variant="body2">
               {t("node.contentProcessingSummary", {
