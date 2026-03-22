@@ -1,4 +1,5 @@
 import { Link, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Tooltip } from "@mui/material";
+import React from "react";
 import { useContext, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Link as RouterLink } from "react-router-dom";
@@ -19,7 +20,7 @@ import { FileDialogContext } from "./FileDialog";
 
 const FileEntity = () => {
   const { t } = useTranslation("dashboard");
-  const { setFile, values } = useContext(FileDialogContext);
+  const { values } = useContext(FileDialogContext);
   const [userDialogOpen, setUserDialogOpen] = useState(false);
   const [userDialogId, setUserDialogId] = useState<number | null>(null);
   const [entityDialogOpen, setEntityDialogOpen] = useState(false);
@@ -60,7 +61,7 @@ const FileEntity = () => {
           </TableRow>
         </TableHead>
         <TableBody>
-          {values?.edges?.entities?.map((option, index) => (
+          {values?.edges?.entities?.map((option) => (
             <TableRow key={option.id} hover sx={{ cursor: "pointer" }} onClick={handleEntityDialogOpen(option.id ?? 0)}>
               <TableCell>
                 <NoWrapTypography variant="inherit">{option.id}</NoWrapTypography>

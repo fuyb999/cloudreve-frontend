@@ -1,4 +1,5 @@
 import { Box, Link, Table, TableBody, TableCell, TableContainer, TableHead, TableRow } from "@mui/material";
+import React from "react";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { File } from "../../../../api/dashboard";
@@ -52,7 +53,7 @@ const EntityFileList = ({ files, userHashIDMap }: { files: File[]; userHashIDMap
             </TableRow>
           </TableHead>
           <TableBody>
-            {files?.map((option, index) => {
+            {files?.map((option) => {
               return (
                 <TableRow key={option.id} hover sx={{ cursor: "pointer" }} onClick={fileClicked(option.id ?? 0)}>
                   <TableCell>

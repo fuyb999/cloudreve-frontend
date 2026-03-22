@@ -1,4 +1,5 @@
 import { Box, Button, Checkbox, Popover, PopoverProps, Stack, styled } from "@mui/material";
+import React from "react";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { DenseFilledTextField, SmallFormControlLabel } from "../../Common/StyledComponents";
@@ -21,7 +22,7 @@ export interface FileFilterPopoverProps extends PopoverProps {
   clearFilters: () => void;
 }
 
-const StyledCheckbox = styled(Checkbox)(({ theme }) => ({
+const StyledCheckbox = styled(Checkbox)(() => ({
   paddingTop: 0,
   paddingBottom: 0,
   paddingLeft: 0,

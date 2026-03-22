@@ -1,11 +1,10 @@
 import { ListItemText } from "@mui/material";
+import React from "react";
 import { useTranslation } from "react-i18next";
-import { useAppDispatch } from "../../../../redux/hooks";
 import { DenseSelect } from "../../../Common/StyledComponents";
 
 const MultipleNodeSelectionInput = () => {
   const { t } = useTranslation("dashboard");
-  const dispatch = useAppDispatch();
 
   return (
     <DenseSelect
@@ -24,7 +23,7 @@ const MultipleNodeSelectionInput = () => {
           },
         },
       }}
-      renderValue={(selected) => {
+      renderValue={() => {
         return (
           <ListItemText
             primary={<em>{t("group.allNodes")}</em>}

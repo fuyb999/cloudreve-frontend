@@ -1,4 +1,5 @@
 import { IconButton, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Tooltip } from "@mui/material";
+import React from "react";
 import { useCallback, useContext } from "react";
 import { useTranslation } from "react-i18next";
 import { sizeToString } from "../../../../util";
@@ -54,7 +55,7 @@ const FileDirectLinks = () => {
           </TableRow>
         </TableHead>
         <TableBody>
-          {values?.edges?.direct_links?.map((option, index) => {
+          {values?.edges?.direct_links?.map((option) => {
             const lid = linkId(option.id);
             return (
               <TableRow key={option.id} hover>
