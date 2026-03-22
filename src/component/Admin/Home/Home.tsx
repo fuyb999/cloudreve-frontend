@@ -24,10 +24,9 @@ import { Link as RouterLink } from "react-router-dom";
 import { CSSTransition, SwitchTransition } from "react-transition-group";
 import { CartesianGrid, Legend, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { getDashboardSummary, getNodeList, getQueueMetrics } from "../../../api/api.ts";
-import { HomepageSummary, Node, NodeStatus, NodeType, QueueMetric, QueueType } from "../../../api/dashboard.ts";
-import { NodeCapability, TaskStatus } from "../../../api/workflow.ts";
+import { HomepageSummary, Node, QueueMetric, QueueType } from "../../../api/dashboard.ts";
+import { TaskStatus } from "../../../api/workflow.ts";
 import { useAppDispatch } from "../../../redux/hooks.ts";
-import Boolset from "../../../util/boolset.ts";
 import FacebookCircularProgress from "../../Common/CircularProgress.tsx";
 import { SecondaryButton } from "../../Common/StyledComponents.tsx";
 import TimeBadge from "../../Common/TimeBadge.tsx";
@@ -38,6 +37,7 @@ import ShareFilled from "../../Icons/ShareFilled.tsx";
 import PageContainer from "../../Pages/PageContainer.tsx";
 import PageHeader from "../../Pages/PageHeader.tsx";
 import ContentProcessingSubtypeLinks from "../Common/ContentProcessingSubtypeLinks.tsx";
+import { getContentProcessingHealthSummary } from "../Common/contentProcessingHealth.ts";
 import SiteUrlWarning from "./SiteUrlWarning.tsx";
 
 const StyledPaper = styled(Paper)(({ theme }) => ({
@@ -103,26 +103,22 @@ const Home = () => {
   }, [dispatch]);
 
   const contentProcessingOverview = (() => {
-    const eligibleNodes = contentProcessingNodes.filter((node) => {
-      if (node.type !== NodeType.slave || !node.capabilities) {
-        return false;
-      }
-
-      return new Boolset(node.capabilities).enabled(NodeCapability.content_processing);
+    const queueMetric = queueMetrics.find((metric) => metric.name === QueueType.CONTENT_PROCESSING);
+    const health = getContentProcessingHealthSummary({
+      nodes: contentProcessingNodes,
+      queueMetric,
+      t,
     });
 
-    const activeNodes = eligibleNodes.filter((node) => node.status === NodeStatus.active);
-    const suspendedNodes = eligibleNodes.filter((node) => node.status === NodeStatus.suspended);
-    const queueMetric = queueMetrics.find((metric) => metric.name === QueueType.CONTENT_PROCESSING);
-
     return {
-      total: eligibleNodes.length,
-      active: activeNodes.length,
-      suspended: suspendedNodes.length,
+      total: health.eligibleNodes.length,
+      active: health.activeNodes.length,
+      suspended: health.suspendedNodes.length,
       submitted: queueMetric?.submitted_tasks ?? 0,
       busy: queueMetric?.busy_workers ?? 0,
       failed: queueMetric?.failure_tasks ?? 0,
       suspending: queueMetric?.suspending_tasks ?? 0,
+      warnings: health.warnings,
     };
   })();
 
@@ -376,11 +372,17 @@ const Home = () => {
                         failed: contentProcessingOverview.failed,
                       })}
                     </Typography>
-                    <Alert severity={contentProcessingOverview.active > 0 ? "info" : "warning"}>
-                      {contentProcessingOverview.active > 0
+                    <Alert severity={contentProcessingOverview.warnings.length > 0 ? "warning" : "info"}>
+                      {contentProcessingOverview.warnings.length === 0
                         ? t("summary.contentProcessingHealthy")
                         : t("summary.contentProcessingWarning")}
                     </Alert>
+                    {contentProcessingOverview.warnings.length > 0 &&
+                      contentProcessingOverview.warnings.map((warning, index) => (
+                        <Typography key={index} variant="body2">
+                          {t("summary.contentProcessingRiskPrefix", { message: warning })}
+                        </Typography>
+                      ))}
                     <Stack direction="row" spacing={1}>
                       <Button
                         component={RouterLink}

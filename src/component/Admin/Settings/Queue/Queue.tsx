@@ -3,11 +3,11 @@ import React, { useContext, useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Link as RouterLink } from "react-router-dom";
 import { getNodeList, getQueueMetrics } from "../../../../api/api.ts";
-import { Node, NodeStatus, NodeType, QueueMetric, QueueType } from "../../../../api/dashboard.ts";
-import { NodeCapability, TaskStatus } from "../../../../api/workflow.ts";
+import { Node, QueueMetric, QueueType } from "../../../../api/dashboard.ts";
+import { TaskStatus } from "../../../../api/workflow.ts";
 import { useAppDispatch } from "../../../../redux/hooks.ts";
-import Boolset from "../../../../util/boolset.ts";
 import ContentProcessingSubtypeLinks from "../../Common/ContentProcessingSubtypeLinks.tsx";
+import { getContentProcessingHealthSummary } from "../../Common/contentProcessingHealth.ts";
 import { SecondaryButton } from "../../../Common/StyledComponents.tsx";
 import ArrowSync from "../../../Icons/ArrowSync.tsx";
 import { SettingContext } from "../SettingWrapper.tsx";
@@ -51,50 +51,9 @@ const Queue = () => {
   }, []);
 
   const contentProcessingSummary = useMemo(() => {
-    const eligibleNodes = nodes.filter((node) => {
-      if (node.type !== NodeType.slave || !node.capabilities) {
-        return false;
-      }
-
-      return new Boolset(node.capabilities).enabled(NodeCapability.content_processing);
-    });
-
-    const activeNodes = eligibleNodes.filter((node) => node.status === NodeStatus.active);
-    const suspendedNodes = eligibleNodes.filter((node) => node.status === NodeStatus.suspended);
     const queueMetric = metrics.find((metric) => metric.name === QueueType.CONTENT_PROCESSING);
     const configuredWorkers = Math.max(parseInt(values.queue_content_processing_worker_num ?? "0") || 0, 0);
-    const warnings: string[] = [];
-
-    if (eligibleNodes.length === 0) {
-      warnings.push(t("queue.contentProcessingInspectionRiskNoEligible"));
-    } else if (activeNodes.length === 0) {
-      warnings.push(t("queue.contentProcessingInspectionRiskNoActive"));
-    }
-
-    if (configuredWorkers <= 0) {
-      warnings.push(t("queue.contentProcessingInspectionRiskNoWorkers"));
-    }
-
-    if (queueMetric && configuredWorkers > 0 && queueMetric.busy_workers >= configuredWorkers) {
-      warnings.push(t("queue.contentProcessingInspectionRiskWorkerSaturated"));
-    }
-
-    if (suspendedNodes.length > 0) {
-      warnings.push(
-        t("queue.contentProcessingInspectionRiskSuspendedNodes", {
-          count: suspendedNodes.length,
-        }),
-      );
-    }
-
-    return {
-      eligibleNodes,
-      activeNodes,
-      suspendedNodes,
-      queueMetric,
-      configuredWorkers,
-      warnings,
-    };
+    return getContentProcessingHealthSummary({ nodes, queueMetric, configuredWorkers, t });
   }, [metrics, nodes, t, values.queue_content_processing_worker_num]);
 
   return (
