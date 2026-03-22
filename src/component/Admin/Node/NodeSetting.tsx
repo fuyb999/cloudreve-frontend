@@ -1,5 +1,15 @@
 import { Add } from "@mui/icons-material";
-import { Alert, Box, Container, Grid2 as Grid, IconButton, Stack, Typography } from "@mui/material";
+import {
+  Alert,
+  Box,
+  Container,
+  Grid2 as Grid,
+  IconButton,
+  Stack,
+  ToggleButton,
+  ToggleButtonGroup,
+  Typography,
+} from "@mui/material";
 import { useQueryState } from "nuqs";
 import React, { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -19,6 +29,8 @@ import { OrderByQuery, OrderDirectionQuery, PageQuery, PageSizeQuery } from "../
 import { NewNodeDialog } from "./NewNode/NewNodeDialog";
 import NodeCard from "./NodeCard";
 
+const nodeCapabilityCondition = "node_capability";
+
 const NodeSetting = () => {
   const { t } = useTranslation("dashboard");
   const dispatch = useAppDispatch();
@@ -34,6 +46,7 @@ const NodeSetting = () => {
   const [orderDirection] = useQueryState(OrderDirectionQuery, { defaultValue: "desc" });
   const [count, setCount] = useState(0);
   const [createNewOpen, setCreateNewOpen] = useState(false);
+  const [capabilityFilter, setCapabilityFilter] = useState<"all" | "content_processing">("all");
 
   const pageInt = parseInt(page) ?? 1;
   const pageSizeInt = parseInt(pageSize) ?? 11;
@@ -55,7 +68,7 @@ const NodeSetting = () => {
 
   useEffect(() => {
     fetchNodes();
-  }, [page, pageSize, orderBy, orderDirection]);
+  }, [capabilityFilter, page, pageSize, orderBy, orderDirection]);
 
   const fetchNodes = () => {
     setLoading(true);
@@ -65,7 +78,9 @@ const NodeSetting = () => {
         page_size: pageSizeInt,
         order_by: orderBy ?? "",
         order_direction: orderDirection ?? "desc",
-        conditions: {},
+        conditions: {
+          ...(capabilityFilter === "content_processing" ? { [nodeCapabilityCondition]: "content_processing" } : {}),
+        },
       }),
     )
       .then((res) => {
@@ -96,6 +111,22 @@ const NodeSetting = () => {
           <SecondaryButton onClick={fetchNodes} disabled={loading} variant={"contained"} startIcon={<ArrowSync />}>
             {t("node.refresh")}
           </SecondaryButton>
+          <ToggleButtonGroup
+            size="small"
+            exclusive
+            value={capabilityFilter}
+            onChange={(_, nextValue) => {
+              if (!nextValue) {
+                return;
+              }
+
+              setCapabilityFilter(nextValue);
+              setPage("1");
+            }}
+          >
+            <ToggleButton value="all">{t("node.filterAll")}</ToggleButton>
+            <ToggleButton value="content_processing">{t("node.filterContentProcessing")}</ToggleButton>
+          </ToggleButtonGroup>
         </Stack>
         {!loading && (
           <Alert severity={contentProcessingSummary.active > 0 ? "info" : "warning"} sx={{ mb: 2 }}>
@@ -109,6 +140,13 @@ const NodeSetting = () => {
                 suspended: contentProcessingSummary.suspended,
               })}
             </Typography>
+            {capabilityFilter === "content_processing" && (
+              <Typography variant="body2" sx={{ mt: 0.5 }}>
+                {t("node.filterContentProcessingHint", {
+                  count,
+                })}
+              </Typography>
+            )}
           </Alert>
         )}
         <Grid container spacing={2}>
