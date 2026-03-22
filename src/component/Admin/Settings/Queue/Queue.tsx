@@ -155,7 +155,7 @@ const Queue = () => {
                   ? {
                       activeNodes: contentProcessingSummary.activeNodes.length,
                       totalNodes: contentProcessingSummary.eligibleNodes.length,
-                      configuredWorkers: contentProcessingSummary.configuredWorkers,
+                      configuredWorkers: contentProcessingSummary.configuredWorkers ?? 0,
                     }
                   : undefined
               }
