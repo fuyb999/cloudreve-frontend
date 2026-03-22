@@ -20,6 +20,7 @@ import { Node, QueueMetric, QueueType } from "../../../api/dashboard";
 import { TaskStatus } from "../../../api/workflow";
 import { useAppDispatch } from "../../../redux/hooks";
 import ContentProcessingSubtypeLinks from "../Common/ContentProcessingSubtypeLinks";
+import { getContentProcessingTaskRoute } from "../Common/contentProcessingRoutes";
 import { getContentProcessingHealthSummary } from "../Common/contentProcessingHealth";
 import { SecondaryButton } from "../../Common/StyledComponents";
 import ArrowSync from "../../Icons/ArrowSync";
@@ -139,7 +140,7 @@ const NodeSetting = () => {
             <Stack direction="row" spacing={1} sx={{ mt: 0.5, mb: 0.5 }}>
               <Button
                 component={RouterLink}
-                to="/admin/task?type=content_processing"
+                to={getContentProcessingTaskRoute()}
                 size="small"
                 sx={{ px: 0, minWidth: "auto" }}
               >
@@ -148,7 +149,7 @@ const NodeSetting = () => {
               {(contentProcessingSummary.queueMetric?.failure_tasks ?? 0) > 0 && (
                 <Button
                   component={RouterLink}
-                  to={`/admin/task?type=content_processing&status=${TaskStatus.error}`}
+                  to={getContentProcessingTaskRoute(undefined, TaskStatus.error)}
                   size="small"
                   sx={{ px: 0, minWidth: "auto" }}
                 >
@@ -158,7 +159,7 @@ const NodeSetting = () => {
               {(contentProcessingSummary.queueMetric?.suspending_tasks ?? 0) > 0 && (
                 <Button
                   component={RouterLink}
-                  to={`/admin/task?type=content_processing&status=${TaskStatus.suspending}`}
+                  to={getContentProcessingTaskRoute(undefined, TaskStatus.suspending)}
                   size="small"
                   sx={{ px: 0, minWidth: "auto" }}
                 >

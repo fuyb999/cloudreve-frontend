@@ -3,6 +3,7 @@ import React from "react";
 import { useTranslation } from "react-i18next";
 import { Link as RouterLink } from "react-router-dom";
 import { contentProcessingTaskTypes } from "../../../api/workflow";
+import { getContentProcessingTaskRoute } from "./contentProcessingRoutes";
 
 export interface ContentProcessingSubtypeLinksProps {
   selectedType?: string;
@@ -17,7 +18,7 @@ const ContentProcessingSubtypeLinks = ({ selectedType }: ContentProcessingSubtyp
         <Button
           key={taskType}
           component={RouterLink}
-          to={`/admin/task?type=${taskType}`}
+          to={getContentProcessingTaskRoute(taskType)}
           size="small"
           variant={selectedType === taskType ? "contained" : "text"}
           sx={{ px: 0.5, minWidth: "auto" }}

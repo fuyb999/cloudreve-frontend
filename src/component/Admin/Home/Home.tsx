@@ -37,6 +37,11 @@ import ShareFilled from "../../Icons/ShareFilled.tsx";
 import PageContainer from "../../Pages/PageContainer.tsx";
 import PageHeader from "../../Pages/PageHeader.tsx";
 import ContentProcessingSubtypeLinks from "../Common/ContentProcessingSubtypeLinks.tsx";
+import {
+  contentProcessingNodeRoute,
+  contentProcessingQueueRoute,
+  getContentProcessingTaskRoute,
+} from "../Common/contentProcessingRoutes.ts";
 import { getContentProcessingHealthSummary } from "../Common/contentProcessingHealth.ts";
 import SiteUrlWarning from "./SiteUrlWarning.tsx";
 
@@ -386,7 +391,7 @@ const Home = () => {
                     <Stack direction="row" spacing={1}>
                       <Button
                         component={RouterLink}
-                        to="/admin/settings/queue"
+                        to={contentProcessingQueueRoute}
                         size="small"
                         sx={{ px: 0, minWidth: "auto" }}
                       >
@@ -394,7 +399,7 @@ const Home = () => {
                       </Button>
                       <Button
                         component={RouterLink}
-                        to="/admin/node?capability=content_processing"
+                        to={contentProcessingNodeRoute}
                         size="small"
                         sx={{ px: 0, minWidth: "auto" }}
                       >
@@ -402,7 +407,7 @@ const Home = () => {
                       </Button>
                       <Button
                         component={RouterLink}
-                        to="/admin/task?type=content_processing"
+                        to={getContentProcessingTaskRoute()}
                         size="small"
                         sx={{ px: 0, minWidth: "auto" }}
                       >
@@ -411,7 +416,7 @@ const Home = () => {
                       {contentProcessingOverview.failed > 0 && (
                         <Button
                           component={RouterLink}
-                          to={`/admin/task?type=content_processing&status=${TaskStatus.error}`}
+                          to={getContentProcessingTaskRoute(undefined, TaskStatus.error)}
                           size="small"
                           sx={{ px: 0, minWidth: "auto" }}
                         >
@@ -422,7 +427,7 @@ const Home = () => {
                     {contentProcessingOverview.suspending > 0 && (
                       <Button
                         component={RouterLink}
-                        to={`/admin/task?type=content_processing&status=${TaskStatus.suspending}`}
+                        to={getContentProcessingTaskRoute(undefined, TaskStatus.suspending)}
                         size="small"
                         sx={{ px: 0, minWidth: "auto", alignSelf: "flex-start" }}
                       >

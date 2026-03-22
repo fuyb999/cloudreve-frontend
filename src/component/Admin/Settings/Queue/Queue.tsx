@@ -7,6 +7,7 @@ import { Node, QueueMetric, QueueType } from "../../../../api/dashboard.ts";
 import { TaskStatus } from "../../../../api/workflow.ts";
 import { useAppDispatch } from "../../../../redux/hooks.ts";
 import ContentProcessingSubtypeLinks from "../../Common/ContentProcessingSubtypeLinks.tsx";
+import { contentProcessingNodeRoute, getContentProcessingTaskRoute } from "../../Common/contentProcessingRoutes.ts";
 import { getContentProcessingHealthSummary } from "../../Common/contentProcessingHealth.ts";
 import { SecondaryButton } from "../../../Common/StyledComponents.tsx";
 import ArrowSync from "../../../Icons/ArrowSync.tsx";
@@ -98,7 +99,7 @@ const Queue = () => {
           <Stack direction="row" spacing={1} sx={{ mt: 0.5, mb: 0.5 }}>
             <Button
               component={RouterLink}
-              to="/admin/node?capability=content_processing"
+              to={contentProcessingNodeRoute}
               size="small"
               sx={{ px: 0, minWidth: "auto" }}
             >
@@ -106,7 +107,7 @@ const Queue = () => {
             </Button>
             <Button
               component={RouterLink}
-              to="/admin/task?type=content_processing"
+              to={getContentProcessingTaskRoute()}
               size="small"
               sx={{ px: 0, minWidth: "auto" }}
             >
@@ -115,7 +116,7 @@ const Queue = () => {
             {(contentProcessingSummary.queueMetric?.failure_tasks ?? 0) > 0 && (
               <Button
                 component={RouterLink}
-                to={`/admin/task?type=content_processing&status=${TaskStatus.error}`}
+                to={getContentProcessingTaskRoute(undefined, TaskStatus.error)}
                 size="small"
                 sx={{ px: 0, minWidth: "auto" }}
               >
@@ -125,7 +126,7 @@ const Queue = () => {
             {(contentProcessingSummary.queueMetric?.suspending_tasks ?? 0) > 0 && (
               <Button
                 component={RouterLink}
-                to={`/admin/task?type=content_processing&status=${TaskStatus.suspending}`}
+                to={getContentProcessingTaskRoute(undefined, TaskStatus.suspending)}
                 size="small"
                 sx={{ px: 0, minWidth: "auto" }}
               >

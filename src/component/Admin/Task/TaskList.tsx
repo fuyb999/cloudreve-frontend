@@ -36,6 +36,11 @@ import Filter from "../../Icons/Filter";
 import PageContainer from "../../Pages/PageContainer";
 import PageHeader from "../../Pages/PageHeader";
 import ContentProcessingSubtypeLinks from "../Common/ContentProcessingSubtypeLinks";
+import {
+  contentProcessingNodeRoute,
+  contentProcessingQueueRoute,
+  getContentProcessingTaskRoute,
+} from "../Common/contentProcessingRoutes";
 import TablePagination from "../Common/TablePagination";
 import EntityDialog from "../Entity/EntityDialog/EntityDialog";
 import FileDialog from "../File/FileDialog/FileDialog";
@@ -53,16 +58,6 @@ export const CorrelationIDQuery = "correlation_id";
 
 const isContentProcessingSubtype = (value: string) =>
   contentProcessingTaskTypes.includes(value as (typeof contentProcessingTaskTypes)[number]);
-
-const taskLinkWithStatus = (type: string, status?: string) => {
-  const params = new URLSearchParams();
-  params.set("type", type);
-  if (status) {
-    params.set("status", status);
-  }
-
-  return `/admin/task?${params.toString()}`;
-};
 
 const TaskList = () => {
   const { t } = useTranslation("dashboard");
@@ -254,19 +249,24 @@ const TaskList = () => {
                 {!isContentProcessingAggregateView && (
                   <Button
                     component={RouterLink}
-                    to={taskLinkWithStatus(ContentProcessingTaskFilter)}
+                    to={getContentProcessingTaskRoute()}
                     size="small"
                     sx={{ px: 0, minWidth: "auto" }}
                   >
                     {t("task.openContentProcessingAggregate")}
                   </Button>
                 )}
-                <Button component={RouterLink} to="/admin/settings/queue" size="small" sx={{ px: 0, minWidth: "auto" }}>
+                <Button
+                  component={RouterLink}
+                  to={contentProcessingQueueRoute}
+                  size="small"
+                  sx={{ px: 0, minWidth: "auto" }}
+                >
                   {t("task.openContentProcessingQueue")}
                 </Button>
                 <Button
                   component={RouterLink}
-                  to="/admin/node?capability=content_processing"
+                  to={contentProcessingNodeRoute}
                   size="small"
                   sx={{ px: 0, minWidth: "auto" }}
                 >
@@ -276,7 +276,7 @@ const TaskList = () => {
               <Stack direction="row" spacing={1}>
                 <Button
                   component={RouterLink}
-                  to={taskLinkWithStatus(type)}
+                  to={getContentProcessingTaskRoute(type)}
                   size="small"
                   variant={!status ? "contained" : "text"}
                   sx={{ px: 0.5, minWidth: "auto" }}
@@ -285,7 +285,7 @@ const TaskList = () => {
                 </Button>
                 <Button
                   component={RouterLink}
-                  to={taskLinkWithStatus(type, TaskStatus.error)}
+                  to={getContentProcessingTaskRoute(type, TaskStatus.error)}
                   size="small"
                   variant={status === TaskStatus.error ? "contained" : "text"}
                   sx={{ px: 0.5, minWidth: "auto" }}
@@ -294,7 +294,7 @@ const TaskList = () => {
                 </Button>
                 <Button
                   component={RouterLink}
-                  to={taskLinkWithStatus(type, TaskStatus.suspending)}
+                  to={getContentProcessingTaskRoute(type, TaskStatus.suspending)}
                   size="small"
                   variant={status === TaskStatus.suspending ? "contained" : "text"}
                   sx={{ px: 0.5, minWidth: "auto" }}
