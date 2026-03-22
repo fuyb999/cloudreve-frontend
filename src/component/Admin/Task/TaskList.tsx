@@ -26,7 +26,7 @@ import { useTranslation } from "react-i18next";
 import { Link as RouterLink } from "react-router-dom";
 import { batchDeleteTasks, getTaskList } from "../../../api/api";
 import { AdminListService, Task } from "../../../api/dashboard";
-import { ContentProcessingTaskFilter, contentProcessingTaskTypes } from "../../../api/workflow";
+import { ContentProcessingTaskFilter, contentProcessingTaskTypes, TaskStatus } from "../../../api/workflow";
 import { useAppDispatch } from "../../../redux/hooks";
 import { confirmOperation } from "../../../redux/thunks/dialog";
 import { NoWrapTableCell, SecondaryButton, StyledTableContainerPaper } from "../../Common/StyledComponents";
@@ -53,6 +53,16 @@ export const CorrelationIDQuery = "correlation_id";
 
 const isContentProcessingSubtype = (value: string) =>
   contentProcessingTaskTypes.includes(value as (typeof contentProcessingTaskTypes)[number]);
+
+const taskLinkWithStatus = (type: string, status?: string) => {
+  const params = new URLSearchParams();
+  params.set("type", type);
+  if (status) {
+    params.set("status", status);
+  }
+
+  return `/admin/task?${params.toString()}`;
+};
 
 const TaskList = () => {
   const { t } = useTranslation("dashboard");
@@ -244,7 +254,7 @@ const TaskList = () => {
                 {!isContentProcessingAggregateView && (
                   <Button
                     component={RouterLink}
-                    to={`/admin/task?type=${ContentProcessingTaskFilter}`}
+                    to={taskLinkWithStatus(ContentProcessingTaskFilter)}
                     size="small"
                     sx={{ px: 0, minWidth: "auto" }}
                   >
@@ -261,6 +271,35 @@ const TaskList = () => {
                   sx={{ px: 0, minWidth: "auto" }}
                 >
                   {t("task.openContentProcessingNodes")}
+                </Button>
+              </Stack>
+              <Stack direction="row" spacing={1}>
+                <Button
+                  component={RouterLink}
+                  to={taskLinkWithStatus(type)}
+                  size="small"
+                  variant={!status ? "contained" : "text"}
+                  sx={{ px: 0.5, minWidth: "auto" }}
+                >
+                  {t("task.openAllContentProcessingTasks")}
+                </Button>
+                <Button
+                  component={RouterLink}
+                  to={taskLinkWithStatus(type, TaskStatus.error)}
+                  size="small"
+                  variant={status === TaskStatus.error ? "contained" : "text"}
+                  sx={{ px: 0.5, minWidth: "auto" }}
+                >
+                  {t("task.openFailedContentProcessingTasks")}
+                </Button>
+                <Button
+                  component={RouterLink}
+                  to={taskLinkWithStatus(type, TaskStatus.suspending)}
+                  size="small"
+                  variant={status === TaskStatus.suspending ? "contained" : "text"}
+                  sx={{ px: 0.5, minWidth: "auto" }}
+                >
+                  {t("task.openSuspendingContentProcessingTasks")}
                 </Button>
               </Stack>
               <Box sx={{ mt: 0.5 }}>
