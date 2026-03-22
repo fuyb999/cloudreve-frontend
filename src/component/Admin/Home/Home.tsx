@@ -1,6 +1,8 @@
 import {
+  Alert,
   Avatar,
   Box,
+  Button,
   Container,
   Divider,
   List,
@@ -8,19 +10,24 @@ import {
   ListItemAvatar,
   ListItemText,
   Paper,
+  Stack,
   styled,
   Typography,
 } from "@mui/material";
 import { blue, green, red, yellow } from "@mui/material/colors";
 import Grid from "@mui/material/Grid";
 import dayjs from "dayjs";
+import React from "react";
 import { useCallback, useEffect, useState } from "react";
 import { Trans, useTranslation } from "react-i18next";
+import { Link as RouterLink } from "react-router-dom";
 import { CSSTransition, SwitchTransition } from "react-transition-group";
 import { CartesianGrid, Legend, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
-import { getDashboardSummary } from "../../../api/api.ts";
-import { HomepageSummary } from "../../../api/dashboard.ts";
+import { getDashboardSummary, getNodeList, getQueueMetrics } from "../../../api/api.ts";
+import { HomepageSummary, Node, NodeStatus, NodeType, QueueMetric, QueueType } from "../../../api/dashboard.ts";
+import { NodeCapability } from "../../../api/workflow.ts";
 import { useAppDispatch } from "../../../redux/hooks.ts";
+import Boolset from "../../../util/boolset.ts";
 import FacebookCircularProgress from "../../Common/CircularProgress.tsx";
 import { SecondaryButton } from "../../Common/StyledComponents.tsx";
 import TimeBadge from "../../Common/TimeBadge.tsx";
@@ -30,6 +37,7 @@ import PeopleFilled from "../../Icons/PeopleFilled.tsx";
 import ShareFilled from "../../Icons/ShareFilled.tsx";
 import PageContainer from "../../Pages/PageContainer.tsx";
 import PageHeader from "../../Pages/PageHeader.tsx";
+import ContentProcessingSubtypeLinks from "../Common/ContentProcessingSubtypeLinks.tsx";
 import SiteUrlWarning from "./SiteUrlWarning.tsx";
 
 const StyledPaper = styled(Paper)(({ theme }) => ({
@@ -44,8 +52,12 @@ const Home = () => {
   const [summary, setSummary] = useState<HomepageSummary | undefined>();
   const [chartLoading, setChartLoading] = useState(false);
   const [siteUrlWarning, setSiteUrlWarning] = useState(false);
+  const [contentProcessingLoading, setContentProcessingLoading] = useState(false);
+  const [contentProcessingNodes, setContentProcessingNodes] = useState<Node[]>([]);
+  const [queueMetrics, setQueueMetrics] = useState<QueueMetric[]>([]);
   useEffect(() => {
     loadSummary(false);
+    loadContentProcessingSummary();
   }, []);
 
   const loadSummary = useCallback((loadChart?: boolean) => {
@@ -66,6 +78,53 @@ const Home = () => {
         setChartLoading(false);
       });
   }, []);
+
+  const loadContentProcessingSummary = useCallback(() => {
+    setContentProcessingLoading(true);
+    Promise.all([
+      dispatch(getQueueMetrics()),
+      dispatch(
+        getNodeList({
+          page: 1,
+          page_size: 1000,
+          order_by: "",
+          order_direction: "desc",
+          conditions: {},
+        }),
+      ),
+    ])
+      .then(([metrics, nodeList]) => {
+        setQueueMetrics(metrics);
+        setContentProcessingNodes(nodeList.nodes);
+      })
+      .finally(() => {
+        setContentProcessingLoading(false);
+      });
+  }, [dispatch]);
+
+  const contentProcessingOverview = (() => {
+    const eligibleNodes = contentProcessingNodes.filter((node) => {
+      if (node.type !== NodeType.slave || !node.capabilities) {
+        return false;
+      }
+
+      return new Boolset(node.capabilities).enabled(NodeCapability.content_processing);
+    });
+
+    const activeNodes = eligibleNodes.filter((node) => node.status === NodeStatus.active);
+    const suspendedNodes = eligibleNodes.filter((node) => node.status === NodeStatus.suspended);
+    const queueMetric = queueMetrics.find((metric) => metric.name === QueueType.CONTENT_PROCESSING);
+
+    return {
+      total: eligibleNodes.length,
+      active: activeNodes.length,
+      suspended: suspendedNodes.length,
+      submitted: queueMetric?.submitted_tasks ?? 0,
+      busy: queueMetric?.busy_workers ?? 0,
+      failed: queueMetric?.failure_tasks ?? 0,
+      suspending: queueMetric?.suspending_tasks ?? 0,
+    };
+  })();
 
   return (
     <PageContainer>
@@ -179,116 +238,185 @@ const Home = () => {
             </StyledPaper>
           </Grid>
           <Grid item xs={12} md={4} lg={3}>
-            <StyledPaper>
-              <Typography variant={"subtitle1"} fontWeight={500}>
-                {t("summary.summary")}
-              </Typography>
-              <Divider sx={{ mb: 2, mt: 1 }} />
-              <SwitchTransition>
-                <CSSTransition
-                  addEndListener={(node, done) => node.addEventListener("transitionend", done, false)}
-                  classNames="fade"
-                  key={`${!!summary?.metrics_summary}-${chartLoading}`}
-                >
-                  <Box>
-                    {summary?.metrics_summary && (
-                      <List disablePadding sx={{ minHeight: "300px" }}>
-                        <ListItem>
-                          <ListItemAvatar>
-                            <Avatar
-                              sx={{
-                                backgroundColor: blue[100],
-                                color: blue[600],
-                              }}
-                            >
-                              <PeopleFilled />
-                            </Avatar>
-                          </ListItemAvatar>
-                          <ListItemText
-                            secondary={t("summary.totalUsers")}
-                            primary={summary.metrics_summary.user_total.toLocaleString()}
-                          />
-                        </ListItem>
-                        <ListItem>
-                          <ListItemAvatar>
-                            <Avatar
-                              sx={{
-                                backgroundColor: yellow[100],
-                                color: yellow[800],
-                              }}
-                            >
-                              <DocumentCopyFilled />
-                            </Avatar>
-                          </ListItemAvatar>
-                          <ListItemText
-                            secondary={t("summary.totalFilesAndFolders")}
-                            primary={summary.metrics_summary.file_total.toLocaleString()}
-                          />
-                        </ListItem>
-                        <ListItem>
-                          <ListItemAvatar>
-                            <Avatar
-                              sx={{
-                                backgroundColor: green[100],
-                                color: green[800],
-                              }}
-                            >
-                              <ShareFilled />
-                            </Avatar>
-                          </ListItemAvatar>
-                          <ListItemText
-                            secondary={t("summary.shareLinks")}
-                            primary={summary.metrics_summary.share_total.toLocaleString()}
-                          />
-                        </ListItem>
-                        <ListItem>
-                          <ListItemAvatar>
-                            <Avatar
-                              sx={{
-                                backgroundColor: red[100],
-                                color: red[800],
-                              }}
-                            >
-                              <BoxMultipleFilled />
-                            </Avatar>
-                          </ListItemAvatar>
-                          <ListItemText
-                            secondary={t("summary.totalBlobs")}
-                            primary={summary.metrics_summary.entities_total.toLocaleString()}
-                          />
-                        </ListItem>
-                      </List>
-                    )}
-                    {chartLoading && (
-                      <Box
-                        sx={{
-                          height: "300px",
-                          display: "flex",
-                          alignItems: "center",
-                          justifyContent: "center",
-                        }}
-                      >
-                        <FacebookCircularProgress />
-                      </Box>
-                    )}
-                    {!summary?.metrics_summary?.generated_at && !chartLoading && (
-                      <Box
-                        sx={{
-                          height: "300px",
-                          display: "flex",
-                          alignItems: "center",
-                          justifyContent: "center",
-                        }}
-                      >
-                        <SecondaryButton onClick={() => loadSummary(true)}>
-                          {t("application:fileManager.calculate")}
-                        </SecondaryButton>
-                      </Box>
-                    )}
+            <Stack spacing={3}>
+              <StyledPaper>
+                <Typography variant={"subtitle1"} fontWeight={500}>
+                  {t("summary.summary")}
+                </Typography>
+                <Divider sx={{ mb: 2, mt: 1 }} />
+                <SwitchTransition>
+                  <CSSTransition
+                    addEndListener={(node, done) => node.addEventListener("transitionend", done, false)}
+                    classNames="fade"
+                    key={`${!!summary?.metrics_summary}-${chartLoading}`}
+                  >
+                    <Box>
+                      {summary?.metrics_summary && (
+                        <List disablePadding sx={{ minHeight: "300px" }}>
+                          <ListItem>
+                            <ListItemAvatar>
+                              <Avatar
+                                sx={{
+                                  backgroundColor: blue[100],
+                                  color: blue[600],
+                                }}
+                              >
+                                <PeopleFilled />
+                              </Avatar>
+                            </ListItemAvatar>
+                            <ListItemText
+                              secondary={t("summary.totalUsers")}
+                              primary={summary.metrics_summary.user_total.toLocaleString()}
+                            />
+                          </ListItem>
+                          <ListItem>
+                            <ListItemAvatar>
+                              <Avatar
+                                sx={{
+                                  backgroundColor: yellow[100],
+                                  color: yellow[800],
+                                }}
+                              >
+                                <DocumentCopyFilled />
+                              </Avatar>
+                            </ListItemAvatar>
+                            <ListItemText
+                              secondary={t("summary.totalFilesAndFolders")}
+                              primary={summary.metrics_summary.file_total.toLocaleString()}
+                            />
+                          </ListItem>
+                          <ListItem>
+                            <ListItemAvatar>
+                              <Avatar
+                                sx={{
+                                  backgroundColor: green[100],
+                                  color: green[800],
+                                }}
+                              >
+                                <ShareFilled />
+                              </Avatar>
+                            </ListItemAvatar>
+                            <ListItemText
+                              secondary={t("summary.shareLinks")}
+                              primary={summary.metrics_summary.share_total.toLocaleString()}
+                            />
+                          </ListItem>
+                          <ListItem>
+                            <ListItemAvatar>
+                              <Avatar
+                                sx={{
+                                  backgroundColor: red[100],
+                                  color: red[800],
+                                }}
+                              >
+                                <BoxMultipleFilled />
+                              </Avatar>
+                            </ListItemAvatar>
+                            <ListItemText
+                              secondary={t("summary.totalBlobs")}
+                              primary={summary.metrics_summary.entities_total.toLocaleString()}
+                            />
+                          </ListItem>
+                        </List>
+                      )}
+                      {chartLoading && (
+                        <Box
+                          sx={{
+                            height: "300px",
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                          }}
+                        >
+                          <FacebookCircularProgress />
+                        </Box>
+                      )}
+                      {!summary?.metrics_summary?.generated_at && !chartLoading && (
+                        <Box
+                          sx={{
+                            height: "300px",
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                          }}
+                        >
+                          <SecondaryButton onClick={() => loadSummary(true)}>
+                            {t("application:fileManager.calculate")}
+                          </SecondaryButton>
+                        </Box>
+                      )}
+                    </Box>
+                  </CSSTransition>
+                </SwitchTransition>
+              </StyledPaper>
+
+              <StyledPaper>
+                <Typography variant={"subtitle1"} fontWeight={500}>
+                  {t("summary.contentProcessingOverview")}
+                </Typography>
+                <Divider sx={{ mb: 2, mt: 1 }} />
+                {contentProcessingLoading ? (
+                  <Box sx={{ minHeight: 220, display: "flex", alignItems: "center", justifyContent: "center" }}>
+                    <FacebookCircularProgress />
                   </Box>
-                </CSSTransition>
-              </SwitchTransition>
-            </StyledPaper>
+                ) : (
+                  <Stack spacing={1.5}>
+                    <Typography variant="body2">
+                      {t("summary.contentProcessingNodeState", {
+                        total: contentProcessingOverview.total,
+                        active: contentProcessingOverview.active,
+                        suspended: contentProcessingOverview.suspended,
+                      })}
+                    </Typography>
+                    <Typography variant="body2">
+                      {t("summary.contentProcessingQueueState", {
+                        submitted: contentProcessingOverview.submitted,
+                        busy: contentProcessingOverview.busy,
+                        suspending: contentProcessingOverview.suspending,
+                        failed: contentProcessingOverview.failed,
+                      })}
+                    </Typography>
+                    <Alert severity={contentProcessingOverview.active > 0 ? "info" : "warning"}>
+                      {contentProcessingOverview.active > 0
+                        ? t("summary.contentProcessingHealthy")
+                        : t("summary.contentProcessingWarning")}
+                    </Alert>
+                    <Stack direction="row" spacing={1}>
+                      <Button
+                        component={RouterLink}
+                        to="/admin/settings/queue"
+                        size="small"
+                        sx={{ px: 0, minWidth: "auto" }}
+                      >
+                        {t("summary.openContentProcessingQueue")}
+                      </Button>
+                      <Button
+                        component={RouterLink}
+                        to="/admin/node?capability=content_processing"
+                        size="small"
+                        sx={{ px: 0, minWidth: "auto" }}
+                      >
+                        {t("summary.openContentProcessingNodes")}
+                      </Button>
+                      <Button
+                        component={RouterLink}
+                        to="/admin/task?type=content_processing"
+                        size="small"
+                        sx={{ px: 0, minWidth: "auto" }}
+                      >
+                        {t("summary.openContentProcessingTasks")}
+                      </Button>
+                    </Stack>
+                    <ContentProcessingSubtypeLinks />
+                    <Box>
+                      <SecondaryButton onClick={loadContentProcessingSummary} size="small">
+                        {t("node.refresh")}
+                      </SecondaryButton>
+                    </Box>
+                  </Stack>
+                )}
+              </StyledPaper>
+            </Stack>
           </Grid>
         </Grid>
       </Container>
