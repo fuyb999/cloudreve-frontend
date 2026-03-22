@@ -22,7 +22,6 @@ import {
   ListFileResponse,
   ListNodeResponse,
   ListAuditLogResponse,
-  ListPaymentResponse as AdminListPaymentResponse,
   ListOAuthClientResponse,
   ListStoragePolicyResponse,
   ListTaskResponse,
@@ -314,7 +313,7 @@ export function sendSignout(req: SignoutRequest): ThunkResponse<string> {
   };
 }
 
-export function getFileList(req: ListFileService, skipSnackbar = true): ThunkResponse<ListResponse> {
+export function getFileList(req: ListFileService, _skipSnackbar = true): ThunkResponse<ListResponse> {
   return async (dispatch, _getState) => {
     return await dispatch(
       send(
@@ -2181,7 +2180,7 @@ export function getOauthAppRegistration(app_id: string): ThunkResponse<AppRegist
 export function sendConsentOauthApp(args: GrantService): ThunkResponse<GrantResponse> {
   return async (dispatch, _getState) => {
     return await dispatch(
-      send(`/session/oauth/consent`, { method: "POST", data: args }, { bypassSnackbar: (e) => true, ...defaultOpts }),
+      send(`/session/oauth/consent`, { method: "POST", data: args }, { bypassSnackbar: () => true, ...defaultOpts }),
     );
   };
 }

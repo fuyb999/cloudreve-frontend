@@ -54,8 +54,8 @@ export interface BreadcrumbButtonProps {
 }
 
 export interface StartIcon {
-  Element?: (props: { [key: string]: any }) => JSX.Element;
-  Icons?: ((props: SvgIconProps) => JSX.Element)[];
+  Element?: React.ElementType<{ [key: string]: any }>;
+  Icons?: React.ElementType<SvgIconProps>[];
 }
 
 export const useBreadcrumbButtons = ({

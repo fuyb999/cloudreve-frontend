@@ -32,7 +32,7 @@ const StyledImageListItem = styled(ImageListItem)<{
 });
 
 const GalleryImage = memo((props: FileBlockProps) => {
-  const { file, columns, search, isDragging, isDropOver } = props;
+  const { file, isDragging, isDropOver } = props;
   const dispatch = useAppDispatch();
 
   const {
@@ -40,15 +40,10 @@ const GalleryImage = memo((props: FileBlockProps) => {
     isSelected,
     isLoadingIndicator,
     noThumb,
-    uploading,
     ref,
     inView,
-    showLock,
-    fileTag,
     onClick,
     onDoubleClicked,
-    hoverStateOff,
-    hoverStateOn,
     onContextMenu,
     setRefFunc,
     disabled,
@@ -87,7 +82,7 @@ const GalleryImage = memo((props: FileBlockProps) => {
       return;
     }
 
-    if ((file.metadata && file.metadata[Metadata.thumbDisabled] !== undefined) || showLock) {
+    if (file.metadata && file.metadata[Metadata.thumbDisabled] !== undefined) {
       // No thumb available
       setThumbSrc(null);
       return;

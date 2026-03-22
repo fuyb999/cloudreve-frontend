@@ -1,10 +1,11 @@
 import { Box, Fade, SvgIconProps } from "@mui/material";
+import React from "react";
 import { TransitionGroup } from "react-transition-group";
 import "../../Common/FadeTransition.css";
 import SvgIcon from "@mui/material/SvgIcon/SvgIcon";
 
 export interface NavIconTransitionProps {
-  fileIcon: ((props: SvgIconProps) => JSX.Element)[] | (typeof SvgIcon)[];
+  fileIcon: React.ElementType<SvgIconProps>[] | (typeof SvgIcon)[];
   active?: boolean;
   [key: string]: any;
   iconProps?: SvgIconProps;

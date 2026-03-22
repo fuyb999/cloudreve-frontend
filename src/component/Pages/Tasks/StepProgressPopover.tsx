@@ -1,4 +1,5 @@
-import { Box, Divider, PopoverProps, Typography } from "@mui/material";
+import React from "react";
+import { Box, Divider, Typography } from "@mui/material";
 import HoverPopover from "material-ui-popup-state/HoverPopover";
 import { useCallback, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -8,7 +9,7 @@ import { useAppDispatch } from "../../../redux/hooks.ts";
 import { sizeToString } from "../../../util";
 import StepProgressBar from "./StepProgressBar.tsx";
 
-export interface StepProgressPopoverProps extends PopoverProps {
+export interface StepProgressPopoverProps extends Omit<React.ComponentProps<typeof HoverPopover>, "children"> {
   taskId: string;
 }
 
@@ -181,7 +182,7 @@ const ProgressBar = ({ pkey, p }: { pkey: string; p: TaskProgress }) => {
 const StepProgressPopover = ({ taskId, open, ...rest }: StepProgressPopoverProps) => {
   const { t } = useTranslation();
   const dispatch = useAppDispatch();
-  const stopPropagation = useCallback((e: any) => e.stopPropagation(), []);
+  const stopPropagation = useCallback((e: React.SyntheticEvent) => e.stopPropagation(), []);
   const [progress, setProgress] = useState<TaskProgresses | undefined>(undefined);
 
   useEffect(() => {
@@ -210,10 +211,10 @@ const StepProgressPopover = ({ taskId, open, ...rest }: StepProgressPopoverProps
         {!progress && <StepProgressBar loading />}
         {progress &&
           Object.keys(progress).map((key, index) => (
-            <>
+            <React.Fragment key={key}>
               <ProgressBar pkey={key} p={progress[key]} />
               {index < Object.keys(progress).length - 1 && <Divider sx={{ pt: 1, mb: 0.5 }} />}
-            </>
+            </React.Fragment>
           ))}
         {progress && Object.keys(progress).length == 0 && (
           <Typography variant={"caption"} color={"text.secondary"}>

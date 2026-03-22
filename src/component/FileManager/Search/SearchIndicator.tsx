@@ -1,3 +1,4 @@
+import React from "react";
 import { alpha, Button, ButtonGroup, Grow, styled, useMediaQuery, useTheme } from "@mui/material";
 import { useContext, useMemo } from "react";
 import { useTranslation } from "react-i18next";
@@ -8,7 +9,7 @@ import Search from "../../Icons/Search.tsx";
 import { FileManagerIndex } from "../FileManager.tsx";
 import { FmIndexContext } from "../FmIndexContext.tsx";
 
-export const StyledButtonGroup = styled(ButtonGroup)(({ theme }) => ({
+export const StyledButtonGroup = styled(ButtonGroup)(() => ({
   "& .MuiButtonGroup-firstButton, .MuiButtonGroup-lastButton": {
     "&:hover": {
       border: "none",

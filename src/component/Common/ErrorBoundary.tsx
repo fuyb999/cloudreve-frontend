@@ -1,8 +1,12 @@
+import React from "react";
 import { useTranslation } from "react-i18next";
 import { useRouteError } from "react-router-dom";
 
+const hasStack = (error: unknown): error is { stack: string } =>
+  typeof error === "object" && error !== null && "stack" in error && typeof error.stack === "string";
+
 function ErrorBoundary() {
-  let error = useRouteError();
+  const error = useRouteError();
   const { t } = useTranslation();
   const loader = document.getElementById("app-loader");
   if (loader) loader.style.display = "none";
@@ -17,7 +21,7 @@ function ErrorBoundary() {
           <pre>
             <code>{error.toString()}</code>
           </pre>
-          {error.stack && (
+          {hasStack(error) && (
             <pre>
               <code>{error.stack}</code>
             </pre>

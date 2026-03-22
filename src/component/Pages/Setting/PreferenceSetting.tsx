@@ -1,4 +1,5 @@
 import { LoadingButton } from "@mui/lab";
+import React from "react";
 import {
   Box,
   Checkbox,
@@ -96,7 +97,7 @@ const PreferenceSetting = ({ setting, setSetting }: PreferenceSettingProps) => {
     setShowSaveButton(true);
   };
 
-  const newExtAdded = (_e: any, newValue: string[]) => {
+  const newExtAdded = (_e: React.SyntheticEvent, newValue: string[]) => {
     // Remove start dots in each value if presented
     setVersionRetentionExts(newValue.map((v) => v.replace(/^\./, "")));
     setShowSaveButton(true);
@@ -154,7 +155,7 @@ const PreferenceSetting = ({ setting, setSetting }: PreferenceSettingProps) => {
       });
   };
 
-  const onDisableViewSyncChange = (e: React.MouseEvent<HTMLElement>, enabled: boolean) => {
+  const onDisableViewSyncChange = (_e: React.MouseEvent<HTMLElement>, enabled: boolean) => {
     setSetting({ ...setting, disable_view_sync: !enabled });
     setLoading(true);
     dispatch(
@@ -196,7 +197,7 @@ const PreferenceSetting = ({ setting, setSetting }: PreferenceSettingProps) => {
         <FormControl fullWidth>
           <DenseSelect value={i18next.language} onChange={(e) => dispatch(selectLanguage(e.target.value as string))}>
             {languages.map((l) => (
-              <SquareMenuItem value={l.code}>
+              <SquareMenuItem key={l.code} value={l.code}>
                 <ListItemText
                   slotProps={{
                     primary: { variant: "body2" },
@@ -214,7 +215,7 @@ const PreferenceSetting = ({ setting, setSetting }: PreferenceSettingProps) => {
         <FormControl fullWidth>
           <DenseSelect value={timeZoneValue} onChange={(e) => selectTimeZone(e.target.value as string)}>
             {Intl.supportedValuesOf("timeZone").map((v) => (
-              <SquareMenuItem value={v}>
+              <SquareMenuItem key={v} value={v}>
                 <ListItemText
                   slotProps={{
                     primary: { variant: "body2" },
@@ -233,8 +234,9 @@ const PreferenceSetting = ({ setting, setSetting }: PreferenceSettingProps) => {
       </SettingForm>
       <SettingForm title={t("setting.themeColor")} lgWidth={12}>
         <SelectorBox sx={{ gap: 1 }}>
-          {Object.keys(themeOptions).map((color, index) => (
+          {Object.keys(themeOptions).map((color) => (
             <ColorCircle
+              key={color}
               size={30}
               color={color}
               onClick={() => applyTheme(color)}
@@ -275,9 +277,9 @@ const PreferenceSetting = ({ setting, setSetting }: PreferenceSettingProps) => {
                   value={versionRetentionExts ?? []}
                   autoSelect
                   freeSolo
-                  onChange={newExtAdded}
-                  renderTags={(value: readonly string[], getTagProps) =>
-                    value.map((option: string, index: number) => {
+                  onChange={(_e, newValue) => newExtAdded(_e, (newValue as string[]) ?? [])}
+                  renderTags={(value, getTagProps) =>
+                    (value as string[]).map((option, index) => {
                       const { key, ...tagProps } = getTagProps({ index });
                       return <Chip variant="outlined" label={option} key={key} size={"small"} {...tagProps} />;
                     })

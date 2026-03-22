@@ -1,3 +1,4 @@
+import React from "react";
 import { alpha, Box, Skeleton, styled } from "@mui/material";
 import { memo, useCallback, useEffect } from "react";
 import { useAppDispatch } from "../../../../redux/hooks.ts";
@@ -37,7 +38,7 @@ const RowContainer = styled(Box)<{
   };
 });
 
-const Column = styled(Box)<{ w: number }>(({ theme, w }) => ({
+const Column = styled(Box)<{ w: number }>(({ w }) => ({
   display: "flex",
   alignItems: "center",
   width: `${w}px`,
@@ -54,9 +55,7 @@ const Row = memo((props: FileBlockProps) => {
     isLoadingIndicator,
     noThumb,
     uploading,
-    ref,
     inView,
-    showLock,
     fileTag,
     onClick,
     onDoubleClicked,
@@ -120,7 +119,6 @@ const Row = memo((props: FileBlockProps) => {
                 file={file}
                 uploading={uploading}
                 fileTag={fileTag}
-                showLock={showLock}
                 noThumb={noThumb}
                 thumbWidth={thumbWidth}
                 thumbHeight={thumbHeight}
@@ -134,5 +132,7 @@ const Row = memo((props: FileBlockProps) => {
     </RowContainer>
   );
 });
+
+Row.displayName = "Row";
 
 export default Row;

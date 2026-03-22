@@ -1,4 +1,4 @@
-import { Box, Fade, Grow, InputBase, PopoverProps, Tooltip, Typography, useMediaQuery, useTheme } from "@mui/material";
+import { Box, Fade, Grow, InputBase, Tooltip, Typography, useMediaQuery, useTheme } from "@mui/material";
 import React, { memo, useCallback, useContext, useEffect, useMemo, useState } from "react";
 import { sizeToString } from "../../../../util";
 import CrUri, { SearchParam } from "../../../../util/uri.ts";
@@ -75,7 +75,7 @@ export interface CellProps {
 
 export interface ThumbPopoverProps {
   file: FmFile;
-  popupState: PopoverProps;
+  popupState: Omit<React.ComponentProps<typeof HoverPopover>, "children">;
   thumbWidth?: number;
   thumbHeight?: number;
 }

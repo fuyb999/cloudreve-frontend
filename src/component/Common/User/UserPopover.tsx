@@ -1,4 +1,5 @@
-import { Box, Button, PopoverProps, styled, Tooltip, Typography } from "@mui/material";
+import React from "react";
+import { Box, Button, styled, Tooltip, Typography } from "@mui/material";
 import HoverPopover from "material-ui-popup-state/HoverPopover";
 import { useCallback, useEffect, useState } from "react";
 import { Trans, useTranslation } from "react-i18next";
@@ -11,7 +12,7 @@ import HomeOutlined from "../../Icons/HomeOutlined.tsx";
 import { useNavigate } from "react-router-dom";
 import TimeBadge from "../TimeBadge.tsx";
 
-interface UserPopoverProps extends PopoverProps {
+interface UserPopoverProps extends Omit<React.ComponentProps<typeof HoverPopover>, "children"> {
   user: User;
 }
 
@@ -62,7 +63,7 @@ export const UserProfile = ({ user, open, displayOnly }: { user: User; open: boo
             <Trans
               i18nKey={"setting.accountCreatedAt"}
               ns={"application"}
-              components={[<TimeBadge variant={"inherit"} datetime={loadedUser.created_at} />]}
+              components={[<TimeBadge key="created-at" variant={"inherit"} datetime={loadedUser.created_at} />]}
             />
           </Typography>
         )}
@@ -95,7 +96,7 @@ export const UserProfile = ({ user, open, displayOnly }: { user: User; open: boo
 };
 
 const UserPopover = ({ user, open, ...rest }: UserPopoverProps) => {
-  const stopPropagation = useCallback((e: any) => e.stopPropagation(), []);
+  const stopPropagation = useCallback((e: React.SyntheticEvent) => e.stopPropagation(), []);
   return (
     <HoverPopover
       onMouseDown={stopPropagation}

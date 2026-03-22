@@ -7,12 +7,14 @@ export const getFileSystemDirectoryPaths = async (
   const paths: Map<string, string> = new Map();
 
   for await (const [path, fileSystemHandle] of handle.entries()) {
-    if (fileSystemHandle instanceof window.FileSystemFileHandle) {
+    if (fileSystemHandle.kind === "file") {
       paths.set(`${parent}${path}`, "1");
     } else {
-      (await getFileSystemDirectoryPaths(fileSystemHandle, `${parent}${path}/`)).forEach((value, key) => {
-        paths.set(key, value);
-      });
+      (await getFileSystemDirectoryPaths(fileSystemHandle as FileSystemDirectoryHandle, `${parent}${path}/`)).forEach(
+        (value, key) => {
+          paths.set(key, value);
+        },
+      );
     }
   }
 
@@ -59,12 +61,12 @@ export async function verifyFileSystemRWPermission(fileHandle: FileSystemDirecto
   const opts = { mode: "readwrite" as FileSystemPermissionMode };
 
   // Check if we already have permission, if so, return true.
-  if ((await fileHandle.queryPermission(opts)) === "granted") {
+  if (fileHandle.queryPermission && (await fileHandle.queryPermission(opts)) === "granted") {
     return true;
   }
 
   // Request permission to the file, if the user grants permission, return true.
-  if ((await fileHandle.requestPermission(opts)) === "granted") {
+  if (fileHandle.requestPermission && (await fileHandle.requestPermission(opts)) === "granted") {
     return true;
   }
 

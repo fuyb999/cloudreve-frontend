@@ -78,7 +78,7 @@ const PhotoView: React.FC<PhotoViewProps> = ({
   });
 
   const eventListeners = useMemo(() => {
-    const listener = {};
+    const listener: Partial<Record<"onClick" | "onDoubleClick", (e: React.MouseEvent) => void>> = {};
     triggers.forEach((eventName) => {
       listener[eventName] = fn.show.bind(null, eventName);
     });

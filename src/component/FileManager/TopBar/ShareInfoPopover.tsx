@@ -1,4 +1,5 @@
-import { Box, Divider, PopoverProps, Stack, styled, Typography } from "@mui/material";
+import React from "react";
+import { Box, Divider, Stack, styled, Typography } from "@mui/material";
 import HoverPopover from "material-ui-popup-state/HoverPopover";
 import { useCallback } from "react";
 import { Trans, useTranslation } from "react-i18next";
@@ -8,7 +9,7 @@ import UserBadge from "../../Common/User/UserBadge.tsx";
 import Eye from "../../Icons/Eye.tsx";
 import Timer from "../../Icons/Timer.tsx";
 
-interface ShareInfoPopoverProps extends PopoverProps {
+interface ShareInfoPopoverProps extends Omit<React.ComponentProps<typeof HoverPopover>, "children"> {
   displayName: string;
   shareInfo: Share;
 }
@@ -64,7 +65,7 @@ export const ShareStatistics = ({ shareInfo }: { shareInfo: Share }) => {
 
 const ShareInfoPopover = ({ displayName, shareInfo, ...rest }: ShareInfoPopoverProps) => {
   const { t } = useTranslation();
-  const stopPropagation = useCallback((e: any) => e.stopPropagation(), []);
+  const stopPropagation = useCallback((e: React.SyntheticEvent) => e.stopPropagation(), []);
   return (
     <HoverPopover
       onMouseDown={stopPropagation}

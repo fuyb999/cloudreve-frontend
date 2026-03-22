@@ -9,6 +9,7 @@ import {
   useMediaQuery,
   useTheme,
 } from "@mui/material";
+import React from "react";
 import { useTranslation } from "react-i18next";
 import { NoLabelFilledSelect } from "../../FileManager/Sidebar/CustomProps/MultiSelectPropsContent.tsx";
 import Translate from "../../Icons/Translate.tsx";
@@ -66,7 +67,7 @@ export interface EncodingSelectorProps {
   SelectProps?: Partial<SelectProps>;
 }
 
-export const StyledInputAdornment = styled(InputAdornment)(({ theme }) => ({
+export const StyledInputAdornment = styled(InputAdornment)(() => ({
   "&.MuiInputAdornment-positionStart": {
     marginTop: "0!important",
   },

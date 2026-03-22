@@ -1,7 +1,8 @@
-import { SvgIconProps, Typography } from "@mui/material";
+import { SxProps, Theme, Typography, TypographyProps } from "@mui/material";
 
-export interface EmojiIconProps extends SvgIconProps {
+export interface EmojiIconProps extends Omit<TypographyProps, "children"> {
   emoji: string;
+  sx?: SxProps<Theme>;
 }
 
 const EmojiIcon = ({ sx, fontSize, emoji, ...rest }: EmojiIconProps) => {

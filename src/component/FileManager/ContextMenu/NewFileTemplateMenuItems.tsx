@@ -47,6 +47,7 @@ const MultiTemplatesMenuItems = ({ viewer }: MultiTemplatesMenuItemsProps) => {
 };
 
 const NewFileTemplateMenuItems = (props: SubMenuItemsProps) => {
+  void props;
   const { t } = useTranslation();
   const dispatch = useAppDispatch();
 
@@ -83,6 +84,7 @@ const NewFileTemplateMenuItems = (props: SubMenuItemsProps) => {
           } else {
             return (
               <CascadingSubmenu
+                key={viewer.id}
                 popupId={viewer.id}
                 title={t(viewer.display_name)}
                 icon={<ViewerIcon size={20} viewer={viewer} py={0} />}

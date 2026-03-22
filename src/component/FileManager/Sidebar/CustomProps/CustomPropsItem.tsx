@@ -1,3 +1,4 @@
+import React from "react";
 import { Icon } from "@iconify/react/dist/iconify.js";
 import {
   alpha,
@@ -51,7 +52,7 @@ export interface PropsContentProps {
   fullSize?: boolean;
 }
 
-const PropsCard = styled(StyledButtonBase)(({ theme }) => ({
+const PropsCard = styled(StyledButtonBase)(() => ({
   flexDirection: "column",
   alignItems: "flex-start",
   gap: 9,
@@ -94,6 +95,10 @@ export const getPropsContent = (
           readOnly={readOnly}
           fullSize={fullSize}
         />
+      );
+    case CustomPropsType.user:
+      return (
+        <UserPropsContent prop={prop} onChange={onChange} loading={loading} readOnly={readOnly} fullSize={fullSize} />
       );
     case CustomPropsType.link:
       return (

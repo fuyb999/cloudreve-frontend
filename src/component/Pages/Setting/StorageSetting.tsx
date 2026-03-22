@@ -96,7 +96,8 @@ export const CapacityBar = ({ capacity, forceRow }: { capacity?: Capacity; force
   );
 };
 
-const StorageSetting = ({ setting }: StorageSettingProps) => {
+const StorageSetting = ({ setting: _setting }: StorageSettingProps) => {
+  void _setting;
   const { t } = useTranslation();
   const dispatch = useAppDispatch();
   const theme = useTheme();

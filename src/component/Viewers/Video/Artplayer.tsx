@@ -26,49 +26,63 @@ const playM3u8 =
   (video: HTMLVideoElement, url: string, art: Artplayer) => {
     if (Hls.isSupported()) {
       if (art.hls) art.hls.destroy();
+      const FragmentLoader = class extends Hls.DefaultConfig.loader {
+        constructor(config: HlsConfig) {
+          super(config);
+          const load = this.load.bind(this);
+          this.load = ((context, config, callbacks) => {
+            if (urlTransform) {
+              urlTransform(context.url).then((transformedUrl) => {
+                const complete = callbacks.onSuccess;
+                callbacks.onSuccess = (loaderResponse, stats, successContext, networkDetails) => {
+                  loaderResponse.url = transformedUrl;
+                  complete(loaderResponse, stats, successContext, networkDetails);
+                };
+                load(
+                  {
+                    ...(context as object),
+                    url: transformedUrl,
+                  } as Parameters<typeof load>[0],
+                  config,
+                  callbacks,
+                );
+              });
+            } else {
+              load(context, config, callbacks);
+            }
+          }) as typeof this.load;
+        }
+      };
+      const PlaylistLoader = class extends Hls.DefaultConfig.loader {
+        constructor(config: HlsConfig) {
+          super(config);
+          const load = this.load.bind(this);
+          this.load = ((context, config, callbacks) => {
+            if (urlTransform) {
+              urlTransform(context.url, true).then((transformedUrl) => {
+                const complete = callbacks.onSuccess;
+                callbacks.onSuccess = (loaderResponse, stats, successContext, networkDetails) => {
+                  loaderResponse.url = transformedUrl;
+                  complete(loaderResponse, stats, successContext, networkDetails);
+                };
+                load(
+                  {
+                    ...(context as object),
+                    url: transformedUrl,
+                  } as Parameters<typeof load>[0],
+                  config,
+                  callbacks,
+                );
+              });
+            } else {
+              load(context, config, callbacks);
+            }
+          }) as typeof this.load;
+        }
+      };
       const hls = new Hls({
-        fLoader: class extends Hls.DefaultConfig.loader {
-          constructor(config: HlsConfig) {
-            super(config);
-            var load = this.load.bind(this);
-            this.load = function (context, config, callbacks) {
-              if (urlTransform) {
-                urlTransform(context.url).then((url) => {
-                  const complete = callbacks.onSuccess;
-                  callbacks.onSuccess = (loaderResponse, stats, successContext, networkDetails) => {
-                    // Do something with loaderResponse.data
-                    loaderResponse.url = url;
-                    complete(loaderResponse, stats, successContext, networkDetails);
-                  };
-                  load({ ...context, frag: { ...context.frag, relurl: url, _url: url }, url }, config, callbacks);
-                });
-              } else {
-                load(context, config, callbacks);
-              }
-            };
-          }
-        },
-        pLoader: class extends Hls.DefaultConfig.loader {
-          constructor(config: HlsConfig) {
-            super(config);
-            var load = this.load.bind(this);
-            this.load = function (context, config, callbacks) {
-              if (urlTransform) {
-                urlTransform(context.url, true).then((url) => {
-                  const complete = callbacks.onSuccess;
-                  callbacks.onSuccess = (loaderResponse, stats, successContext, networkDetails) => {
-                    // Do something with loaderResponse.data
-                    loaderResponse.url = url;
-                    complete(loaderResponse, stats, successContext, networkDetails);
-                  };
-                  load({ ...context, url }, config, callbacks);
-                });
-              } else {
-                load(context, config, callbacks);
-              }
-            };
-          }
-        },
+        fLoader: FragmentLoader as HlsConfig["fLoader"],
+        pLoader: PlaylistLoader as HlsConfig["pLoader"],
         xhrSetup: async (xhr, url) => {
           // Always send cookies, even for cross-origin calls.
           if (url.startsWith(CrMaskedPrefix)) {
@@ -149,7 +163,10 @@ export default function Player({
             // Show qualitys in setting
             setting: true,
             // Get the quality name from level
-            getName: (level) => (level.height ? level.height + "P" : i18next.t("application:fileManager.default")),
+            getName: (level) =>
+              (level as { height?: number }).height
+                ? `${(level as { height?: number }).height}P`
+                : i18next.t("application:fileManager.default"),
             // I18n
             title: i18next.t("application:fileManager.quality"),
             auto: i18next.t("application:fileManager.auto"),
@@ -160,7 +177,7 @@ export default function Player({
             // Show audios in setting
             setting: true,
             // Get the audio name from track
-            getName: (track) => track.name,
+            getName: (track) => (track as { name?: string }).name ?? i18next.t("application:fileManager.default"),
             // I18n
             title: i18next.t("application:fileManager.audioTrack"),
             auto: i18next.t("application:fileManager.auto"),
