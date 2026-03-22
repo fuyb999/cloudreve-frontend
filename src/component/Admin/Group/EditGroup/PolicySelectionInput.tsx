@@ -1,4 +1,5 @@
 import { Box, FormControl, SelectChangeEvent, Typography } from "@mui/material";
+import React from "react";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { getStoragePolicyList } from "../../../../api/api";
@@ -66,10 +67,14 @@ const PolicySelectionInput = ({ value, onChange }: PolicySelectionInputProps) =>
             },
           },
         }}
-        renderValue={(selected: number) => (
+        renderValue={(selected: unknown) => (
           <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.5 }}>
             {!loading ? (
-              <SquareChip size="small" key={selected} label={policyMap[selected]?.name} />
+              <SquareChip
+                size="small"
+                key={selected?.toString()}
+                label={typeof selected === "number" ? policyMap[selected]?.name : ""}
+              />
             ) : (
               <FacebookCircularProgress size={20} sx={{ mt: "1px" }} />
             )}

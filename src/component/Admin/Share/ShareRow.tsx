@@ -1,7 +1,7 @@
 import { Box, Checkbox, IconButton, Link, Skeleton, TableCell, TableRow } from "@mui/material";
+import React from "react";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { useNavigate } from "react-router-dom";
 import { Share } from "../../../api/dashboard";
 import { useAppDispatch } from "../../../redux/hooks";
 import { NoWrapTableCell, NoWrapTypography } from "../../Common/StyledComponents";
@@ -37,11 +37,9 @@ const ShareRow = ({
   openUserDialog,
   openFileDialog,
 }: ShareRowProps) => {
-  const navigate = useNavigate();
   const { t } = useTranslation("dashboard");
   const dispatch = useAppDispatch();
   const [deleteLoading, setDeleteLoading] = useState(false);
-  const [openLoading, setOpenLoading] = useState(false);
   const onRowClick = () => {
     onDetails?.(share?.id ?? 0);
   };
@@ -111,10 +109,6 @@ const ShareRow = ({
       </TableRow>
     );
   }
-
-  const stopPropagation = (e: React.MouseEvent<HTMLElement>) => {
-    e.stopPropagation();
-  };
 
   const userClicked = (e: React.MouseEvent<HTMLElement>) => {
     e.stopPropagation();

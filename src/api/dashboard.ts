@@ -546,6 +546,7 @@ export interface Share extends CommonMixin {
   password?: string;
   views?: number;
   downloads?: number;
+  price?: number | string;
   expires?: string;
   remain_downloads?: number;
   edges: {
