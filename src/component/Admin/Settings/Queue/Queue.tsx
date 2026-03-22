@@ -11,6 +11,8 @@ import ArrowSync from "../../../Icons/ArrowSync.tsx";
 import { SettingContext } from "../SettingWrapper.tsx";
 import QueueCard from "./QueueCard.tsx";
 
+const getNodeLabel = (node: Node) => node.name?.trim() || `#${node.id}`;
+
 const Queue = () => {
   const { t } = useTranslation("dashboard");
   const dispatch = useAppDispatch();
@@ -59,6 +61,29 @@ const Queue = () => {
     const suspendedNodes = eligibleNodes.filter((node) => node.status === NodeStatus.suspended);
     const queueMetric = metrics.find((metric) => metric.name === QueueType.CONTENT_PROCESSING);
     const configuredWorkers = Math.max(parseInt(values.queue_content_processing_worker_num ?? "0") || 0, 0);
+    const warnings: string[] = [];
+
+    if (eligibleNodes.length === 0) {
+      warnings.push(t("queue.contentProcessingInspectionRiskNoEligible"));
+    } else if (activeNodes.length === 0) {
+      warnings.push(t("queue.contentProcessingInspectionRiskNoActive"));
+    }
+
+    if (configuredWorkers <= 0) {
+      warnings.push(t("queue.contentProcessingInspectionRiskNoWorkers"));
+    }
+
+    if (queueMetric && configuredWorkers > 0 && queueMetric.busy_workers >= configuredWorkers) {
+      warnings.push(t("queue.contentProcessingInspectionRiskWorkerSaturated"));
+    }
+
+    if (suspendedNodes.length > 0) {
+      warnings.push(
+        t("queue.contentProcessingInspectionRiskSuspendedNodes", {
+          count: suspendedNodes.length,
+        }),
+      );
+    }
 
     return {
       eligibleNodes,
@@ -66,8 +91,9 @@ const Queue = () => {
       suspendedNodes,
       queueMetric,
       configuredWorkers,
+      warnings,
     };
-  }, [metrics, nodes, values.queue_content_processing_worker_num]);
+  }, [metrics, nodes, t, values.queue_content_processing_worker_num]);
 
   return (
     <Box component={"form"} ref={formRef} sx={{ p: 2, pt: 0 }}>
@@ -96,6 +122,50 @@ const Queue = () => {
           {contentProcessingSummary.activeNodes.length === 0 && (
             <Typography variant="body2" sx={{ mt: 0.5 }}>
               {t("queue.contentProcessingNodeHealthWarning")}
+            </Typography>
+          )}
+        </Alert>
+      )}
+      {!loading && (
+        <Alert
+          severity={contentProcessingSummary.warnings.length > 0 ? "warning" : "info"}
+          sx={{ mb: 2, alignItems: "flex-start" }}
+        >
+          <Typography variant="body2" fontWeight={600}>
+            {t("queue.contentProcessingInspectionTitle")}
+          </Typography>
+          <Typography variant="body2" sx={{ mt: 0.5 }}>
+            {t("queue.contentProcessingInspectionActiveNodes", {
+              names:
+                contentProcessingSummary.activeNodes.map((node) => getNodeLabel(node)).join(", ") ||
+                t("queue.contentProcessingInspectionNone"),
+            })}
+          </Typography>
+          <Typography variant="body2">
+            {t("queue.contentProcessingInspectionSuspendedNodes", {
+              names:
+                contentProcessingSummary.suspendedNodes.map((node) => getNodeLabel(node)).join(", ") ||
+                t("queue.contentProcessingInspectionNone"),
+            })}
+          </Typography>
+          <Typography variant="body2">
+            {t("queue.contentProcessingInspectionQueueState", {
+              workers: contentProcessingSummary.configuredWorkers,
+              submitted: contentProcessingSummary.queueMetric?.submitted_tasks ?? 0,
+              busy: contentProcessingSummary.queueMetric?.busy_workers ?? 0,
+              suspending: contentProcessingSummary.queueMetric?.suspending_tasks ?? 0,
+              failed: contentProcessingSummary.queueMetric?.failure_tasks ?? 0,
+            })}
+          </Typography>
+          {contentProcessingSummary.warnings.length > 0 ? (
+            contentProcessingSummary.warnings.map((warning, index) => (
+              <Typography key={index} variant="body2" sx={{ mt: 0.5 }}>
+                {t("queue.contentProcessingInspectionRiskPrefix", { message: warning })}
+              </Typography>
+            ))
+          ) : (
+            <Typography variant="body2" sx={{ mt: 0.5 }}>
+              {t("queue.contentProcessingInspectionHealthy")}
             </Typography>
           )}
         </Alert>
