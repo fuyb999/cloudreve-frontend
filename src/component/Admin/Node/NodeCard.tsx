@@ -1,6 +1,6 @@
 import { Box, Divider, IconButton, Skeleton, Typography } from "@mui/material";
 import Grid from "@mui/material/Grid2";
-import { useCallback, useState } from "react";
+import React, { useCallback, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import { deleteNode } from "../../../api/api";
@@ -76,6 +76,13 @@ const NodeCard = ({ node, onRefresh, loading }: NodeCardProps) => {
 
     return capabilities;
   }, [node, t]);
+  const hasContentProcessing = useMemo(() => {
+    if (!node?.capabilities) {
+      return false;
+    }
+
+    return new Boolset(node.capabilities).enabled(NodeCapability.content_processing);
+  }, [node?.capabilities]);
 
   // If loading is true, render a skeleton placeholder
   if (loading) {
@@ -163,6 +170,11 @@ const NodeCard = ({ node, onRefresh, loading }: NodeCardProps) => {
             </Box>
           )}
         </NoWrapBox>
+        {hasContentProcessing && (
+          <Typography variant="caption" color="text.secondary" sx={{ display: "block", mb: 1.5 }}>
+            {t("node.contentProcessingDes")}
+          </Typography>
+        )}
         <Divider sx={{ my: 1 }} />
         <Box
           sx={{
