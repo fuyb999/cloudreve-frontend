@@ -1,9 +1,9 @@
 import { Box, Chip, styled, Typography } from "@mui/material";
-import { useMemo } from "react";
+import React, { useMemo } from "react";
 import { Trans, useTranslation } from "react-i18next";
 import { FileType } from "../../../api/explorer.ts";
 import { TaskSummary, TaskType } from "../../../api/workflow.ts";
-import { useAppDispatch, useAppSelector } from "../../../redux/hooks.ts";
+import { useAppSelector } from "../../../redux/hooks.ts";
 import { newMyUri } from "../../../util/uri.ts";
 import FileBadge from "../../FileManager/FileBadge.tsx";
 
@@ -26,9 +26,16 @@ const StyledChip = styled(Chip)(() => ({
   height: "20px",
 }));
 
+const getSummaryEntityID = (summary?: TaskSummary): number => {
+  return summary?.props?.entity_id ?? 0;
+};
+
+const getSummaryFileID = (summary?: TaskSummary): number => {
+  return summary?.props?.file_id ?? 0;
+};
+
 const TaskSummaryTitle = ({ type, summary, isInDashboard = false }: TaskSummaryTitleProps) => {
   const { t } = useTranslation();
-  const dispatch = useAppDispatch();
   const policyOption = useAppSelector((state) => state.globalState.policyOptionCache);
 
   const selectedCount = useMemo(() => {
@@ -65,8 +72,9 @@ const TaskSummaryTitle = ({ type, summary, isInDashboard = false }: TaskSummaryT
           i18nKey="setting.createArchiveTo"
           components={[
             <span key={0}>
-              {summary?.props.src_multiple?.slice(0, 3).map((src) => (
+              {summary?.props.src_multiple?.slice(0, 3).map((src, index) => (
                 <StyledFileBadge
+                  key={`${index}_${src}`}
                   variant={"outlined"}
                   simplifiedFile={{
                     type: FileType.file,
@@ -76,6 +84,7 @@ const TaskSummaryTitle = ({ type, summary, isInDashboard = false }: TaskSummaryT
               ))}
             </span>,
             <StyledFileBadge
+              key={1}
               variant={"outlined"}
               simplifiedFile={{
                 type: FileType.file,
@@ -99,6 +108,7 @@ const TaskSummaryTitle = ({ type, summary, isInDashboard = false }: TaskSummaryT
           }}
           components={[
             <StyledFileBadge
+              key={0}
               variant={"outlined"}
               simplifiedFile={{
                 type: FileType.folder,
@@ -116,12 +126,57 @@ const TaskSummaryTitle = ({ type, summary, isInDashboard = false }: TaskSummaryT
           })}
         </Typography>
       );
+    case TaskType.media_metadata:
+      return getSummaryEntityID(summary) > 0 ? (
+        <Trans
+          ns="dashboard"
+          values={{ entityID: getSummaryEntityID(summary) }}
+          i18nKey="task.mediaMetadata"
+          components={[<span key={0} />]}
+        />
+      ) : (
+        <Typography variant={"inherit"}>{t("task.media_metadata")}</Typography>
+      );
+    case TaskType.document_inspect:
+      return getSummaryEntityID(summary) > 0 ? (
+        <Trans
+          ns="dashboard"
+          values={{ entityID: getSummaryEntityID(summary) }}
+          i18nKey="task.documentInspect"
+          components={[<span key={0} />]}
+        />
+      ) : (
+        <Typography variant={"inherit"}>{t("task.document_inspect")}</Typography>
+      );
+    case TaskType.thumbnail_generate:
+      if (getSummaryFileID(summary) > 0) {
+        return (
+          <Trans
+            ns="dashboard"
+            values={{ fileID: getSummaryFileID(summary) }}
+            i18nKey="task.thumbnailGenerateFile"
+            components={[<span key={0} />]}
+          />
+        );
+      }
+      if (getSummaryEntityID(summary) > 0) {
+        return (
+          <Trans
+            ns="dashboard"
+            values={{ entityID: getSummaryEntityID(summary) }}
+            i18nKey="task.thumbnailGenerateEntity"
+            components={[<span key={0} />]}
+          />
+        );
+      }
+      return t("task.thumbnail_generate");
     default:
       return (
         <Trans
           i18nKey="setting.extractFileTo"
           components={[
             <StyledFileBadge
+              key={0}
               variant={"outlined"}
               simplifiedFile={{
                 type: FileType.file,
@@ -129,6 +184,7 @@ const TaskSummaryTitle = ({ type, summary, isInDashboard = false }: TaskSummaryT
               }}
             />,
             <StyledFileBadge
+              key={1}
               variant={"outlined"}
               simplifiedFile={{
                 type: FileType.folder,
