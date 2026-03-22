@@ -1,11 +1,13 @@
 import { Add } from "@mui/icons-material";
-import { Box, Container, Grid2 as Grid, IconButton, Stack, Typography } from "@mui/material";
+import { Alert, Box, Container, Grid2 as Grid, IconButton, Stack, Typography } from "@mui/material";
 import { useQueryState } from "nuqs";
-import { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { getNodeList } from "../../../api/api";
-import { Node } from "../../../api/dashboard";
+import { Node, NodeStatus, NodeType } from "../../../api/dashboard";
+import { NodeCapability } from "../../../api/workflow";
 import { useAppDispatch } from "../../../redux/hooks";
+import Boolset from "../../../util/boolset";
 import { SecondaryButton } from "../../Common/StyledComponents";
 import ArrowSync from "../../Icons/ArrowSync";
 import QuestionCircle from "../../Icons/QuestionCircle";
@@ -26,16 +28,30 @@ const NodeSetting = () => {
   const [pageSize, setPageSize] = useQueryState(PageSizeQuery, {
     defaultValue: "11",
   });
-  const [orderBy, setOrderBy] = useQueryState(OrderByQuery, {
+  const [orderBy] = useQueryState(OrderByQuery, {
     defaultValue: "",
   });
-  const [orderDirection, setOrderDirection] = useQueryState(OrderDirectionQuery, { defaultValue: "desc" });
+  const [orderDirection] = useQueryState(OrderDirectionQuery, { defaultValue: "desc" });
   const [count, setCount] = useState(0);
-  const [selectProviderOpen, setSelectProviderOpen] = useState(false);
   const [createNewOpen, setCreateNewOpen] = useState(false);
 
   const pageInt = parseInt(page) ?? 1;
   const pageSizeInt = parseInt(pageSize) ?? 11;
+  const contentProcessingSummary = useMemo(() => {
+    const eligibleNodes = nodes.filter((node) => {
+      if (node.type !== NodeType.slave || !node.capabilities) {
+        return false;
+      }
+
+      return new Boolset(node.capabilities).enabled(NodeCapability.content_processing);
+    });
+
+    return {
+      total: eligibleNodes.length,
+      active: eligibleNodes.filter((node) => node.status === NodeStatus.active).length,
+      suspended: eligibleNodes.filter((node) => node.status === NodeStatus.suspended).length,
+    };
+  }, [nodes]);
 
   useEffect(() => {
     fetchNodes();
@@ -81,6 +97,20 @@ const NodeSetting = () => {
             {t("node.refresh")}
           </SecondaryButton>
         </Stack>
+        {!loading && (
+          <Alert severity={contentProcessingSummary.active > 0 ? "info" : "warning"} sx={{ mb: 2 }}>
+            <Typography variant="body2" fontWeight={600}>
+              {t("node.contentProcessingSummaryTitle")}
+            </Typography>
+            <Typography variant="body2">
+              {t("node.contentProcessingSummary", {
+                total: contentProcessingSummary.total,
+                active: contentProcessingSummary.active,
+                suspended: contentProcessingSummary.suspended,
+              })}
+            </Typography>
+          </Alert>
+        )}
         <Grid container spacing={2}>
           <Grid
             size={{

@@ -1229,6 +1229,8 @@
     "remoteDownloadDes": "接受离线下载的任务请求。启用后还需要在下方配置离线下载相关信息。",
     "contentProcessing": "内容处理",
     "contentProcessingDes": "接受全文抽取、文档识别、媒体元数据提取、缩略图生成等内容处理任务请求。",
+    "contentProcessingSummaryTitle": "内容处理节点总览",
+    "contentProcessingSummary": "当前共有 {{total}} 个启用了内容处理能力的从节点，其中 {{active}} 个可用、{{suspended}} 个停用。",
     "downloader": "下载器",
     "aria2Des": "请在目标节点服务器上以和运行 Cloudreve 相同的用户/权限启动 Aria2，并在 Aria2 的配置文件中开启 RPC 服务，更多信息及指引请参考文档的 “离线下载” 章节。",
     "qbittorrentDes": "请在目标节点服务器上以和运行 Cloudreve 相同的用户/权限启动 qBittorrent， 并在 qBittorrent 的设置中开启 “Web UI” 服务，更多信息及指引请参考文档的 “离线下载” 章节。",
