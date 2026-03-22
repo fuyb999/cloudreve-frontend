@@ -1,13 +1,12 @@
-import { Alert, Box, Button, Grid, Stack, Typography } from "@mui/material";
+import { Alert, Box, Grid, Stack, Typography } from "@mui/material";
 import React, { useContext, useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { Link as RouterLink } from "react-router-dom";
 import { getNodeList, getQueueMetrics } from "../../../../api/api.ts";
 import { Node, QueueMetric, QueueType } from "../../../../api/dashboard.ts";
 import { useAppDispatch } from "../../../../redux/hooks.ts";
+import ContentProcessingNavigationLinks from "../../Common/ContentProcessingNavigationLinks.tsx";
 import ContentProcessingSubtypeLinks from "../../Common/ContentProcessingSubtypeLinks.tsx";
 import ContentProcessingTaskStatusLinks from "../../Common/ContentProcessingTaskStatusLinks.tsx";
-import { contentProcessingNodeRoute } from "../../Common/contentProcessingRoutes.ts";
 import { getContentProcessingHealthSummary } from "../../Common/contentProcessingHealth.ts";
 import { SecondaryButton } from "../../../Common/StyledComponents.tsx";
 import ArrowSync from "../../../Icons/ArrowSync.tsx";
@@ -96,16 +95,9 @@ const Queue = () => {
           <Typography variant="body2" fontWeight={600}>
             {t("queue.contentProcessingInspectionTitle")}
           </Typography>
-          <Stack direction="row" spacing={1} sx={{ mt: 0.5, mb: 0.5 }}>
-            <Button
-              component={RouterLink}
-              to={contentProcessingNodeRoute}
-              size="small"
-              sx={{ px: 0, minWidth: "auto" }}
-            >
-              {t("queue.contentProcessingInspectionOpenNodes")}
-            </Button>
-          </Stack>
+          <Box sx={{ mt: 0.5, mb: 0.5 }}>
+            <ContentProcessingNavigationLinks showNodes nodeLabel={t("queue.contentProcessingInspectionOpenNodes")} />
+          </Box>
           <ContentProcessingTaskStatusLinks
             allLabel={t("queue.contentProcessingInspectionOpenTasks")}
             failedLabel={t("queue.contentProcessingInspectionOpenFailedTasks")}

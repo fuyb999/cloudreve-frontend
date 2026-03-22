@@ -23,7 +23,6 @@ import { useQueryState } from "nuqs";
 import React from "react";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { Link as RouterLink } from "react-router-dom";
 import { batchDeleteTasks, getTaskList } from "../../../api/api";
 import { AdminListService, Task } from "../../../api/dashboard";
 import { ContentProcessingTaskFilter, contentProcessingTaskTypes } from "../../../api/workflow";
@@ -35,13 +34,9 @@ import Broom from "../../Icons/Broom";
 import Filter from "../../Icons/Filter";
 import PageContainer from "../../Pages/PageContainer";
 import PageHeader from "../../Pages/PageHeader";
+import ContentProcessingNavigationLinks from "../Common/ContentProcessingNavigationLinks";
 import ContentProcessingSubtypeLinks from "../Common/ContentProcessingSubtypeLinks";
 import ContentProcessingTaskStatusLinks from "../Common/ContentProcessingTaskStatusLinks";
-import {
-  contentProcessingNodeRoute,
-  contentProcessingQueueRoute,
-  getContentProcessingTaskRoute,
-} from "../Common/contentProcessingRoutes";
 import TablePagination from "../Common/TablePagination";
 import EntityDialog from "../Entity/EntityDialog/EntityDialog";
 import FileDialog from "../File/FileDialog/FileDialog";
@@ -246,34 +241,14 @@ const TaskList = () => {
                       type: t(`task.${type}`),
                     })}
               </Box>
-              <Stack direction="row" spacing={1}>
-                {!isContentProcessingAggregateView && (
-                  <Button
-                    component={RouterLink}
-                    to={getContentProcessingTaskRoute()}
-                    size="small"
-                    sx={{ px: 0, minWidth: "auto" }}
-                  >
-                    {t("task.openContentProcessingAggregate")}
-                  </Button>
-                )}
-                <Button
-                  component={RouterLink}
-                  to={contentProcessingQueueRoute}
-                  size="small"
-                  sx={{ px: 0, minWidth: "auto" }}
-                >
-                  {t("task.openContentProcessingQueue")}
-                </Button>
-                <Button
-                  component={RouterLink}
-                  to={contentProcessingNodeRoute}
-                  size="small"
-                  sx={{ px: 0, minWidth: "auto" }}
-                >
-                  {t("task.openContentProcessingNodes")}
-                </Button>
-              </Stack>
+              <ContentProcessingNavigationLinks
+                showAggregate={!isContentProcessingAggregateView}
+                showQueue
+                showNodes
+                aggregateLabel={t("task.openContentProcessingAggregate")}
+                queueLabel={t("task.openContentProcessingQueue")}
+                nodeLabel={t("task.openContentProcessingNodes")}
+              />
               <Stack direction="row" spacing={1}>
                 <ContentProcessingTaskStatusLinks
                   type={type}

@@ -2,7 +2,6 @@ import {
   Alert,
   Avatar,
   Box,
-  Button,
   Container,
   Divider,
   List,
@@ -20,7 +19,6 @@ import dayjs from "dayjs";
 import React from "react";
 import { useCallback, useEffect, useState } from "react";
 import { Trans, useTranslation } from "react-i18next";
-import { Link as RouterLink } from "react-router-dom";
 import { CSSTransition, SwitchTransition } from "react-transition-group";
 import { CartesianGrid, Legend, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { getDashboardSummary, getNodeList, getQueueMetrics } from "../../../api/api.ts";
@@ -35,9 +33,9 @@ import PeopleFilled from "../../Icons/PeopleFilled.tsx";
 import ShareFilled from "../../Icons/ShareFilled.tsx";
 import PageContainer from "../../Pages/PageContainer.tsx";
 import PageHeader from "../../Pages/PageHeader.tsx";
+import ContentProcessingNavigationLinks from "../Common/ContentProcessingNavigationLinks.tsx";
 import ContentProcessingSubtypeLinks from "../Common/ContentProcessingSubtypeLinks.tsx";
 import ContentProcessingTaskStatusLinks from "../Common/ContentProcessingTaskStatusLinks.tsx";
-import { contentProcessingNodeRoute, contentProcessingQueueRoute } from "../Common/contentProcessingRoutes.ts";
 import { getContentProcessingHealthSummary } from "../Common/contentProcessingHealth.ts";
 import SiteUrlWarning from "./SiteUrlWarning.tsx";
 
@@ -384,24 +382,12 @@ const Home = () => {
                           {t("summary.contentProcessingRiskPrefix", { message: warning })}
                         </Typography>
                       ))}
-                    <Stack direction="row" spacing={1}>
-                      <Button
-                        component={RouterLink}
-                        to={contentProcessingQueueRoute}
-                        size="small"
-                        sx={{ px: 0, minWidth: "auto" }}
-                      >
-                        {t("summary.openContentProcessingQueue")}
-                      </Button>
-                      <Button
-                        component={RouterLink}
-                        to={contentProcessingNodeRoute}
-                        size="small"
-                        sx={{ px: 0, minWidth: "auto" }}
-                      >
-                        {t("summary.openContentProcessingNodes")}
-                      </Button>
-                    </Stack>
+                    <ContentProcessingNavigationLinks
+                      showQueue
+                      showNodes
+                      queueLabel={t("summary.openContentProcessingQueue")}
+                      nodeLabel={t("summary.openContentProcessingNodes")}
+                    />
                     <ContentProcessingTaskStatusLinks
                       allLabel={t("summary.openContentProcessingTasks")}
                       failedLabel={t("summary.openFailedContentProcessingTasks")}
