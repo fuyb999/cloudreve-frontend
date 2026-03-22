@@ -2,7 +2,6 @@ import { Add } from "@mui/icons-material";
 import {
   Alert,
   Box,
-  Button,
   Container,
   Grid2 as Grid,
   IconButton,
@@ -14,13 +13,11 @@ import {
 import { useQueryState } from "nuqs";
 import React, { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { Link as RouterLink } from "react-router-dom";
 import { getNodeList, getQueueMetrics } from "../../../api/api";
 import { Node, QueueMetric, QueueType } from "../../../api/dashboard";
-import { TaskStatus } from "../../../api/workflow";
 import { useAppDispatch } from "../../../redux/hooks";
 import ContentProcessingSubtypeLinks from "../Common/ContentProcessingSubtypeLinks";
-import { getContentProcessingTaskRoute } from "../Common/contentProcessingRoutes";
+import ContentProcessingTaskStatusLinks from "../Common/ContentProcessingTaskStatusLinks";
 import { getContentProcessingHealthSummary } from "../Common/contentProcessingHealth";
 import { SecondaryButton } from "../../Common/StyledComponents";
 import ArrowSync from "../../Icons/ArrowSync";
@@ -137,36 +134,13 @@ const NodeSetting = () => {
             <Typography variant="body2" fontWeight={600}>
               {t("node.contentProcessingSummaryTitle")}
             </Typography>
-            <Stack direction="row" spacing={1} sx={{ mt: 0.5, mb: 0.5 }}>
-              <Button
-                component={RouterLink}
-                to={getContentProcessingTaskRoute()}
-                size="small"
-                sx={{ px: 0, minWidth: "auto" }}
-              >
-                {t("node.openContentProcessingTasks")}
-              </Button>
-              {(contentProcessingSummary.queueMetric?.failure_tasks ?? 0) > 0 && (
-                <Button
-                  component={RouterLink}
-                  to={getContentProcessingTaskRoute(undefined, TaskStatus.error)}
-                  size="small"
-                  sx={{ px: 0, minWidth: "auto" }}
-                >
-                  {t("node.openFailedContentProcessingTasks")}
-                </Button>
-              )}
-              {(contentProcessingSummary.queueMetric?.suspending_tasks ?? 0) > 0 && (
-                <Button
-                  component={RouterLink}
-                  to={getContentProcessingTaskRoute(undefined, TaskStatus.suspending)}
-                  size="small"
-                  sx={{ px: 0, minWidth: "auto" }}
-                >
-                  {t("node.openSuspendingContentProcessingTasks")}
-                </Button>
-              )}
-            </Stack>
+            <ContentProcessingTaskStatusLinks
+              allLabel={t("node.openContentProcessingTasks")}
+              failedLabel={t("node.openFailedContentProcessingTasks")}
+              suspendingLabel={t("node.openSuspendingContentProcessingTasks")}
+              showFailed={(contentProcessingSummary.queueMetric?.failure_tasks ?? 0) > 0}
+              showSuspending={(contentProcessingSummary.queueMetric?.suspending_tasks ?? 0) > 0}
+            />
             <Box sx={{ mb: 0.5 }}>
               <ContentProcessingSubtypeLinks />
             </Box>

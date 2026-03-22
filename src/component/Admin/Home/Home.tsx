@@ -25,7 +25,6 @@ import { CSSTransition, SwitchTransition } from "react-transition-group";
 import { CartesianGrid, Legend, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { getDashboardSummary, getNodeList, getQueueMetrics } from "../../../api/api.ts";
 import { HomepageSummary, Node, QueueMetric, QueueType } from "../../../api/dashboard.ts";
-import { TaskStatus } from "../../../api/workflow.ts";
 import { useAppDispatch } from "../../../redux/hooks.ts";
 import FacebookCircularProgress from "../../Common/CircularProgress.tsx";
 import { SecondaryButton } from "../../Common/StyledComponents.tsx";
@@ -37,11 +36,8 @@ import ShareFilled from "../../Icons/ShareFilled.tsx";
 import PageContainer from "../../Pages/PageContainer.tsx";
 import PageHeader from "../../Pages/PageHeader.tsx";
 import ContentProcessingSubtypeLinks from "../Common/ContentProcessingSubtypeLinks.tsx";
-import {
-  contentProcessingNodeRoute,
-  contentProcessingQueueRoute,
-  getContentProcessingTaskRoute,
-} from "../Common/contentProcessingRoutes.ts";
+import ContentProcessingTaskStatusLinks from "../Common/ContentProcessingTaskStatusLinks.tsx";
+import { contentProcessingNodeRoute, contentProcessingQueueRoute } from "../Common/contentProcessingRoutes.ts";
 import { getContentProcessingHealthSummary } from "../Common/contentProcessingHealth.ts";
 import SiteUrlWarning from "./SiteUrlWarning.tsx";
 
@@ -405,35 +401,14 @@ const Home = () => {
                       >
                         {t("summary.openContentProcessingNodes")}
                       </Button>
-                      <Button
-                        component={RouterLink}
-                        to={getContentProcessingTaskRoute()}
-                        size="small"
-                        sx={{ px: 0, minWidth: "auto" }}
-                      >
-                        {t("summary.openContentProcessingTasks")}
-                      </Button>
-                      {contentProcessingOverview.failed > 0 && (
-                        <Button
-                          component={RouterLink}
-                          to={getContentProcessingTaskRoute(undefined, TaskStatus.error)}
-                          size="small"
-                          sx={{ px: 0, minWidth: "auto" }}
-                        >
-                          {t("summary.openFailedContentProcessingTasks")}
-                        </Button>
-                      )}
                     </Stack>
-                    {contentProcessingOverview.suspending > 0 && (
-                      <Button
-                        component={RouterLink}
-                        to={getContentProcessingTaskRoute(undefined, TaskStatus.suspending)}
-                        size="small"
-                        sx={{ px: 0, minWidth: "auto", alignSelf: "flex-start" }}
-                      >
-                        {t("summary.openSuspendingContentProcessingTasks")}
-                      </Button>
-                    )}
+                    <ContentProcessingTaskStatusLinks
+                      allLabel={t("summary.openContentProcessingTasks")}
+                      failedLabel={t("summary.openFailedContentProcessingTasks")}
+                      suspendingLabel={t("summary.openSuspendingContentProcessingTasks")}
+                      showFailed={contentProcessingOverview.failed > 0}
+                      showSuspending={contentProcessingOverview.suspending > 0}
+                    />
                     <ContentProcessingSubtypeLinks />
                     <Box>
                       <SecondaryButton onClick={loadContentProcessingSummary} size="small">
