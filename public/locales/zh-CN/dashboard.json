@@ -1608,6 +1608,8 @@
     "slave_content_processing": "从节点内容处理",
     "thumbnail_generate": "缩略图生成",
     "contentProcessingAggregateHint": "当前正在查看内容处理任务聚合视图，共匹配 {{count}} 条任务，包含全文索引、文档识别、媒体元数据与从节点缩略图任务。",
+    "contentProcessingSubtypeHint": "当前正在查看内容处理任务中的“{{type}}”子类型，共匹配 {{count}} 条任务。",
+    "openContentProcessingAggregate": "查看全部内容处理任务",
     "openContentProcessingQueue": "查看内容处理队列",
     "openContentProcessingNodes": "查看内容处理节点",
     "fullTextIndex": "为文件 <0>#{{fileID}}</0> 建立全文索引",

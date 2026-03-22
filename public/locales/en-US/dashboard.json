@@ -1609,6 +1609,8 @@
     "slave_content_processing": "Slave content processing",
     "thumbnail_generate": "Thumbnail generation",
     "contentProcessingAggregateHint": "You are viewing the aggregated content-processing task list. {{count}} task(s) matched, including full-text indexing, document inspection, media metadata, and slave thumbnail generation.",
+    "contentProcessingSubtypeHint": "You are viewing the \"{{type}}\" subtype in content-processing tasks. {{count}} task(s) matched.",
+    "openContentProcessingAggregate": "View all content-processing tasks",
     "openContentProcessingQueue": "View content-processing queue",
     "openContentProcessingNodes": "View content-processing nodes",
     "fullTextIndex": "Build full-text index for file <0>#{{fileID}}</0>",

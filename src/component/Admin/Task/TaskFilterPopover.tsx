@@ -2,13 +2,13 @@ import { Box, Button, ListItemText, Popover, PopoverProps, Stack } from "@mui/ma
 import React from "react";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { getTaskDisplayType, TaskStatus, visibleTaskTypes } from "../../../api/workflow";
+import { ContentProcessingTaskFilter, getTaskDisplayType, TaskStatus, visibleTaskTypes } from "../../../api/workflow";
 import { DenseFilledTextField, DenseSelect } from "../../Common/StyledComponents";
 import { SquareMenuItem } from "../../FileManager/ContextMenu/ContextMenu";
 import SettingForm from "../../Pages/Setting/SettingForm";
 import { getTaskStatusText } from "../../Pages/Tasks/TaskProps";
 
-const taskFilterTypes = ["content_processing", ...visibleTaskTypes];
+const taskFilterTypes = [ContentProcessingTaskFilter, ...visibleTaskTypes];
 
 export interface TaskFilterPopoverProps extends PopoverProps {
   status: string;

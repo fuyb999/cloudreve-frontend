@@ -167,6 +167,15 @@ export enum TaskType {
   thumbnail_generate = "thumbnail_generate",
 }
 
+export const ContentProcessingTaskFilter = "content_processing";
+
+export const contentProcessingTaskTypes = [
+  TaskType.full_text_index,
+  TaskType.document_inspect,
+  TaskType.media_metadata,
+  TaskType.thumbnail_generate,
+] as const;
+
 export type ContentProcessingTaskKind =
   | "full_text_extract"
   | "media_meta_extract"

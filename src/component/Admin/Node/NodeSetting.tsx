@@ -17,7 +17,7 @@ import { useTranslation } from "react-i18next";
 import { Link as RouterLink } from "react-router-dom";
 import { getNodeList } from "../../../api/api";
 import { Node, NodeStatus, NodeType } from "../../../api/dashboard";
-import { NodeCapability } from "../../../api/workflow";
+import { contentProcessingTaskTypes, NodeCapability } from "../../../api/workflow";
 import { useAppDispatch } from "../../../redux/hooks";
 import Boolset from "../../../util/boolset";
 import { SecondaryButton } from "../../Common/StyledComponents";
@@ -148,6 +148,19 @@ const NodeSetting = () => {
                 {t("node.openContentProcessingTasks")}
               </Button>
             </Stack>
+            <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1, mb: 0.5 }}>
+              {contentProcessingTaskTypes.map((taskType) => (
+                <Button
+                  key={taskType}
+                  component={RouterLink}
+                  to={`/admin/task?type=${taskType}`}
+                  size="small"
+                  sx={{ px: 0.5, minWidth: "auto" }}
+                >
+                  {t(`task.${taskType}`)}
+                </Button>
+              ))}
+            </Box>
             <Typography variant="body2">
               {t("node.contentProcessingSummary", {
                 total: contentProcessingSummary.total,

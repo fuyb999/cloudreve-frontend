@@ -4,7 +4,7 @@ import { useTranslation } from "react-i18next";
 import { Link as RouterLink } from "react-router-dom";
 import { getNodeList, getQueueMetrics } from "../../../../api/api.ts";
 import { Node, NodeStatus, NodeType, QueueMetric, QueueType } from "../../../../api/dashboard.ts";
-import { NodeCapability } from "../../../../api/workflow.ts";
+import { contentProcessingTaskTypes, NodeCapability } from "../../../../api/workflow.ts";
 import { useAppDispatch } from "../../../../redux/hooks.ts";
 import Boolset from "../../../../util/boolset.ts";
 import { SecondaryButton } from "../../../Common/StyledComponents.tsx";
@@ -153,6 +153,19 @@ const Queue = () => {
               {t("queue.contentProcessingInspectionOpenTasks")}
             </Button>
           </Stack>
+          <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1, mb: 0.5 }}>
+            {contentProcessingTaskTypes.map((taskType) => (
+              <Button
+                key={taskType}
+                component={RouterLink}
+                to={`/admin/task?type=${taskType}`}
+                size="small"
+                sx={{ px: 0.5, minWidth: "auto" }}
+              >
+                {t(`task.${taskType}`)}
+              </Button>
+            ))}
+          </Box>
           <Typography variant="body2" sx={{ mt: 0.5 }}>
             {t("queue.contentProcessingInspectionActiveNodes", {
               names:

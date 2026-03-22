@@ -26,6 +26,7 @@ import { useTranslation } from "react-i18next";
 import { Link as RouterLink } from "react-router-dom";
 import { batchDeleteTasks, getTaskList } from "../../../api/api";
 import { AdminListService, Task } from "../../../api/dashboard";
+import { ContentProcessingTaskFilter, contentProcessingTaskTypes } from "../../../api/workflow";
 import { useAppDispatch } from "../../../redux/hooks";
 import { confirmOperation } from "../../../redux/thunks/dialog";
 import { NoWrapTableCell, SecondaryButton, StyledTableContainerPaper } from "../../Common/StyledComponents";
@@ -48,6 +49,9 @@ export const UserQuery = "user";
 export const TypeQuery = "type";
 export const StatusQuery = "status";
 export const CorrelationIDQuery = "correlation_id";
+
+const isContentProcessingSubtype = (value: string) =>
+  contentProcessingTaskTypes.includes(value as (typeof contentProcessingTaskTypes)[number]);
 
 const TaskList = () => {
   const { t } = useTranslation("dashboard");
@@ -89,6 +93,9 @@ const TaskList = () => {
 
   const pageInt = parseInt(page) ?? 1;
   const pageSizeInt = parseInt(pageSize) ?? 10;
+  const isContentProcessingAggregateView = type === ContentProcessingTaskFilter;
+  const isContentProcessingSubtypeView = type !== ContentProcessingTaskFilter && isContentProcessingSubtype(type);
+  const showContentProcessingAlert = isContentProcessingAggregateView || isContentProcessingSubtypeView;
 
   const clearFilters = useCallback(() => {
     setUser("");
@@ -185,8 +192,8 @@ const TaskList = () => {
   };
 
   const hasActiveFilters = useMemo(() => {
-    return !!(status || user || type);
-  }, [status, user, type]);
+    return !!(status || user || type || correlationID);
+  }, [status, user, type, correlationID]);
 
   const handleUserDialogOpen = (id: number) => {
     setUserDialogID(id);
@@ -221,11 +228,28 @@ const TaskList = () => {
       />
       <Container maxWidth="xl">
         <PageHeader title={t("dashboard:nav.tasks")} />
-        {type === "content_processing" && (
+        {showContentProcessingAlert && (
           <Alert severity="info" sx={{ mb: 2 }}>
             <Box sx={{ display: "flex", flexDirection: "column", gap: 0.5 }}>
-              <Box>{t("task.contentProcessingAggregateHint", { count })}</Box>
+              <Box>
+                {isContentProcessingAggregateView
+                  ? t("task.contentProcessingAggregateHint", { count })
+                  : t("task.contentProcessingSubtypeHint", {
+                      count,
+                      type: t(`task.${type}`),
+                    })}
+              </Box>
               <Stack direction="row" spacing={1}>
+                {!isContentProcessingAggregateView && (
+                  <Button
+                    component={RouterLink}
+                    to={`/admin/task?type=${ContentProcessingTaskFilter}`}
+                    size="small"
+                    sx={{ px: 0, minWidth: "auto" }}
+                  >
+                    {t("task.openContentProcessingAggregate")}
+                  </Button>
+                )}
                 <Button component={RouterLink} to="/admin/settings/queue" size="small" sx={{ px: 0, minWidth: "auto" }}>
                   {t("task.openContentProcessingQueue")}
                 </Button>
@@ -238,6 +262,20 @@ const TaskList = () => {
                   {t("task.openContentProcessingNodes")}
                 </Button>
               </Stack>
+              <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1, mt: 0.5 }}>
+                {contentProcessingTaskTypes.map((taskType) => (
+                  <Button
+                    key={taskType}
+                    component={RouterLink}
+                    to={`/admin/task?type=${taskType}`}
+                    size="small"
+                    variant={type === taskType ? "contained" : "text"}
+                    sx={{ px: 0.5, minWidth: "auto" }}
+                  >
+                    {t(`task.${taskType}`)}
+                  </Button>
+                ))}
+              </Box>
             </Box>
           </Alert>
         )}
