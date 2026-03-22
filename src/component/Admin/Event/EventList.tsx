@@ -20,8 +20,10 @@ import {
   useTheme,
 } from "@mui/material";
 import dayjs from "dayjs";
+import { TFunction } from "i18next";
 import { bindPopover, bindTrigger, usePopupState } from "material-ui-popup-state/hooks";
 import { useQueryState } from "nuqs";
+import React from "react";
 import { useCallback, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { getAuditLogList } from "../../../api/api.ts";
@@ -51,7 +53,7 @@ const FileQuery = "file";
 const CorrelationIDQuery = "correlation_id";
 const IPQuery = "ip";
 
-const getEventLabel = (t: any, eventType?: number) => {
+const getEventLabel = (t: TFunction<"dashboard">, eventType?: number) => {
   if (eventType === undefined) {
     return "";
   }
@@ -60,7 +62,7 @@ const getEventLabel = (t: any, eventType?: number) => {
   return t(`settings.event.${eventName}`, { defaultValue: eventName });
 };
 
-const summarizeLog = (log: AuditLog, t: any) => {
+const summarizeLog = (log: AuditLog, t: TFunction<"dashboard">) => {
   switch (log.type) {
     case AuditLogType.email_sent:
       return t("event.emailSend", {

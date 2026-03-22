@@ -1,5 +1,6 @@
 import { Alert, AlertTitle, Checkbox, DialogContent, Stack, Typography } from "@mui/material";
 import { useSnackbar } from "notistack";
+import React from "react";
 import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { sendImport } from "../../../api/api";
@@ -44,6 +45,8 @@ export const ImportFileDialog = ({ open, onClose }: ImportFileDialogProps) => {
   const [loading, setLoading] = useState(false);
   const [formState, setFormState] = useState<ImportTaskForm>({ ...defaultForm });
   const formRef = useRef<HTMLFormElement>(null);
+  const importWarnings = t("file.importWarnings", { returnObjects: true });
+  const importWarningList = Array.isArray(importWarnings) ? importWarnings : [];
 
   useEffect(() => {
     if (open) {
@@ -119,8 +122,8 @@ export const ImportFileDialog = ({ open, onClose }: ImportFileDialogProps) => {
             <Alert severity="warning" sx={{ fontSize: (theme) => theme.typography.body2.fontSize }}>
               <AlertTitle>{t("file.importWarning")}</AlertTitle>
               <ul style={{ paddingInlineStart: "20px" }}>
-                {t("file.importWarnings", { returnObjects: true }).map((warning, index) => (
-                  <li key={index}>{warning.toString()}</li>
+                {importWarningList.map((warning: unknown, index: number) => (
+                  <li key={index}>{String(warning)}</li>
                 ))}
               </ul>
             </Alert>

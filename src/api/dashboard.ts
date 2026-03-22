@@ -458,6 +458,8 @@ export interface LogEntry {
   email_title?: string;
   original_name?: string;
   new_name?: string;
+  old?: string;
+  new?: string;
   from?: string;
   to?: string;
   entity_create_time?: string;
