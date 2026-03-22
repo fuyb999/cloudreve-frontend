@@ -1,4 +1,5 @@
 import { Box, Button, ListItemText, Popover, PopoverProps, Stack } from "@mui/material";
+import React from "react";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { getTaskDisplayType, TaskStatus, visibleTaskTypes } from "../../../api/workflow";
@@ -6,6 +7,8 @@ import { DenseFilledTextField, DenseSelect } from "../../Common/StyledComponents
 import { SquareMenuItem } from "../../FileManager/ContextMenu/ContextMenu";
 import SettingForm from "../../Pages/Setting/SettingForm";
 import { getTaskStatusText } from "../../Pages/Tasks/TaskProps";
+
+const taskFilterTypes = ["content_processing", ...visibleTaskTypes];
 
 export interface TaskFilterPopoverProps extends PopoverProps {
   status: string;
@@ -121,7 +124,7 @@ const TaskFilterPopover = ({
             value={localType != "" ? localType : " "}
             onChange={(e) => setLocalType(e.target.value === " " ? "" : (e.target.value as string))}
           >
-            {visibleTaskTypes.map((type) => (
+            {taskFilterTypes.map((type) => (
               <SquareMenuItem key={type} value={type}>
                 <ListItemText
                   primary={t(`task.${getTaskDisplayType(type)}`)}

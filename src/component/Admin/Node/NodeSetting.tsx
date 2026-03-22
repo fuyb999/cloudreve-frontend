@@ -2,6 +2,7 @@ import { Add } from "@mui/icons-material";
 import {
   Alert,
   Box,
+  Button,
   Container,
   Grid2 as Grid,
   IconButton,
@@ -13,6 +14,7 @@ import {
 import { useQueryState } from "nuqs";
 import React, { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { Link as RouterLink } from "react-router-dom";
 import { getNodeList } from "../../../api/api";
 import { Node, NodeStatus, NodeType } from "../../../api/dashboard";
 import { NodeCapability } from "../../../api/workflow";
@@ -136,6 +138,16 @@ const NodeSetting = () => {
             <Typography variant="body2" fontWeight={600}>
               {t("node.contentProcessingSummaryTitle")}
             </Typography>
+            <Stack direction="row" spacing={1} sx={{ mt: 0.5, mb: 0.5 }}>
+              <Button
+                component={RouterLink}
+                to="/admin/task?type=content_processing"
+                size="small"
+                sx={{ px: 0, minWidth: "auto" }}
+              >
+                {t("node.openContentProcessingTasks")}
+              </Button>
+            </Stack>
             <Typography variant="body2">
               {t("node.contentProcessingSummary", {
                 total: contentProcessingSummary.total,

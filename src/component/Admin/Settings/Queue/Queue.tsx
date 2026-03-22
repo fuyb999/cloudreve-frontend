@@ -135,14 +135,24 @@ const Queue = () => {
           <Typography variant="body2" fontWeight={600}>
             {t("queue.contentProcessingInspectionTitle")}
           </Typography>
-          <Button
-            component={RouterLink}
-            to="/admin/node?capability=content_processing"
-            size="small"
-            sx={{ px: 0, minWidth: "auto", mt: 0.5, mb: 0.5 }}
-          >
-            {t("queue.contentProcessingInspectionOpenNodes")}
-          </Button>
+          <Stack direction="row" spacing={1} sx={{ mt: 0.5, mb: 0.5 }}>
+            <Button
+              component={RouterLink}
+              to="/admin/node?capability=content_processing"
+              size="small"
+              sx={{ px: 0, minWidth: "auto" }}
+            >
+              {t("queue.contentProcessingInspectionOpenNodes")}
+            </Button>
+            <Button
+              component={RouterLink}
+              to="/admin/task?type=content_processing"
+              size="small"
+              sx={{ px: 0, minWidth: "auto" }}
+            >
+              {t("queue.contentProcessingInspectionOpenTasks")}
+            </Button>
+          </Stack>
           <Typography variant="body2" sx={{ mt: 0.5 }}>
             {t("queue.contentProcessingInspectionActiveNodes", {
               names:
