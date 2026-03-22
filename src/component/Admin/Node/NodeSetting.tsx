@@ -15,12 +15,12 @@ import { useQueryState } from "nuqs";
 import React, { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Link as RouterLink } from "react-router-dom";
-import { getNodeList } from "../../../api/api";
-import { Node, NodeStatus, NodeType } from "../../../api/dashboard";
-import { NodeCapability } from "../../../api/workflow";
+import { getNodeList, getQueueMetrics } from "../../../api/api";
+import { Node, QueueMetric, QueueType } from "../../../api/dashboard";
+import { TaskStatus } from "../../../api/workflow";
 import { useAppDispatch } from "../../../redux/hooks";
-import Boolset from "../../../util/boolset";
 import ContentProcessingSubtypeLinks from "../Common/ContentProcessingSubtypeLinks";
+import { getContentProcessingHealthSummary } from "../Common/contentProcessingHealth";
 import { SecondaryButton } from "../../Common/StyledComponents";
 import ArrowSync from "../../Icons/ArrowSync";
 import QuestionCircle from "../../Icons/QuestionCircle";
@@ -39,6 +39,7 @@ const NodeSetting = () => {
   const dispatch = useAppDispatch();
   const [loading, setLoading] = useState(true);
   const [nodes, setNodes] = useState<Node[]>([]);
+  const [queueMetrics, setQueueMetrics] = useState<QueueMetric[]>([]);
   const [page, setPage] = useQueryState(PageQuery, { defaultValue: "1" });
   const [pageSize, setPageSize] = useQueryState(PageSizeQuery, {
     defaultValue: "11",
@@ -55,20 +56,13 @@ const NodeSetting = () => {
   const pageInt = parseInt(page) ?? 1;
   const pageSizeInt = parseInt(pageSize) ?? 11;
   const contentProcessingSummary = useMemo(() => {
-    const eligibleNodes = nodes.filter((node) => {
-      if (node.type !== NodeType.slave || !node.capabilities) {
-        return false;
-      }
-
-      return new Boolset(node.capabilities).enabled(NodeCapability.content_processing);
+    const queueMetric = queueMetrics.find((metric) => metric.name === QueueType.CONTENT_PROCESSING);
+    return getContentProcessingHealthSummary({
+      nodes,
+      queueMetric,
+      t,
     });
-
-    return {
-      total: eligibleNodes.length,
-      active: eligibleNodes.filter((node) => node.status === NodeStatus.active).length,
-      suspended: eligibleNodes.filter((node) => node.status === NodeStatus.suspended).length,
-    };
-  }, [nodes]);
+  }, [nodes, queueMetrics, t]);
 
   useEffect(() => {
     fetchNodes();
@@ -76,25 +70,28 @@ const NodeSetting = () => {
 
   const fetchNodes = () => {
     setLoading(true);
-    dispatch(
-      getNodeList({
-        page: pageInt,
-        page_size: pageSizeInt,
-        order_by: orderBy ?? "",
-        order_direction: orderDirection ?? "desc",
-        conditions: {
-          ...(capabilityFilterValue === "content_processing"
-            ? { [nodeCapabilityCondition]: "content_processing" }
-            : {}),
-        },
-      }),
-    )
-      .then((res) => {
+    Promise.all([
+      dispatch(
+        getNodeList({
+          page: pageInt,
+          page_size: pageSizeInt,
+          order_by: orderBy ?? "",
+          order_direction: orderDirection ?? "desc",
+          conditions: {
+            ...(capabilityFilterValue === "content_processing"
+              ? { [nodeCapabilityCondition]: "content_processing" }
+              : {}),
+          },
+        }),
+      ),
+      dispatch(getQueueMetrics()),
+    ])
+      .then(([res, metrics]) => {
         setNodes(res.nodes);
+        setQueueMetrics(metrics);
         setPage((res.pagination.page + 1).toString());
         setPageSize(res.pagination.page_size.toString());
         setCount(res.pagination.total_items ?? 0);
-        setLoading(false);
       })
       .finally(() => {
         setLoading(false);
@@ -135,7 +132,7 @@ const NodeSetting = () => {
           </ToggleButtonGroup>
         </Stack>
         {!loading && (
-          <Alert severity={contentProcessingSummary.active > 0 ? "info" : "warning"} sx={{ mb: 2 }}>
+          <Alert severity={contentProcessingSummary.warnings.length > 0 ? "warning" : "info"} sx={{ mb: 2 }}>
             <Typography variant="body2" fontWeight={600}>
               {t("node.contentProcessingSummaryTitle")}
             </Typography>
@@ -148,17 +145,50 @@ const NodeSetting = () => {
               >
                 {t("node.openContentProcessingTasks")}
               </Button>
+              {(contentProcessingSummary.queueMetric?.failure_tasks ?? 0) > 0 && (
+                <Button
+                  component={RouterLink}
+                  to={`/admin/task?type=content_processing&status=${TaskStatus.error}`}
+                  size="small"
+                  sx={{ px: 0, minWidth: "auto" }}
+                >
+                  {t("node.openFailedContentProcessingTasks")}
+                </Button>
+              )}
+              {(contentProcessingSummary.queueMetric?.suspending_tasks ?? 0) > 0 && (
+                <Button
+                  component={RouterLink}
+                  to={`/admin/task?type=content_processing&status=${TaskStatus.suspending}`}
+                  size="small"
+                  sx={{ px: 0, minWidth: "auto" }}
+                >
+                  {t("node.openSuspendingContentProcessingTasks")}
+                </Button>
+              )}
             </Stack>
             <Box sx={{ mb: 0.5 }}>
               <ContentProcessingSubtypeLinks />
             </Box>
             <Typography variant="body2">
               {t("node.contentProcessingSummary", {
-                total: contentProcessingSummary.total,
-                active: contentProcessingSummary.active,
-                suspended: contentProcessingSummary.suspended,
+                total: contentProcessingSummary.eligibleNodes.length,
+                active: contentProcessingSummary.activeNodes.length,
+                suspended: contentProcessingSummary.suspendedNodes.length,
               })}
             </Typography>
+            <Typography variant="body2" sx={{ mt: 0.5 }}>
+              {t("node.contentProcessingQueueState", {
+                submitted: contentProcessingSummary.queueMetric?.submitted_tasks ?? 0,
+                busy: contentProcessingSummary.queueMetric?.busy_workers ?? 0,
+                suspending: contentProcessingSummary.queueMetric?.suspending_tasks ?? 0,
+                failed: contentProcessingSummary.queueMetric?.failure_tasks ?? 0,
+              })}
+            </Typography>
+            {contentProcessingSummary.warnings.map((warning, index) => (
+              <Typography key={index} variant="body2" sx={{ mt: 0.5 }}>
+                {t("node.contentProcessingRiskPrefix", { message: warning })}
+              </Typography>
+            ))}
             {capabilityFilterValue === "content_processing" && (
               <Typography variant="body2" sx={{ mt: 0.5 }}>
                 {t("node.filterContentProcessingHint", {
