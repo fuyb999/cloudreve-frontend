@@ -1,11 +1,12 @@
 import { Box, FormHelperText, ListItemText, SelectChangeEvent } from "@mui/material";
+import React from "react";
 import { useTranslation } from "react-i18next";
-import { getTaskDisplayType, TaskType, visibleTaskTypes } from "../../../api/workflow";
+import { ContentProcessingTaskFilter, getTaskDisplayType, visibleTaskTypes } from "../../../api/workflow";
 import { DenseSelect, SquareChip } from "../../Common/StyledComponents";
 import { SquareMenuItem } from "../../FileManager/ContextMenu/ContextMenu";
 
 interface TaskTypeSelectorProps {
-  value: TaskType[];
+  value: string[];
   onChange: (event: SelectChangeEvent<unknown>) => void;
   renderValue?: (selected: unknown) => React.ReactNode;
   helperText?: string;
@@ -13,6 +14,7 @@ interface TaskTypeSelectorProps {
   allOptionText?: string;
   fullWidth?: boolean;
   displayEmpty?: boolean;
+  includeContentProcessingAggregate?: boolean;
 }
 
 const TaskTypeSelector = ({
@@ -24,8 +26,12 @@ const TaskTypeSelector = ({
   allOptionText,
   fullWidth = true,
   displayEmpty = false,
+  includeContentProcessingAggregate = false,
 }: TaskTypeSelectorProps) => {
   const { t } = useTranslation("dashboard");
+  const options = includeContentProcessingAggregate
+    ? [ContentProcessingTaskFilter, ...visibleTaskTypes]
+    : visibleTaskTypes;
 
   const defaultRenderValue = (selected: unknown) => {
     const values = Array.isArray(selected) ? selected : [];
@@ -56,7 +62,7 @@ const TaskTypeSelector = ({
             />
           </SquareMenuItem>
         )}
-        {visibleTaskTypes.map((type) => (
+        {options.map((type) => (
           <SquareMenuItem value={type} key={type}>
             <ListItemText
               primary={t(`task.${getTaskDisplayType(type)}`)}

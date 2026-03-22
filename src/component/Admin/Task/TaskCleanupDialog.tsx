@@ -2,11 +2,12 @@ import { Button, DialogContent, SelectChangeEvent, Stack, Typography } from "@mu
 import { DateTimePicker, LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import dayjs from "dayjs";
+import React from "react";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { sendCleanupTask } from "../../../api/api";
 import { CleanupTaskService } from "../../../api/dashboard";
-import { TaskStatus, TaskType } from "../../../api/workflow";
+import { TaskStatus } from "../../../api/workflow";
 import { useAppDispatch } from "../../../redux/hooks";
 import DraggableDialog from "../../Dialogs/DraggableDialog";
 import SettingForm from "../../Pages/Setting/SettingForm";
@@ -23,7 +24,7 @@ const TaskCleanupDialog = ({ open, onClose, onCleanupComplete }: TaskCleanupDial
   const { t } = useTranslation("dashboard");
   const dispatch = useAppDispatch();
   const [notAfter, setNotAfter] = useState<dayjs.Dayjs | null>(null);
-  const [selectedTypes, setSelectedTypes] = useState<TaskType[]>([]);
+  const [selectedTypes, setSelectedTypes] = useState<string[]>([]);
   const [selectedStatuses, setSelectedStatuses] = useState<TaskStatus[]>([]);
   const [loading, setLoading] = useState(false);
 
@@ -99,10 +100,11 @@ const TaskCleanupDialog = ({ open, onClose, onCleanupComplete }: TaskCleanupDial
           <SettingForm title={t("task.type")} noContainer lgWidth={12}>
             <TaskTypeSelector
               value={selectedTypes}
-              onChange={(e: SelectChangeEvent<unknown>) => setSelectedTypes(e.target.value as TaskType[])}
+              onChange={(e: SelectChangeEvent<unknown>) => setSelectedTypes(e.target.value as string[])}
               helperText={t("task.cleanupTaskTypesDes")}
               showAllOption={false}
               displayEmpty={true}
+              includeContentProcessingAggregate={true}
             />
           </SettingForm>
 
