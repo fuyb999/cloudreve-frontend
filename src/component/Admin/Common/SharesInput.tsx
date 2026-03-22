@@ -1,19 +1,12 @@
-import { Box, debounce, useTheme } from "@mui/material";
-import { useEffect, useMemo, useState } from "react";
+import { useTheme } from "@mui/material";
+import React from "react";
 import { useTranslation } from "react-i18next";
-import { getShareList } from "../../../api/api.ts";
-import { Share } from "../../../api/dashboard.ts";
-import { useAppDispatch } from "../../../redux/hooks.ts";
-import { DenseAutocomplete, DenseFilledTextField, NoWrapBox, SquareChip } from "../../Common/StyledComponents.tsx";
-import FileTypeIcon from "../../FileManager/Explorer/FileTypeIcon.tsx";
-import LinkDismiss from "../../Icons/LinkDismiss.tsx";
+import { DenseAutocomplete, DenseFilledTextField } from "../../Common/StyledComponents.tsx";
 
-export interface SharesInputProps {}
-
-const SharesInput = (props: SharesInputProps) => {
+const SharesInput = () => {
   const theme = useTheme();
   const { t } = useTranslation();
-  const [options, setOptions] = useState<number[]>([]);
+  const options: number[] = [];
 
   return (
     <DenseAutocomplete

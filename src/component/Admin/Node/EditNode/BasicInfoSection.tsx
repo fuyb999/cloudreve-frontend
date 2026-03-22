@@ -1,5 +1,6 @@
 import { Alert, FormControl, FormControlLabel, Switch, Typography } from "@mui/material";
 import { useSnackbar } from "notistack";
+import React from "react";
 import { useCallback, useContext, useMemo, useState } from "react";
 import { Trans, useTranslation } from "react-i18next";
 import { testNode } from "../../../../api/api";
@@ -69,7 +70,7 @@ const BasicInfoSection = () => {
   const onTestNode = useCallback(() => {
     setTestNodeLoading(true);
     dispatch(testNode({ node: values }))
-      .then((res) => {
+      .then(() => {
         enqueueSnackbar(t("node.testNodeSuccess"), { variant: "success", action: DefaultCloseAction });
       })
       .finally(() => {
@@ -128,7 +129,11 @@ const BasicInfoSection = () => {
               <FormControl fullWidth>
                 <DenseFilledTextField required value={values.slave_key} onChange={onSlaveKeyChange} />
                 <NoMarginHelperText>
-                  <Trans i18nKey="node.slaveSecretDes" ns="dashboard" components={[<Code />, <Code />]} />
+                  <Trans
+                    i18nKey="node.slaveSecretDes"
+                    ns="dashboard"
+                    components={[<Code key="code-1" />, <Code key="code-2" />]}
+                  />
                 </NoMarginHelperText>
               </FormControl>
             </SettingForm>

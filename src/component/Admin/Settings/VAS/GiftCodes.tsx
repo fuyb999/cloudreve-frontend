@@ -1,10 +1,7 @@
-import { Box, Chip, Stack, Table, TableBody, TableContainer, TableHead, TableRow } from "@mui/material";
-import { useSnackbar } from "notistack";
+import { Box, Stack, Table, TableBody, TableContainer, TableHead, TableRow } from "@mui/material";
+import React from "react";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { useDispatch } from "react-redux";
-import { AnyAction } from "redux";
-import { ThunkDispatch } from "redux-thunk";
 import { NoWrapCell, SecondaryButton, StyledTableContainerPaper } from "../../../Common/StyledComponents.tsx";
 import Add from "../../../Icons/Add.tsx";
 import TablePagination from "../../Common/TablePagination.tsx";
@@ -29,25 +26,12 @@ interface PaginationParams {
   total: number;
 }
 
-const GiftCodeStatusChip = ({ used }: { used: boolean }) => {
+const GiftCodes = (_props: GiftCodesProps) => {
+  void _props;
   const { t } = useTranslation("dashboard");
-
-  return (
-    <Chip
-      color={used ? "default" : "success"}
-      label={used ? t("giftCodes.giftCodeUsed") : t("giftCodes.giftCodeUnused")}
-      size="small"
-    />
-  );
-};
-
-const GiftCodes = ({ storageProductsConfig, groupProductsConfig }: GiftCodesProps) => {
-  const { t } = useTranslation("dashboard");
-  const dispatch = useDispatch<ThunkDispatch<any, any, AnyAction>>();
-  const { enqueueSnackbar } = useSnackbar();
-  const [dialogOpen, setDialogOpen] = useState(false);
-  const [giftCodes, setGiftCodes] = useState<GiftCode[]>([]);
-  const [loading, setLoading] = useState(false);
+  const [, setDialogOpen] = useState(false);
+  const [giftCodes] = useState<GiftCode[]>([]);
+  const [loading] = useState(false);
 
   // Pagination state
   const [pagination, setPagination] = useState<PaginationParams>({
