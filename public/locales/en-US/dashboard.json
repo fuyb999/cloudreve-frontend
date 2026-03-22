@@ -140,6 +140,7 @@
     "contentProcessingCardHealth": "{{active}} / {{total}} content-processing slave nodes are active, with {{workers}} queue workers configured.",
     "contentProcessingCardHealthWarning": "Content-processing nodes or worker configuration are currently insufficient, so related tasks may not be drained reliably.",
     "contentProcessingInspectionTitle": "Content processing queue inspection",
+    "contentProcessingInspectionOpenNodes": "View content-processing nodes",
     "contentProcessingInspectionActiveNodes": "Active nodes: {{names}}",
     "contentProcessingInspectionSuspendedNodes": "Suspended nodes: {{names}}",
     "contentProcessingInspectionQueueState": "Queue state: {{workers}} configured workers, {{submitted}} submitted, {{busy}} busy, {{suspending}} suspending, {{failed}} failed.",

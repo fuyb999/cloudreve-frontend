@@ -140,6 +140,7 @@
     "contentProcessingCardHealth": "活跃内容处理从节点 {{active}} / {{total}}，队列配置 worker {{workers}}。",
     "contentProcessingCardHealthWarning": "当前内容处理节点或 worker 配置不足，相关任务可能无法稳定消化。",
     "contentProcessingInspectionTitle": "内容处理队列检查面板",
+    "contentProcessingInspectionOpenNodes": "查看内容处理节点",
     "contentProcessingInspectionActiveNodes": "活跃节点：{{names}}",
     "contentProcessingInspectionSuspendedNodes": "停用节点：{{names}}",
     "contentProcessingInspectionQueueState": "队列状态：配置 worker {{workers}}，累计提交 {{submitted}}，繁忙 {{busy}}，挂起 {{suspending}}，失败 {{failed}}。",

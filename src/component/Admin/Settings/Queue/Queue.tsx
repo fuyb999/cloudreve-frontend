@@ -1,6 +1,7 @@
-import { Alert, Box, Grid, Stack, Typography } from "@mui/material";
+import { Alert, Box, Button, Grid, Stack, Typography } from "@mui/material";
 import React, { useContext, useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { Link as RouterLink } from "react-router-dom";
 import { getNodeList, getQueueMetrics } from "../../../../api/api.ts";
 import { Node, NodeStatus, NodeType, QueueMetric, QueueType } from "../../../../api/dashboard.ts";
 import { NodeCapability } from "../../../../api/workflow.ts";
@@ -134,6 +135,14 @@ const Queue = () => {
           <Typography variant="body2" fontWeight={600}>
             {t("queue.contentProcessingInspectionTitle")}
           </Typography>
+          <Button
+            component={RouterLink}
+            to="/admin/node?capability=content_processing"
+            size="small"
+            sx={{ px: 0, minWidth: "auto", mt: 0.5, mb: 0.5 }}
+          >
+            {t("queue.contentProcessingInspectionOpenNodes")}
+          </Button>
           <Typography variant="body2" sx={{ mt: 0.5 }}>
             {t("queue.contentProcessingInspectionActiveNodes", {
               names:

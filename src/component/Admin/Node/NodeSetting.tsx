@@ -46,7 +46,8 @@ const NodeSetting = () => {
   const [orderDirection] = useQueryState(OrderDirectionQuery, { defaultValue: "desc" });
   const [count, setCount] = useState(0);
   const [createNewOpen, setCreateNewOpen] = useState(false);
-  const [capabilityFilter, setCapabilityFilter] = useState<"all" | "content_processing">("all");
+  const [capabilityFilter, setCapabilityFilter] = useQueryState("capability", { defaultValue: "all" });
+  const capabilityFilterValue = capabilityFilter === "content_processing" ? "content_processing" : "all";
 
   const pageInt = parseInt(page) ?? 1;
   const pageSizeInt = parseInt(pageSize) ?? 11;
@@ -68,7 +69,7 @@ const NodeSetting = () => {
 
   useEffect(() => {
     fetchNodes();
-  }, [capabilityFilter, page, pageSize, orderBy, orderDirection]);
+  }, [capabilityFilterValue, page, pageSize, orderBy, orderDirection]);
 
   const fetchNodes = () => {
     setLoading(true);
@@ -79,7 +80,9 @@ const NodeSetting = () => {
         order_by: orderBy ?? "",
         order_direction: orderDirection ?? "desc",
         conditions: {
-          ...(capabilityFilter === "content_processing" ? { [nodeCapabilityCondition]: "content_processing" } : {}),
+          ...(capabilityFilterValue === "content_processing"
+            ? { [nodeCapabilityCondition]: "content_processing" }
+            : {}),
         },
       }),
     )
@@ -114,7 +117,7 @@ const NodeSetting = () => {
           <ToggleButtonGroup
             size="small"
             exclusive
-            value={capabilityFilter}
+            value={capabilityFilterValue}
             onChange={(_, nextValue) => {
               if (!nextValue) {
                 return;
@@ -140,7 +143,7 @@ const NodeSetting = () => {
                 suspended: contentProcessingSummary.suspended,
               })}
             </Typography>
-            {capabilityFilter === "content_processing" && (
+            {capabilityFilterValue === "content_processing" && (
               <Typography variant="body2" sx={{ mt: 0.5 }}>
                 {t("node.filterContentProcessingHint", {
                   count,
