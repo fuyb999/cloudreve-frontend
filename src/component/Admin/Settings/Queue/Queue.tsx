@@ -4,7 +4,7 @@ import { useTranslation } from "react-i18next";
 import { Link as RouterLink } from "react-router-dom";
 import { getNodeList, getQueueMetrics } from "../../../../api/api.ts";
 import { Node, NodeStatus, NodeType, QueueMetric, QueueType } from "../../../../api/dashboard.ts";
-import { NodeCapability } from "../../../../api/workflow.ts";
+import { NodeCapability, TaskStatus } from "../../../../api/workflow.ts";
 import { useAppDispatch } from "../../../../redux/hooks.ts";
 import Boolset from "../../../../util/boolset.ts";
 import ContentProcessingSubtypeLinks from "../../Common/ContentProcessingSubtypeLinks.tsx";
@@ -153,6 +153,26 @@ const Queue = () => {
             >
               {t("queue.contentProcessingInspectionOpenTasks")}
             </Button>
+            {(contentProcessingSummary.queueMetric?.failure_tasks ?? 0) > 0 && (
+              <Button
+                component={RouterLink}
+                to={`/admin/task?type=content_processing&status=${TaskStatus.error}`}
+                size="small"
+                sx={{ px: 0, minWidth: "auto" }}
+              >
+                {t("queue.contentProcessingInspectionOpenFailedTasks")}
+              </Button>
+            )}
+            {(contentProcessingSummary.queueMetric?.suspending_tasks ?? 0) > 0 && (
+              <Button
+                component={RouterLink}
+                to={`/admin/task?type=content_processing&status=${TaskStatus.suspending}`}
+                size="small"
+                sx={{ px: 0, minWidth: "auto" }}
+              >
+                {t("queue.contentProcessingInspectionOpenSuspendingTasks")}
+              </Button>
+            )}
           </Stack>
           <Box sx={{ mb: 0.5 }}>
             <ContentProcessingSubtypeLinks />

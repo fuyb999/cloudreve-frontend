@@ -25,7 +25,7 @@ import { CSSTransition, SwitchTransition } from "react-transition-group";
 import { CartesianGrid, Legend, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { getDashboardSummary, getNodeList, getQueueMetrics } from "../../../api/api.ts";
 import { HomepageSummary, Node, NodeStatus, NodeType, QueueMetric, QueueType } from "../../../api/dashboard.ts";
-import { NodeCapability } from "../../../api/workflow.ts";
+import { NodeCapability, TaskStatus } from "../../../api/workflow.ts";
 import { useAppDispatch } from "../../../redux/hooks.ts";
 import Boolset from "../../../util/boolset.ts";
 import FacebookCircularProgress from "../../Common/CircularProgress.tsx";
@@ -406,7 +406,27 @@ const Home = () => {
                       >
                         {t("summary.openContentProcessingTasks")}
                       </Button>
+                      {contentProcessingOverview.failed > 0 && (
+                        <Button
+                          component={RouterLink}
+                          to={`/admin/task?type=content_processing&status=${TaskStatus.error}`}
+                          size="small"
+                          sx={{ px: 0, minWidth: "auto" }}
+                        >
+                          {t("summary.openFailedContentProcessingTasks")}
+                        </Button>
+                      )}
                     </Stack>
+                    {contentProcessingOverview.suspending > 0 && (
+                      <Button
+                        component={RouterLink}
+                        to={`/admin/task?type=content_processing&status=${TaskStatus.suspending}`}
+                        size="small"
+                        sx={{ px: 0, minWidth: "auto", alignSelf: "flex-start" }}
+                      >
+                        {t("summary.openSuspendingContentProcessingTasks")}
+                      </Button>
+                    )}
                     <ContentProcessingSubtypeLinks />
                     <Box>
                       <SecondaryButton onClick={loadContentProcessingSummary} size="small">
