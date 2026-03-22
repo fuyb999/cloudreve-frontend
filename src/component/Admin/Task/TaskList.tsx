@@ -34,9 +34,7 @@ import Broom from "../../Icons/Broom";
 import Filter from "../../Icons/Filter";
 import PageContainer from "../../Pages/PageContainer";
 import PageHeader from "../../Pages/PageHeader";
-import ContentProcessingNavigationLinks from "../Common/ContentProcessingNavigationLinks";
-import ContentProcessingSubtypeLinks from "../Common/ContentProcessingSubtypeLinks";
-import ContentProcessingTaskStatusLinks from "../Common/ContentProcessingTaskStatusLinks";
+import ContentProcessingActionBar from "../Common/ContentProcessingActionBar";
 import TablePagination from "../Common/TablePagination";
 import EntityDialog from "../Entity/EntityDialog/EntityDialog";
 import FileDialog from "../File/FileDialog/FileDialog";
@@ -241,27 +239,20 @@ const TaskList = () => {
                       type: t(`task.${type}`),
                     })}
               </Box>
-              <ContentProcessingNavigationLinks
-                showAggregate={!isContentProcessingAggregateView}
-                showQueue
-                showNodes
+              <ContentProcessingActionBar
+                selectedType={type}
+                status={status}
+                showAggregateNavigation={!isContentProcessingAggregateView}
+                showQueueNavigation
+                showNodeNavigation
+                emphasizeStatusSelection
                 aggregateLabel={t("task.openContentProcessingAggregate")}
                 queueLabel={t("task.openContentProcessingQueue")}
                 nodeLabel={t("task.openContentProcessingNodes")}
+                allStatusLabel={t("task.openAllContentProcessingTasks")}
+                failedStatusLabel={t("task.openFailedContentProcessingTasks")}
+                suspendingStatusLabel={t("task.openSuspendingContentProcessingTasks")}
               />
-              <Stack direction="row" spacing={1}>
-                <ContentProcessingTaskStatusLinks
-                  type={type}
-                  status={status}
-                  emphasizeSelection
-                  allLabel={t("task.openAllContentProcessingTasks")}
-                  failedLabel={t("task.openFailedContentProcessingTasks")}
-                  suspendingLabel={t("task.openSuspendingContentProcessingTasks")}
-                />
-              </Stack>
-              <Box sx={{ mt: 0.5 }}>
-                <ContentProcessingSubtypeLinks selectedType={type} />
-              </Box>
             </Box>
           </Alert>
         )}

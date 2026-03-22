@@ -33,9 +33,7 @@ import PeopleFilled from "../../Icons/PeopleFilled.tsx";
 import ShareFilled from "../../Icons/ShareFilled.tsx";
 import PageContainer from "../../Pages/PageContainer.tsx";
 import PageHeader from "../../Pages/PageHeader.tsx";
-import ContentProcessingNavigationLinks from "../Common/ContentProcessingNavigationLinks.tsx";
-import ContentProcessingSubtypeLinks from "../Common/ContentProcessingSubtypeLinks.tsx";
-import ContentProcessingTaskStatusLinks from "../Common/ContentProcessingTaskStatusLinks.tsx";
+import ContentProcessingActionBar from "../Common/ContentProcessingActionBar.tsx";
 import { getContentProcessingHealthSummary } from "../Common/contentProcessingHealth.ts";
 import SiteUrlWarning from "./SiteUrlWarning.tsx";
 
@@ -382,20 +380,17 @@ const Home = () => {
                           {t("summary.contentProcessingRiskPrefix", { message: warning })}
                         </Typography>
                       ))}
-                    <ContentProcessingNavigationLinks
-                      showQueue
-                      showNodes
+                    <ContentProcessingActionBar
+                      showQueueNavigation
+                      showNodeNavigation
                       queueLabel={t("summary.openContentProcessingQueue")}
                       nodeLabel={t("summary.openContentProcessingNodes")}
+                      allStatusLabel={t("summary.openContentProcessingTasks")}
+                      failedStatusLabel={t("summary.openFailedContentProcessingTasks")}
+                      suspendingStatusLabel={t("summary.openSuspendingContentProcessingTasks")}
+                      showFailedStatus={contentProcessingOverview.failed > 0}
+                      showSuspendingStatus={contentProcessingOverview.suspending > 0}
                     />
-                    <ContentProcessingTaskStatusLinks
-                      allLabel={t("summary.openContentProcessingTasks")}
-                      failedLabel={t("summary.openFailedContentProcessingTasks")}
-                      suspendingLabel={t("summary.openSuspendingContentProcessingTasks")}
-                      showFailed={contentProcessingOverview.failed > 0}
-                      showSuspending={contentProcessingOverview.suspending > 0}
-                    />
-                    <ContentProcessingSubtypeLinks />
                     <Box>
                       <SecondaryButton onClick={loadContentProcessingSummary} size="small">
                         {t("node.refresh")}

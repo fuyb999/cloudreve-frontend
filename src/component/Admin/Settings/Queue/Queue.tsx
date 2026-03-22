@@ -4,9 +4,7 @@ import { useTranslation } from "react-i18next";
 import { getNodeList, getQueueMetrics } from "../../../../api/api.ts";
 import { Node, QueueMetric, QueueType } from "../../../../api/dashboard.ts";
 import { useAppDispatch } from "../../../../redux/hooks.ts";
-import ContentProcessingNavigationLinks from "../../Common/ContentProcessingNavigationLinks.tsx";
-import ContentProcessingSubtypeLinks from "../../Common/ContentProcessingSubtypeLinks.tsx";
-import ContentProcessingTaskStatusLinks from "../../Common/ContentProcessingTaskStatusLinks.tsx";
+import ContentProcessingActionBar from "../../Common/ContentProcessingActionBar.tsx";
 import { getContentProcessingHealthSummary } from "../../Common/contentProcessingHealth.ts";
 import { SecondaryButton } from "../../../Common/StyledComponents.tsx";
 import ArrowSync from "../../../Icons/ArrowSync.tsx";
@@ -96,17 +94,15 @@ const Queue = () => {
             {t("queue.contentProcessingInspectionTitle")}
           </Typography>
           <Box sx={{ mt: 0.5, mb: 0.5 }}>
-            <ContentProcessingNavigationLinks showNodes nodeLabel={t("queue.contentProcessingInspectionOpenNodes")} />
-          </Box>
-          <ContentProcessingTaskStatusLinks
-            allLabel={t("queue.contentProcessingInspectionOpenTasks")}
-            failedLabel={t("queue.contentProcessingInspectionOpenFailedTasks")}
-            suspendingLabel={t("queue.contentProcessingInspectionOpenSuspendingTasks")}
-            showFailed={(contentProcessingSummary.queueMetric?.failure_tasks ?? 0) > 0}
-            showSuspending={(contentProcessingSummary.queueMetric?.suspending_tasks ?? 0) > 0}
-          />
-          <Box sx={{ mb: 0.5 }}>
-            <ContentProcessingSubtypeLinks />
+            <ContentProcessingActionBar
+              showNodeNavigation
+              nodeLabel={t("queue.contentProcessingInspectionOpenNodes")}
+              allStatusLabel={t("queue.contentProcessingInspectionOpenTasks")}
+              failedStatusLabel={t("queue.contentProcessingInspectionOpenFailedTasks")}
+              suspendingStatusLabel={t("queue.contentProcessingInspectionOpenSuspendingTasks")}
+              showFailedStatus={(contentProcessingSummary.queueMetric?.failure_tasks ?? 0) > 0}
+              showSuspendingStatus={(contentProcessingSummary.queueMetric?.suspending_tasks ?? 0) > 0}
+            />
           </Box>
           <Typography variant="body2" sx={{ mt: 0.5 }}>
             {t("queue.contentProcessingInspectionActiveNodes", {

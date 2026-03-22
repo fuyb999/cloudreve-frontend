@@ -16,8 +16,7 @@ import { useTranslation } from "react-i18next";
 import { getNodeList, getQueueMetrics } from "../../../api/api";
 import { Node, QueueMetric, QueueType } from "../../../api/dashboard";
 import { useAppDispatch } from "../../../redux/hooks";
-import ContentProcessingSubtypeLinks from "../Common/ContentProcessingSubtypeLinks";
-import ContentProcessingTaskStatusLinks from "../Common/ContentProcessingTaskStatusLinks";
+import ContentProcessingActionBar from "../Common/ContentProcessingActionBar";
 import { getContentProcessingHealthSummary } from "../Common/contentProcessingHealth";
 import { SecondaryButton } from "../../Common/StyledComponents";
 import ArrowSync from "../../Icons/ArrowSync";
@@ -134,15 +133,14 @@ const NodeSetting = () => {
             <Typography variant="body2" fontWeight={600}>
               {t("node.contentProcessingSummaryTitle")}
             </Typography>
-            <ContentProcessingTaskStatusLinks
-              allLabel={t("node.openContentProcessingTasks")}
-              failedLabel={t("node.openFailedContentProcessingTasks")}
-              suspendingLabel={t("node.openSuspendingContentProcessingTasks")}
-              showFailed={(contentProcessingSummary.queueMetric?.failure_tasks ?? 0) > 0}
-              showSuspending={(contentProcessingSummary.queueMetric?.suspending_tasks ?? 0) > 0}
-            />
             <Box sx={{ mb: 0.5 }}>
-              <ContentProcessingSubtypeLinks />
+              <ContentProcessingActionBar
+                allStatusLabel={t("node.openContentProcessingTasks")}
+                failedStatusLabel={t("node.openFailedContentProcessingTasks")}
+                suspendingStatusLabel={t("node.openSuspendingContentProcessingTasks")}
+                showFailedStatus={(contentProcessingSummary.queueMetric?.failure_tasks ?? 0) > 0}
+                showSuspendingStatus={(contentProcessingSummary.queueMetric?.suspending_tasks ?? 0) > 0}
+              />
             </Box>
             <Typography variant="body2">
               {t("node.contentProcessingSummary", {
