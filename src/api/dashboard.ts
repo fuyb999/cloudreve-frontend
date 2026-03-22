@@ -1,6 +1,6 @@
 import { EncryptionCipher, EntityType, PaginationResults, PolicyType } from "./explorer.ts";
 import { Capacity } from "./user.ts";
-import { TaskStatus, TaskSummary, TaskType } from "./workflow.ts";
+import { TaskStatus, TaskSummary } from "./workflow.ts";
 
 export interface MetricsSummary {
   dates: string[];
@@ -562,7 +562,7 @@ export interface ListShareResponse {
 
 export interface CleanupTaskService {
   not_after: string;
-  types?: TaskType[];
+  types?: string[];
   status?: TaskStatus[];
 }
 

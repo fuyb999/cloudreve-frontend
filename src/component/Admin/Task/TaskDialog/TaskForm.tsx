@@ -86,6 +86,7 @@ const TaskForm = ({ values }: { values: Task }) => {
     return userTaskTypes.includes(values.type ?? "");
   }, [values]);
   const diagnosticFields = useMemo(() => getTaskDiagnosticFields(processedSummary, t), [processedSummary, t]);
+  const hasBlobErrors = Array.isArray(privateState?.errors);
 
   return (
     <>
@@ -303,7 +304,7 @@ const TaskForm = ({ values }: { values: Task }) => {
             </SettingForm>
           )}
 
-          {values.type == TaskType.entity_recycle_routine && privateState?.errors && (
+          {values.type == TaskType.entity_recycle_routine && hasBlobErrors && (
             <SettingForm title={t("task.entityError")} noContainer lgWidth={12}>
               <BlobErrors privateState={privateState} />
             </SettingForm>

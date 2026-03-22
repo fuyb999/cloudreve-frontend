@@ -47,6 +47,8 @@ const nestedRecord = (value: unknown): TaskPrivateState | undefined => {
   return undefined;
 };
 
+const isPositiveNumber = (value: unknown): value is number => typeof value === "number" && value > 0;
+
 const resolveTaskEntityID = (summary: TaskSummary | undefined, state: TaskPrivateState): number => {
   const candidates = [
     summary?.props?.entity_id,
@@ -55,7 +57,7 @@ const resolveTaskEntityID = (summary: TaskSummary | undefined, state: TaskPrivat
     nestedRecord(state?.payload)?.entity_id,
     nestedRecord(nestedRecord(state?.payload)?.entity)?.id,
   ];
-  return candidates.find((value) => typeof value === "number" && value > 0) ?? 0;
+  return candidates.find(isPositiveNumber) ?? 0;
 };
 
 const resolveTaskFileID = (summary: TaskSummary | undefined, state: TaskPrivateState): number => {
@@ -65,7 +67,7 @@ const resolveTaskFileID = (summary: TaskSummary | undefined, state: TaskPrivateS
     nestedRecord(state?.result)?.file_id,
     nestedRecord(state?.payload)?.file_id,
   ];
-  return candidates.find((value) => typeof value === "number" && value > 0) ?? 0;
+  return candidates.find(isPositiveNumber) ?? 0;
 };
 
 const processUrl = (url: string, userHashId: string) => {
