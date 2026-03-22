@@ -58,14 +58,16 @@ const Queue = () => {
     const activeNodes = eligibleNodes.filter((node) => node.status === NodeStatus.active);
     const suspendedNodes = eligibleNodes.filter((node) => node.status === NodeStatus.suspended);
     const queueMetric = metrics.find((metric) => metric.name === QueueType.CONTENT_PROCESSING);
+    const configuredWorkers = Math.max(parseInt(values.queue_content_processing_worker_num ?? "0") || 0, 0);
 
     return {
       eligibleNodes,
       activeNodes,
       suspendedNodes,
       queueMetric,
+      configuredWorkers,
     };
-  }, [metrics, nodes]);
+  }, [metrics, nodes, values.queue_content_processing_worker_num]);
 
   return (
     <Box component={"form"} ref={formRef} sx={{ p: 2, pt: 0 }}>
@@ -108,6 +110,15 @@ const Queue = () => {
               settings={values}
               setSettings={setSettings}
               loading={loading}
+              contentProcessingHealth={
+                metric.name === QueueType.CONTENT_PROCESSING
+                  ? {
+                      activeNodes: contentProcessingSummary.activeNodes.length,
+                      totalNodes: contentProcessingSummary.eligibleNodes.length,
+                      configuredWorkers: contentProcessingSummary.configuredWorkers,
+                    }
+                  : undefined
+              }
             />
           ))}
         {loading &&

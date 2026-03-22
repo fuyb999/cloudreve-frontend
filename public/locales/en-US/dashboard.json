@@ -137,6 +137,8 @@
     "contentProcessingNodeHealthTitle": "Content processing node overview",
     "contentProcessingNodeHealth": "{{total}} slave nodes have content processing enabled: {{active}} active and {{suspended}} suspended. The queue has processed {{submitted}} submitted tasks with {{busy}} busy workers right now.",
     "contentProcessingNodeHealthWarning": "There are currently no active content-processing slave nodes. Related tasks cannot be offloaded reliably and may fall back to the master site.",
+    "contentProcessingCardHealth": "{{active}} / {{total}} content-processing slave nodes are active, with {{workers}} queue workers configured.",
+    "contentProcessingCardHealthWarning": "Content-processing nodes or worker configuration are currently insufficient, so related tasks may not be drained reliably.",
     "queueName_recycle": "Blob Recycling",
     "queueName_recycleDes": "Used to delete expired file blobs.",
     "queueName_thumb": "Thumbnail Generation",

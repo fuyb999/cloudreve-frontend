@@ -1,5 +1,16 @@
-import { Box, Divider, Grid, IconButton, Skeleton, Stack, Typography, useMediaQuery, useTheme } from "@mui/material";
-import { useState } from "react";
+import {
+  Alert,
+  Box,
+  Divider,
+  Grid,
+  IconButton,
+  Skeleton,
+  Stack,
+  Typography,
+  useMediaQuery,
+  useTheme,
+} from "@mui/material";
+import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { QueueMetric, QueueType } from "../../../../api/dashboard.ts";
 import Setting from "../../../Icons/Setting.tsx";
@@ -15,9 +26,21 @@ export interface QueueCardProps {
   setSettings: (settings: { [key: string]: string }) => void;
   metrics?: QueueMetric;
   loading: boolean;
+  contentProcessingHealth?: {
+    activeNodes: number;
+    totalNodes: number;
+    configuredWorkers: number;
+  };
 }
 
-export const QueueCard = ({ queue, settings, metrics, setSettings, loading }: QueueCardProps) => {
+export const QueueCard = ({
+  queue,
+  settings,
+  metrics,
+  setSettings,
+  loading,
+  contentProcessingHealth,
+}: QueueCardProps) => {
   const { t } = useTranslation("dashboard");
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
@@ -65,6 +88,29 @@ export const QueueCard = ({ queue, settings, metrics, setSettings, loading }: Qu
         <Typography variant="body2" color="text.secondary">
           {t(`queue.queueName_${queue}Des`)}
         </Typography>
+        {queue === QueueType.CONTENT_PROCESSING && contentProcessingHealth && (
+          <Alert
+            severity={
+              contentProcessingHealth.activeNodes > 0 && contentProcessingHealth.configuredWorkers > 0
+                ? "info"
+                : "warning"
+            }
+            sx={{ mt: 1.5, py: 0 }}
+          >
+            <Typography variant="caption" display="block">
+              {t("queue.contentProcessingCardHealth", {
+                active: contentProcessingHealth.activeNodes,
+                total: contentProcessingHealth.totalNodes,
+                workers: contentProcessingHealth.configuredWorkers,
+              })}
+            </Typography>
+            {(contentProcessingHealth.activeNodes <= 0 || contentProcessingHealth.configuredWorkers <= 0) && (
+              <Typography variant="caption" display="block">
+                {t("queue.contentProcessingCardHealthWarning")}
+              </Typography>
+            )}
+          </Alert>
+        )}
         <Divider sx={{ my: 2 }} />
         {metrics && (
           <>
