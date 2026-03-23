@@ -1,5 +1,5 @@
 import { Box, Typography } from "@mui/material";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import { sendOIDCExchange } from "../../../../api/api.ts";
@@ -15,6 +15,12 @@ const OIDCCallback = () => {
   const query = useQuery();
   const navigate = useNavigate();
   const [error, setError] = useState<string | null>(null);
+  const exchangeKeyRef = useRef<string | null>(null);
+  const exchangeKey = useMemo(() => {
+    const code = query.get("code") ?? "";
+    const state = query.get("state") ?? "";
+    return `${code}::${state}`;
+  }, [query]);
 
   useEffect(() => {
     const code = query.get("code");
@@ -24,6 +30,10 @@ const OIDCCallback = () => {
       setError(t("login.oidcInvalidCallback"));
       return;
     }
+    if (exchangeKeyRef.current === exchangeKey) {
+      return;
+    }
+    exchangeKeyRef.current = exchangeKey;
 
     // 前端回调页不直接信任第三方返回结果，只把 code/state 交回后端换取统一认证 token。
     dispatch(sendOIDCExchange({ code, state }))
@@ -44,7 +54,7 @@ const OIDCCallback = () => {
         setError(message);
         navigate("/session", { replace: true });
       });
-  }, [dispatch, navigate, query, t]);
+  }, [dispatch, exchangeKey, navigate, query, t]);
 
   return (
     <Box sx={{ py: 8 }}>

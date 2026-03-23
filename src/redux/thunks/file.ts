@@ -1075,22 +1075,37 @@ export function submitCreateNew(index: number, name: string, type: number): AppT
         err_on_conflict: true,
       }),
     );
+    let materializedFile = newFile;
+    if (!newFile.capability || crUri.fs() == Filesystem.public) {
+      try {
+        materializedFile = await dispatch(
+          getFileInfo(
+            {
+              uri: newFile.path,
+            },
+            true,
+          ),
+        );
+      } catch {
+        materializedFile = newFile;
+      }
+    }
 
     // if name does not contain "/", append cache
     if (name.includes("/")) {
       dispatch(refreshFileList(index));
-      return newFile;
+      return materializedFile;
     }
 
-    const newList = fm.list?.files ? [...fm.list.files, newFile] : [newFile];
+    const newList = fm.list?.files ? [...fm.list.files, materializedFile] : [materializedFile];
     if (newList) {
       dispatch(setFileList({ index: FileManagerIndex.main, value: newList }));
       dispatch(setFileList({ index: FileManagerIndex.selector, value: newList }));
     }
-    dispatch(appendTreeCache({ index: FileManagerIndex.main, value: [[newFile], uri] }));
-    dispatch(appendTreeCache({ index: FileManagerIndex.selector, value: [[newFile], uri] }));
-    dispatch(setSelected({ index, value: [newFile] }));
-    return newFile;
+    dispatch(appendTreeCache({ index: FileManagerIndex.main, value: [[materializedFile], uri] }));
+    dispatch(appendTreeCache({ index: FileManagerIndex.selector, value: [[materializedFile], uri] }));
+    dispatch(setSelected({ index, value: [materializedFile] }));
+    return materializedFile;
   };
 }
 

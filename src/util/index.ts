@@ -1,7 +1,7 @@
 // changeThemeColor changes the theme color of the browser
 import i18next from "i18next";
 import { enqueueSnackbar } from "notistack";
-import { MutableRefObject, RefCallback } from "react";
+import { MutableRefObject, RefCallback, useMemo } from "react";
 import { useLocation } from "react-router-dom";
 import { FileResponse, Metadata } from "../api/explorer.ts";
 import { DefaultCloseAction } from "../component/Common/Snackbar/snackbar.tsx";
@@ -14,7 +14,8 @@ export const changeThemeColor = (color: string) => {
 };
 
 export const useQuery = (): URLSearchParams => {
-  return new URLSearchParams(useLocation().search);
+  const { search } = useLocation();
+  return useMemo(() => new URLSearchParams(search), [search]);
 };
 
 // getFileLinkedUri returns the linked uri of the file.
