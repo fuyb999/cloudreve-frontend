@@ -1,7 +1,7 @@
 import { Box, Checkbox, IconButton, Link, Skeleton, TableCell, TableRow, Tooltip } from "@mui/material";
-import { useMemo, useState } from "react";
+import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { Link as RouterLink, useNavigate } from "react-router-dom";
+import { Link as RouterLink } from "react-router-dom";
 import { batchDeleteUser } from "../../../api/api";
 import { User, UserStatus } from "../../../api/dashboard";
 import { useAppDispatch } from "../../../redux/hooks";
@@ -23,7 +23,6 @@ export interface UserRowProps {
 }
 
 const UserRow = ({ user, loading, deleting, selected, onDelete, onDetails, onSelect }: UserRowProps) => {
-  const navigate = useNavigate();
   const { t } = useTranslation("dashboard");
   const dispatch = useAppDispatch();
   const [deleteLoading, setDeleteLoading] = useState(false);
@@ -55,23 +54,6 @@ const UserRow = ({ user, loading, deleting, selected, onDelete, onDetails, onSel
     onSelect?.(user?.id ?? 0);
   };
 
-  const userProps = useMemo(() => {
-    const res = {
-      passkey: false,
-      twoFa: false,
-    };
-
-    if (user?.edges?.passkey) {
-      res.passkey = true;
-    }
-
-    if (user?.two_fa_enabled) {
-      res.twoFa = true;
-    }
-
-    return res;
-  }, [user]);
-
   if (loading) {
     return (
       <TableRow sx={{ height: "43px" }}>
@@ -82,19 +64,16 @@ const UserRow = ({ user, loading, deleting, selected, onDelete, onDetails, onSel
           <Skeleton variant="text" width={60} />
         </NoWrapTableCell>
         <NoWrapTableCell>
-          <NoWrapTypography variant="inherit">{user?.username}</NoWrapTypography>
-        </NoWrapTableCell>
-        <NoWrapTableCell>
-          <Skeleton variant="text" width={140} />
+          <Skeleton variant="text" width={180} />
         </NoWrapTableCell>
         <NoWrapTableCell>
           <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
             <Skeleton variant="circular" width={24} height={24} />
-            <Skeleton variant="text" width={200} />
+            <Skeleton variant="text" width={140} />
           </Box>
         </NoWrapTableCell>
         <NoWrapTableCell>
-          <Skeleton variant="text" width={250} />
+          <Skeleton variant="text" width={220} />
         </NoWrapTableCell>
         <NoWrapTableCell>
           <Skeleton variant="text" width={150} />
@@ -102,8 +81,8 @@ const UserRow = ({ user, loading, deleting, selected, onDelete, onDetails, onSel
         <NoWrapTableCell>
           <Skeleton variant="text" width={100} />
         </NoWrapTableCell>
-        <NoWrapTableCell>
-          <Skeleton variant="text" width={100} />
+        <NoWrapTableCell align="right">
+          <Skeleton variant="circular" width={24} height={24} />
         </NoWrapTableCell>
       </TableRow>
     );
@@ -129,14 +108,11 @@ const UserRow = ({ user, loading, deleting, selected, onDelete, onDetails, onSel
         <NoWrapTypography variant="inherit">{user?.id}</NoWrapTypography>
       </NoWrapTableCell>
       <NoWrapTableCell>
-        <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-          <UserAvatar
-            sx={{ width: 24, height: 24 }}
-            overwriteTextSize
-            user={{ id: user?.hash_id ?? "", nickname: user?.nick ?? "", created_at: user?.created_at ?? "" }}
-          />
-          <NoWrapTypography variant="inherit">{user?.nick}</NoWrapTypography>
-          <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
+        <Box sx={{ display: "flex", alignItems: "center", gap: 1, minWidth: 0 }}>
+          <NoWrapTypography sx={{ minWidth: 0, flex: 1 }} variant="inherit">
+            {user?.username}
+          </NoWrapTypography>
+          <Box sx={{ display: "flex", alignItems: "center", gap: 0.5, flexShrink: 0 }}>
             {user?.status == UserStatus.inactive && <SquareChip size="small" label={t("user.status_inactive")} />}
             {user?.status == UserStatus.sys_banned && (
               <SquareChip size="small" color="error" label={t("user.status_sys_banned")} />
@@ -155,6 +131,18 @@ const UserRow = ({ user, loading, deleting, selected, onDelete, onDetails, onSel
         </Box>
       </NoWrapTableCell>
       <NoWrapTableCell>
+        <Box sx={{ display: "flex", alignItems: "center", gap: 1, minWidth: 0 }}>
+          <UserAvatar
+            sx={{ width: 24, height: 24 }}
+            overwriteTextSize
+            user={{ id: user?.hash_id ?? "", nickname: user?.nick ?? "", created_at: user?.created_at ?? "" }}
+          />
+          <NoWrapTypography sx={{ minWidth: 0, flex: 1 }} variant="inherit">
+            {user?.nick}
+          </NoWrapTypography>
+        </Box>
+      </NoWrapTableCell>
+      <NoWrapTableCell>
         <NoWrapTypography variant="inherit">{user?.email}</NoWrapTypography>
       </NoWrapTableCell>
       <NoWrapTableCell>
@@ -170,7 +158,7 @@ const UserRow = ({ user, loading, deleting, selected, onDelete, onDetails, onSel
         </NoWrapTypography>
       </NoWrapTableCell>
       <NoWrapTableCell>{sizeToString(user?.storage ?? 0)}</NoWrapTableCell>
-      <NoWrapTableCell>
+      <NoWrapTableCell align="right">
         <IconButton size="small" onClick={onDeleteClick} disabled={deleteLoading || deleting}>
           <Delete fontSize="small" />
         </IconButton>
