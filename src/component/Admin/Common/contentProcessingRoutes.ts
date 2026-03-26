@@ -1,6 +1,6 @@
 import { ContentProcessingTaskFilter } from "../../../api/workflow";
 
-export const contentProcessingQueueRoute = "/admin/settings/queue";
+export const contentProcessingQueueRoute = "/admin/settings?tab=queue";
 export const contentProcessingNodeRoute = "/admin/node?capability=content_processing";
 
 export const getContentProcessingTaskRoute = (type: string = ContentProcessingTaskFilter, status?: string) => {
