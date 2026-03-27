@@ -2,7 +2,7 @@ import { Box, Chip, styled, Typography } from "@mui/material";
 import React, { useMemo } from "react";
 import { Trans, useTranslation } from "react-i18next";
 import { FileType } from "../../../api/explorer.ts";
-import { TaskSummary, TaskType } from "../../../api/workflow.ts";
+import { normalizeTaskSummary, TaskSummary, TaskType } from "../../../api/workflow.ts";
 import { useAppSelector } from "../../../redux/hooks.ts";
 import { newMyUri } from "../../../util/uri.ts";
 import FileBadge from "../../FileManager/FileBadge.tsx";
@@ -37,17 +37,18 @@ const getSummaryFileID = (summary?: TaskSummary): number => {
 const TaskSummaryTitle = ({ type, summary, isInDashboard = false }: TaskSummaryTitleProps) => {
   const { t } = useTranslation();
   const policyOption = useAppSelector((state) => state.globalState.policyOptionCache);
+  const normalizedSummary = useMemo(() => normalizeTaskSummary(summary), [summary]);
 
   const selectedCount = useMemo(() => {
     let selected = 0;
-    for (const file of summary?.props.download?.files ?? []) {
+    for (const file of normalizedSummary?.props.download?.files ?? []) {
       if (file.selected) {
         selected++;
       }
     }
 
     return selected;
-  }, [summary?.props.download?.files]);
+  }, [normalizedSummary?.props.download?.files]);
 
   switch (type) {
     case TaskType.remote_download:
@@ -61,7 +62,7 @@ const TaskSummaryTitle = ({ type, summary, isInDashboard = false }: TaskSummaryT
         >
           <Typography variant={"inherit"} sx={{}}>
             {isInDashboard && t("dashboard:task.remoteDownload")}
-            {summary?.props.download?.name ?? t("download.unknownTaskName")}
+            {normalizedSummary?.props.download?.name ?? t("download.unknownTaskName")}
             {selectedCount > 1 && <StyledChip color={"primary"} size="small" label={selectedCount} />}
           </Typography>
         </Box>
@@ -72,7 +73,7 @@ const TaskSummaryTitle = ({ type, summary, isInDashboard = false }: TaskSummaryT
           i18nKey="setting.createArchiveTo"
           components={[
             <span key={0}>
-              {summary?.props.src_multiple?.slice(0, 3).map((src, index) => (
+              {normalizedSummary?.props.src_multiple?.slice(0, 3).map((src, index) => (
                 <StyledFileBadge
                   key={`${index}_${src}`}
                   variant={"outlined"}
@@ -88,12 +89,12 @@ const TaskSummaryTitle = ({ type, summary, isInDashboard = false }: TaskSummaryT
               variant={"outlined"}
               simplifiedFile={{
                 type: FileType.file,
-                path: summary?.props.dst ? summary?.props.dst : newMyUri("").toString(),
+                path: normalizedSummary?.props.dst ? normalizedSummary.props.dst : newMyUri("").toString(),
               }}
             />,
           ]}
           values={{
-            more: (summary?.props.src_multiple?.length ?? 0) > 3 ? "..." : "",
+            more: (normalizedSummary?.props.src_multiple?.length ?? 0) > 3 ? "..." : "",
           }}
         />
       );
@@ -103,7 +104,7 @@ const TaskSummaryTitle = ({ type, summary, isInDashboard = false }: TaskSummaryT
           i18nKey="setting.importFileTo"
           values={{
             policy: policyOption
-              ? policyOption.find((p) => p.id == summary?.props.dst_policy_id)?.name ?? "Unknown"
+              ? policyOption.find((p) => p.id == normalizedSummary?.props.dst_policy_id)?.name ?? "Unknown"
               : "",
           }}
           components={[
@@ -112,7 +113,7 @@ const TaskSummaryTitle = ({ type, summary, isInDashboard = false }: TaskSummaryT
               variant={"outlined"}
               simplifiedFile={{
                 type: FileType.folder,
-                path: summary?.props.dst ? summary?.props.dst : newMyUri("").toString(),
+                path: normalizedSummary?.props.dst ? normalizedSummary.props.dst : newMyUri("").toString(),
               }}
             />,
           ]}
@@ -127,10 +128,10 @@ const TaskSummaryTitle = ({ type, summary, isInDashboard = false }: TaskSummaryT
         </Typography>
       );
     case TaskType.media_metadata:
-      return getSummaryEntityID(summary) > 0 ? (
+      return getSummaryEntityID(normalizedSummary) > 0 ? (
         <Trans
           ns="dashboard"
-          values={{ entityID: getSummaryEntityID(summary) }}
+          values={{ entityID: getSummaryEntityID(normalizedSummary) }}
           i18nKey="task.mediaMetadata"
           components={[<span key={0} />]}
         />
@@ -138,10 +139,10 @@ const TaskSummaryTitle = ({ type, summary, isInDashboard = false }: TaskSummaryT
         <Typography variant={"inherit"}>{t("task.media_metadata")}</Typography>
       );
     case TaskType.document_inspect:
-      return getSummaryEntityID(summary) > 0 ? (
+      return getSummaryEntityID(normalizedSummary) > 0 ? (
         <Trans
           ns="dashboard"
-          values={{ entityID: getSummaryEntityID(summary) }}
+          values={{ entityID: getSummaryEntityID(normalizedSummary) }}
           i18nKey="task.documentInspect"
           components={[<span key={0} />]}
         />
@@ -149,21 +150,21 @@ const TaskSummaryTitle = ({ type, summary, isInDashboard = false }: TaskSummaryT
         <Typography variant={"inherit"}>{t("task.document_inspect")}</Typography>
       );
     case TaskType.thumbnail_generate:
-      if (getSummaryFileID(summary) > 0) {
+      if (getSummaryFileID(normalizedSummary) > 0) {
         return (
           <Trans
             ns="dashboard"
-            values={{ fileID: getSummaryFileID(summary) }}
+            values={{ fileID: getSummaryFileID(normalizedSummary) }}
             i18nKey="task.thumbnailGenerateFile"
             components={[<span key={0} />]}
           />
         );
       }
-      if (getSummaryEntityID(summary) > 0) {
+      if (getSummaryEntityID(normalizedSummary) > 0) {
         return (
           <Trans
             ns="dashboard"
-            values={{ entityID: getSummaryEntityID(summary) }}
+            values={{ entityID: getSummaryEntityID(normalizedSummary) }}
             i18nKey="task.thumbnailGenerateEntity"
             components={[<span key={0} />]}
           />
@@ -180,7 +181,7 @@ const TaskSummaryTitle = ({ type, summary, isInDashboard = false }: TaskSummaryT
               variant={"outlined"}
               simplifiedFile={{
                 type: FileType.file,
-                path: summary?.props.src ? summary?.props.src : newMyUri("").toString(),
+                path: normalizedSummary?.props.src ? normalizedSummary.props.src : newMyUri("").toString(),
               }}
             />,
             <StyledFileBadge
@@ -188,12 +189,12 @@ const TaskSummaryTitle = ({ type, summary, isInDashboard = false }: TaskSummaryT
               variant={"outlined"}
               simplifiedFile={{
                 type: FileType.folder,
-                path: summary?.props.dst ? summary?.props.dst : newMyUri("").toString(),
+                path: normalizedSummary?.props.dst ? normalizedSummary.props.dst : newMyUri("").toString(),
               }}
             />,
           ]}
           values={{
-            more: (summary?.props.src_multiple?.length ?? 0) > 3 ? "..." : "",
+            more: (normalizedSummary?.props.src_multiple?.length ?? 0) > 3 ? "..." : "",
           }}
         />
       );

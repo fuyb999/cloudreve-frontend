@@ -2,8 +2,13 @@ import { Link, Typography } from "@mui/material";
 import React, { memo, useCallback, useMemo } from "react";
 import { Trans, useTranslation } from "react-i18next";
 import { Task } from "../../../api/dashboard";
-import { getFullTextTaskFileIDs, getTaskDisplayType, TaskSummary, TaskType } from "../../../api/workflow";
-import CrUri, { Filesystem } from "../../../util/uri";
+import {
+  getFullTextTaskFileIDs,
+  getTaskDisplayType,
+  normalizeTaskSummary,
+  TaskSummary,
+  TaskType,
+} from "../../../api/workflow";
 import TaskSummaryTitle from "../../Pages/Tasks/TaskSummaryTitle";
 
 export const userTaskTypes: string[] = [
@@ -70,26 +75,8 @@ const resolveTaskFileID = (summary: TaskSummary | undefined, state: TaskPrivateS
   return candidates.find(isPositiveNumber) ?? 0;
 };
 
-const processUrl = (url: string, userHashId: string) => {
-  const crUrl = new CrUri(url);
-  if (crUrl.fs() == Filesystem.my && !crUrl.id()) {
-    crUrl.setUsername(userHashId);
-  }
-  return crUrl.toString();
-};
-
 export const processTaskContent = (summary: TaskSummary, userHashId: string): TaskSummary => {
-  if (summary.props?.src) {
-    summary.props.src = processUrl(summary.props.src, userHashId);
-  }
-  if (summary.props?.dst) {
-    summary.props.dst = processUrl(summary.props.dst, userHashId);
-  }
-  if (summary.props?.src_multiple) {
-    summary.props.src_multiple = summary.props.src_multiple.map((url) => processUrl(url, userHashId));
-  }
-
-  return summary;
+  return normalizeTaskSummary(summary, userHashId) ?? summary;
 };
 
 export const TaskContent = memo(({ task, openEntity, openFile }: TaskContentProps) => {

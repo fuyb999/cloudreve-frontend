@@ -1,4 +1,5 @@
 import { PaginationResults } from "./explorer.ts";
+import CrUri, { Filesystem } from "../util/uri.ts";
 
 export interface ArchiveWorkflowService {
   src: string[];
@@ -63,6 +64,66 @@ export interface TaskSummary {
     [key: string]: unknown;
   };
 }
+
+type TaskUriPayload = {
+  uri?: unknown;
+};
+
+const resolveTaskSummaryUri = (value: unknown): string | undefined => {
+  if (typeof value === "string") {
+    return value;
+  }
+
+  if (typeof value === "object" && value !== null && !Array.isArray(value)) {
+    const uri = (value as TaskUriPayload).uri;
+    if (typeof uri === "string") {
+      return uri;
+    }
+  }
+
+  return undefined;
+};
+
+const processTaskSummaryUri = (value: unknown, userHashId = ""): string | undefined => {
+  const uri = resolveTaskSummaryUri(value);
+  if (!uri) {
+    return undefined;
+  }
+
+  try {
+    const crUrl = new CrUri(uri);
+    if (userHashId && crUrl.fs() == Filesystem.my && !crUrl.id()) {
+      crUrl.setUsername(userHashId);
+    }
+    return crUrl.toString();
+  } catch {
+    return uri;
+  }
+};
+
+export const normalizeTaskSummary = (summary?: TaskSummary, userHashId = ""): TaskSummary | undefined => {
+  if (!summary) {
+    return summary;
+  }
+
+  const normalized: TaskSummary = {
+    ...summary,
+    props: { ...(summary.props ?? {}) },
+  };
+  const props = normalized.props as Record<string, unknown>;
+
+  props.src = processTaskSummaryUri(props.src, userHashId);
+  props.dst = processTaskSummaryUri(props.dst, userHashId);
+
+  const srcMultiple = Array.isArray(props.src_multiple)
+    ? props.src_multiple
+        .map((item) => processTaskSummaryUri(item, userHashId))
+        .filter((item): item is string => typeof item === "string" && item.length > 0)
+    : undefined;
+  props.src_multiple = srcMultiple;
+
+  return normalized;
+};
 
 export enum DownloadTaskState {
   seeding = "seeding",

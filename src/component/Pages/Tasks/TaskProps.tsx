@@ -5,7 +5,7 @@ import { TFunction } from "i18next";
 import React, { useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { FileType } from "../../../api/explorer.ts";
-import { getTaskDisplayType, TaskResponse, TaskStatus, TaskType } from "../../../api/workflow.ts";
+import { getTaskDisplayType, normalizeTaskSummary, TaskResponse, TaskStatus, TaskType } from "../../../api/workflow.ts";
 import { sizeToString } from "../../../util";
 import { formatDuration } from "../../../util/datetime.ts";
 import TimeBadge from "../../Common/TimeBadge.tsx";
@@ -73,7 +73,8 @@ const TaskProps = ({ task }: TaskPropsProps) => {
     () => task.display_type ?? getTaskDisplayType(task.type),
     [task.display_type, task.type],
   );
-  const diagnosticFields = useMemo(() => getTaskDiagnosticFields(task.summary, t), [task.summary, t]);
+  const normalizedSummary = useMemo(() => normalizeTaskSummary(task.summary), [task.summary]);
+  const diagnosticFields = useMemo(() => getTaskDiagnosticFields(normalizedSummary, t), [normalizedSummary, t]);
 
   return (
     <Grid container spacing={1} rowSpacing={1.5}>
@@ -87,31 +88,31 @@ const TaskProps = ({ task }: TaskPropsProps) => {
       />
       <TaskPropsBlock label={t("setting.taskStatus")} value={status} />
       <TaskPropsBlock label={t("modals.processNode")} value={task.node?.name ?? "-"} />
-      {task.summary?.props.src && (
+      {normalizedSummary?.props.src && (
         <TaskPropsBlock
           label={t("setting.input")}
           value={
             <FileBadge
               variant={"outlined"}
               simplifiedFile={{
-                path: task.summary?.props.src,
+                path: normalizedSummary.props.src,
                 type: FileType.file,
               }}
             />
           }
         />
       )}
-      {task.summary?.props.src_str && (
+      {normalizedSummary?.props.src_str && (
         <TaskPropsBlock
           label={t("setting.input")}
           value={
             <Stack sx={{ maxHeight: 80, overflowY: "auto" }}>
-              <Typography variant="inherit">{task.summary?.props.src_str}</Typography>
+              <Typography variant="inherit">{normalizedSummary.props.src_str}</Typography>
             </Stack>
           }
         />
       )}
-      {task.summary?.props.src_multiple && (
+      {normalizedSummary?.props.src_multiple && (
         <TaskPropsBlock
           label={t("setting.input")}
           value={
@@ -123,7 +124,7 @@ const TaskProps = ({ task }: TaskPropsProps) => {
                 padding: "2px 0",
               }}
             >
-              {task.summary?.props.src_multiple.map((src, index) => (
+              {normalizedSummary.props.src_multiple.map((src, index) => (
                 <FileBadge
                   key={index}
                   variant={"outlined"}
@@ -137,7 +138,7 @@ const TaskProps = ({ task }: TaskPropsProps) => {
           }
         />
       )}
-      {task.summary?.props.dst && (
+      {normalizedSummary?.props.dst && (
         <TaskPropsBlock
           label={t("setting.output")}
           value={
@@ -149,7 +150,7 @@ const TaskProps = ({ task }: TaskPropsProps) => {
                 taskDisplayType == TaskType.import
               }
               simplifiedFile={{
-                path: task.summary?.props.dst,
+                path: normalizedSummary.props.dst,
                 type:
                   taskDisplayType == TaskType.remote_download ||
                   taskDisplayType == TaskType.extract_archive ||
@@ -172,20 +173,23 @@ const TaskProps = ({ task }: TaskPropsProps) => {
         />
       )}
       <TaskPropsBlock label={t("setting.retryCount")} value={task.retry_count ?? 0} />
-      {!!task.summary?.props.download?.num_pieces && (
-        <TaskPropsBlock label={t("download.chunkNumbers")} value={task.summary?.props.download?.num_pieces} />
+      {!!normalizedSummary?.props.download?.num_pieces && (
+        <TaskPropsBlock label={t("download.chunkNumbers")} value={normalizedSummary.props.download?.num_pieces} />
       )}
-      {!!task.summary?.props.download?.uploaded && (
-        <TaskPropsBlock label={t("download.uploaded")} value={sizeToString(task.summary?.props.download?.uploaded)} />
-      )}
-      {!!task.summary?.props.download?.upload_speed && (
+      {!!normalizedSummary?.props.download?.uploaded && (
         <TaskPropsBlock
-          label={t("download.uploadSpeed")}
-          value={`${sizeToString(task.summary?.props.download?.upload_speed)}/s`}
+          label={t("download.uploaded")}
+          value={sizeToString(normalizedSummary.props.download?.uploaded)}
         />
       )}
-      {!!task.summary?.props.download?.hash && (
-        <TaskPropsBlock label={t("download.InfoHash")} value={task.summary?.props.download?.hash} />
+      {!!normalizedSummary?.props.download?.upload_speed && (
+        <TaskPropsBlock
+          label={t("download.uploadSpeed")}
+          value={`${sizeToString(normalizedSummary.props.download?.upload_speed)}/s`}
+        />
+      )}
+      {!!normalizedSummary?.props.download?.hash && (
+        <TaskPropsBlock label={t("download.InfoHash")} value={normalizedSummary.props.download?.hash} />
       )}
     </Grid>
   );
