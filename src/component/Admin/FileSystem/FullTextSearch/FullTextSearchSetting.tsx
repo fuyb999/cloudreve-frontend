@@ -15,6 +15,7 @@ import {
   useTheme,
 } from "@mui/material";
 import { useSnackbar } from "notistack";
+import * as React from "react";
 import { lazy, Suspense, useContext, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { sendRebuildFTSIndex } from "../../../../api/api.ts";
@@ -40,6 +41,8 @@ const FullTextSearchSetting = () => {
   const ftsEnabled = isTrueVal(values.fts_enabled);
   const indexType = values.fts_index_type || "elasticsearch";
   const [rebuildLoading, setRebuildLoading] = useState(false);
+  const [rebuildSkipTextExtraction, setRebuildSkipTextExtraction] = useState(false);
+  const [rebuildSkipAttachmentExtraction, setRebuildSkipAttachmentExtraction] = useState(false);
 
   return (
     <Box component={"form"} ref={formRef} onSubmit={(e) => e.preventDefault()}>
@@ -319,7 +322,12 @@ const FullTextSearchSetting = () => {
                           onClick={() => {
                             dispatch(confirmOperation(t("settings.ftsRebuildIndexConfirm"))).then(() => {
                               setRebuildLoading(true);
-                              dispatch(sendRebuildFTSIndex({}))
+                              dispatch(
+                                sendRebuildFTSIndex({
+                                  skip_text_extraction: rebuildSkipTextExtraction,
+                                  skip_attachment_extraction: rebuildSkipAttachmentExtraction,
+                                }),
+                              )
                                 .then(() => {
                                   enqueueSnackbar(t("settings.ftsRebuildIndexSubmitted"), {
                                     variant: "success",
@@ -336,6 +344,36 @@ const FullTextSearchSetting = () => {
                         </SecondaryButton>
                       </Tooltip>
                     </Box>
+                    <Stack spacing={1.5} sx={{ mt: 2 }}>
+                      <Box>
+                        <FormControlLabel
+                          control={
+                            <Switch
+                              checked={rebuildSkipTextExtraction}
+                              onChange={(e) => {
+                                setRebuildSkipTextExtraction(e.target.checked);
+                              }}
+                            />
+                          }
+                          label={t("settings.ftsRebuildSkipTextExtraction")}
+                        />
+                        <NoMarginHelperText>{t("settings.ftsRebuildSkipTextExtractionDes")}</NoMarginHelperText>
+                      </Box>
+                      <Box>
+                        <FormControlLabel
+                          control={
+                            <Switch
+                              checked={rebuildSkipAttachmentExtraction}
+                              onChange={(e) => {
+                                setRebuildSkipAttachmentExtraction(e.target.checked);
+                              }}
+                            />
+                          }
+                          label={t("settings.ftsRebuildSkipAttachmentExtraction")}
+                        />
+                        <NoMarginHelperText>{t("settings.ftsRebuildSkipAttachmentExtractionDes")}</NoMarginHelperText>
+                      </Box>
+                    </Stack>
                     <NoMarginHelperText>{t("settings.ftsIndexerActionsDes")}</NoMarginHelperText>
                   </FormControl>
                 </SettingForm>

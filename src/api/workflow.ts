@@ -303,4 +303,6 @@ export interface SetDownloadFilesService {
 
 export interface RebuildFTSIndexWorkflowService {
   filtered_storage_policy?: number[];
+  skip_text_extraction?: boolean;
+  skip_attachment_extraction?: boolean;
 }
