@@ -79,9 +79,28 @@ export const SettingContext = createContext<SettingContextProps>({
   setSettings: () => {},
 });
 
+const formatMimeMapping = (value: string) => {
+  try {
+    return JSON.stringify(JSON.parse(value), null, 2);
+  } catch {
+    return value;
+  }
+};
+
+const normalizeSettingValue = (key: string, value: string) => {
+  switch (key) {
+    case "mime_mapping":
+      return formatMimeMapping(value);
+    default:
+      return value;
+  }
+};
+
+const normalizeSettings = (settings: { [key: string]: string }) =>
+  Object.fromEntries(Object.entries(settings).map(([key, value]) => [key, normalizeSettingValue(key, value)]));
+
 const SettingsWrapper = ({ settings, children }: SettingsWrapperProps) => {
   const dispatch = useAppDispatch();
-  const { t } = useTranslation("dashboard");
   const [values, setValues] = useState<{ [key: string]: string }>({});
   const [modifiedValues, setModifiedValues] = useState<{
     [key: string]: string;
@@ -105,8 +124,9 @@ const SettingsWrapper = ({ settings, children }: SettingsWrapperProps) => {
       }),
     )
       .then((res) => {
-        setValues(res);
-        setModifiedValues(res);
+        const normalized = normalizeSettings(res);
+        setValues(normalized);
+        setModifiedValues(normalized);
       })
       .finally(() => {
         setLoading(false);
@@ -139,8 +159,9 @@ const SettingsWrapper = ({ settings, children }: SettingsWrapperProps) => {
       }),
     )
       .then((res) => {
-        setValues((s) => ({ ...s, ...res }));
-        setModifiedValues((s) => ({ ...s, ...res }));
+        const normalized = normalizeSettings(res);
+        setValues((s) => ({ ...s, ...normalized }));
+        setModifiedValues((s) => ({ ...s, ...normalized }));
       })
       .finally(() => {
         setSubmitting(false);

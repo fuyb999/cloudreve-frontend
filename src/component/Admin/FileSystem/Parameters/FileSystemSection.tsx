@@ -1,6 +1,6 @@
 import { Box, Collapse, FormControl, Link, ListItemText, Typography } from "@mui/material";
 import * as React from "react";
-import { useCallback, useContext } from "react";
+import { useCallback, useContext, useEffect, useMemo, useRef } from "react";
 import { Trans, useTranslation } from "react-i18next";
 import SizeInput from "../../../Common/SizeInput.tsx";
 import { DenseFilledTextField, DenseSelect } from "../../../Common/StyledComponents.tsx";
@@ -12,12 +12,46 @@ import { SettingContext } from "../../Settings/SettingWrapper.tsx";
 const FileSystemSection = () => {
   const { t } = useTranslation("dashboard");
   const { setSettings, values } = useContext(SettingContext);
+  const mimeMappingRef = useRef<HTMLInputElement | HTMLTextAreaElement | null>(null);
 
-  const onMimeMappingChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    setSettings({
-      mime_mapping: e.target.value,
-    });
-  }, []);
+  const onMimeMappingChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      setSettings({
+        mime_mapping: e.target.value,
+      });
+    },
+    [setSettings],
+  );
+
+  const mimeMappingError = useMemo(() => {
+    if (!values.mime_mapping) {
+      return "";
+    }
+
+    try {
+      JSON.parse(values.mime_mapping);
+      return "";
+    } catch {
+      return t("settings.mimeMappingInvalid");
+    }
+  }, [t, values.mime_mapping]);
+
+  useEffect(() => {
+    mimeMappingRef.current?.setCustomValidity(mimeMappingError);
+  }, [mimeMappingError]);
+
+  const onMimeMappingBlur = useCallback(() => {
+    if (!values.mime_mapping || mimeMappingError) {
+      return;
+    }
+
+    const formatted = JSON.stringify(JSON.parse(values.mime_mapping), null, 2);
+    if (formatted !== values.mime_mapping) {
+      setSettings({
+        mime_mapping: formatted,
+      });
+    }
+  }, [mimeMappingError, setSettings, values.mime_mapping]);
 
   return (
     <SettingSection>
@@ -59,7 +93,14 @@ const FileSystemSection = () => {
                   des: t("settings.trashBinIntervalDes"),
                 }}
                 ns={"dashboard"}
-                components={[<Link href="https://crontab.guru/" target="_blank" rel="noopener noreferrer" />]}
+                components={[
+                  <Link
+                    key="crontab-guru-trash"
+                    href="https://crontab.guru/"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  />,
+                ]}
               />
             </NoMarginHelperText>
           </FormControl>
@@ -82,7 +123,14 @@ const FileSystemSection = () => {
                 values={{
                   des: t("settings.entityCollectIntervalDes"),
                 }}
-                components={[<Link href="https://crontab.guru/" target="_blank" rel="noopener noreferrer" />]}
+                components={[
+                  <Link
+                    key="crontab-guru-entity"
+                    href="https://crontab.guru/"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  />,
+                ]}
               />
             </NoMarginHelperText>
           </FormControl>
@@ -263,7 +311,9 @@ const FileSystemSection = () => {
                 <Trans
                   i18nKey="settings.mapboxAccessTokenDes"
                   ns="dashboard"
-                  components={[<Link href="https://account.mapbox.com/access-tokens" target="_blank" />]}
+                  components={[
+                    <Link key="mapbox-access-token" href="https://account.mapbox.com/access-tokens" target="_blank" />,
+                  ]}
                 />
               </NoMarginHelperText>
             </FormControl>
@@ -316,12 +366,17 @@ const FileSystemSection = () => {
           <FormControl fullWidth>
             <DenseFilledTextField
               multiline
-              rows={6}
+              rows={12}
+              inputRef={mimeMappingRef}
               value={values.mime_mapping}
               onChange={onMimeMappingChange}
+              onBlur={onMimeMappingBlur}
+              error={!!mimeMappingError}
               required
             />
-            <NoMarginHelperText>{t("settings.mimeMappingDes")}</NoMarginHelperText>
+            <NoMarginHelperText error={!!mimeMappingError}>
+              {mimeMappingError || t("settings.mimeMappingDes")}
+            </NoMarginHelperText>
           </FormControl>
         </SettingForm>
       </SettingSectionContent>
