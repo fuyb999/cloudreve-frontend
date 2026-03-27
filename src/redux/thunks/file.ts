@@ -4,6 +4,7 @@ import { closeSnackbar, enqueueSnackbar, SnackbarAction, SnackbarKey } from "not
 import {
   getFileDirectLinks,
   getFileEntityUrl,
+  getFileInfo,
   getFileList,
   getFileThumb,
   sendCreateFile,

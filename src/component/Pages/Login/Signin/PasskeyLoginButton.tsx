@@ -1,5 +1,4 @@
-import { LoadingButton } from "@mui/lab";
-import { ButtonProps } from "@mui/material";
+import { LoadingButton, type LoadingButtonProps } from "@mui/lab";
 import { useSnackbar } from "notistack";
 import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -12,7 +11,7 @@ import { DefaultCloseAction } from "../../../Common/Snackbar/snackbar.tsx";
 import Fingerprint from "../../../Icons/Fingerprint.tsx";
 import { LoginResponse } from "../../../../api/user.ts";
 
-export interface PasskeyLoginButtonProps extends ButtonProps {
+export interface PasskeyLoginButtonProps extends LoadingButtonProps {
   autoComplete?: boolean;
   onLoginSuccess?: (response: LoginResponse) => void;
 }
