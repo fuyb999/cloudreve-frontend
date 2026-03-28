@@ -119,6 +119,8 @@ export const getActionOpt = (
     const parentUri = new CrUri(parent.path ?? defaultPath);
     const publicWritableParent = parentUri.fs() == Filesystem.public;
     const parentCap = new Boolset(parent.capability);
+    const remoteDownloadWritable =
+      parentCap.enabled(NavigatorCapability.upload_file) && (parent.owned || publicWritableParent);
     display.showCreateFolder =
       parentCap.enabled(NavigatorCapability.create_file) && (parent.owned || publicWritableParent);
     display.showCreateFile = display.showCreateFolder && fmIndex == FileManagerIndex.main;
@@ -126,6 +128,8 @@ export const getActionOpt = (
       parentCap.enabled(NavigatorCapability.upload_file) &&
       (parent.owned || publicWritableParent) &&
       fmIndex == FileManagerIndex.main;
+    display.showRemoteDownload =
+      display.showRemoteDownload && remoteDownloadWritable && fmIndex == FileManagerIndex.main;
     if (display.showCreateFile) {
       const allViewers = Object.entries(ViewersByID);
       for (let i = 0; i < allViewers.length; i++) {
