@@ -14,14 +14,12 @@ const SyncthingClient = () => {
   const { t } = useTranslation();
   const dispatch = useAppDispatch();
   const title = useAppSelector((state) => state.siteConfig.basic.config.title);
-  const linuxURL =
-    useAppSelector((state) => state.siteConfig.app.config?.syncthing_download_linux_url) ??
-    useAppSelector((state) => state.siteConfig.basic.config?.syncthing_download_linux_url) ??
-    "";
-  const windowsURL =
-    useAppSelector((state) => state.siteConfig.app.config?.syncthing_download_windows_url) ??
-    useAppSelector((state) => state.siteConfig.basic.config?.syncthing_download_windows_url) ??
-    "";
+  const appLinuxURL = useAppSelector((state) => state.siteConfig.app.config?.syncthing_download_linux_url);
+  const basicLinuxURL = useAppSelector((state) => state.siteConfig.basic.config?.syncthing_download_linux_url);
+  const appWindowsURL = useAppSelector((state) => state.siteConfig.app.config?.syncthing_download_windows_url);
+  const basicWindowsURL = useAppSelector((state) => state.siteConfig.basic.config?.syncthing_download_windows_url);
+  const linuxURL = appLinuxURL ?? basicLinuxURL ?? "";
+  const windowsURL = appWindowsURL ?? basicWindowsURL ?? "";
   const [devices, setDevices] = useState<SyncthingDevice[]>([]);
   const [loading, setLoading] = useState(false);
   const [unbindingDeviceID, setUnbindingDeviceID] = useState("");

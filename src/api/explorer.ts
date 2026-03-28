@@ -361,6 +361,7 @@ export interface FullTextSidecarObject {
   depth?: number;
   kind?: string;
   name: string;
+  uri?: string;
   path: string;
   mime_type: string;
   size: number;
