@@ -85,8 +85,8 @@ export function signout(): AppThunk<void> {
 
     dispatch(closeMusicPlayer());
     SessionManager.signOutCurrent();
-    // 主动退出后先短暂阻断自动 OIDC 跳转，避免回到 /session 又立刻被拉回统一认证中心。
-    markOIDCAuthFailure("你已退出当前登录状态，如需继续使用请手动重新登录。", "/session");
+    // 主动退出后只阻断自动 OIDC 跳转，不再把成功后的回跳目标钉死到 /session。
+    markOIDCAuthFailure("你已退出当前登录状态，如需继续使用请手动重新登录。");
     if (redirectURL) {
       window.location.assign(redirectURL);
       return;

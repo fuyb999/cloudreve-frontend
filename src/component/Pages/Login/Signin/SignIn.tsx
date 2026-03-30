@@ -83,6 +83,11 @@ function isReusableOAuthSession(session: Session | null): boolean {
   return dayjs(refreshExpires).isAfter(dayjs().add(10, "minute"));
 }
 
+function isSessionEntryPath(path?: string | null): boolean {
+  const normalized = `${path ?? ""}`.trim();
+  return normalized === "/session" || normalized.startsWith("/session?") || normalized.startsWith("/session#");
+}
+
 const EmailLogin = ({ oauthConsent }: SignInProps) => {
   const { t } = useTranslation();
   const dispatch = useAppDispatch();
@@ -542,7 +547,14 @@ const OIDCLogin = ({ oauthConsent }: SignInProps) => {
     return query.get("redirect") ?? "/home";
   }, [oauthConsent, query]);
 
-  const authRedirectTarget = authFlowState?.redirect ?? nextTarget;
+  const authRedirectTarget = useMemo(() => {
+    const redirect = authFlowState?.redirect?.trim();
+    // 普通登录成功后不应该再落回 /session，否则会出现“先闪一下登录页，再继续登录”的二次跳转。
+    if (!oauthConsent && isSessionEntryPath(redirect)) {
+      return nextTarget;
+    }
+    return redirect || nextTarget;
+  }, [authFlowState?.redirect, nextTarget, oauthConsent]);
   const autoRedirectBlocked = isOIDCAutoRedirectBlocked(authFlowState);
   const reauthMessage =
     authFlowState?.message ??
