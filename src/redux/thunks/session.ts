@@ -18,6 +18,7 @@ import {
 } from "../globalStateSlice.ts";
 import { AppThunk } from "../store.ts";
 import { clearOIDCAuthFlowState } from "../../session/oidcAuthFlow.ts";
+import { markOIDCAuthFailure } from "../../session/oidcAuthFlow.ts";
 import { longRunningTaskWithSnackbar } from "./file.ts";
 import { updateSiteConfig } from "./site.ts";
 
@@ -84,6 +85,8 @@ export function signout(): AppThunk<void> {
 
     dispatch(closeMusicPlayer());
     SessionManager.signOutCurrent();
+    // 主动退出后先短暂阻断自动 OIDC 跳转，避免回到 /session 又立刻被拉回统一认证中心。
+    markOIDCAuthFailure("你已退出当前登录状态，如需继续使用请手动重新登录。", "/session");
     if (redirectURL) {
       window.location.assign(redirectURL);
       return;
