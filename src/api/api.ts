@@ -1399,11 +1399,14 @@ export function sendReset(uid: string, req: ResetPasswordService): ThunkResponse
   };
 }
 
-export function getDashboardSummary(generateCharts?: boolean): ThunkResponse<HomepageSummary> {
+export function getDashboardSummary(
+  generateCharts?: boolean,
+  uploadRangeDays: number = 0,
+): ThunkResponse<HomepageSummary> {
   return async (dispatch, _getState) => {
     return await dispatch(
       send(
-        `/admin/summary?generate=${!!generateCharts}`,
+        `/admin/summary?generate=${!!generateCharts}&upload_range_days=${uploadRangeDays}`,
         {
           method: "GET",
         },

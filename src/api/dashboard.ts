@@ -7,11 +7,18 @@ export interface MetricsSummary {
   files: number[];
   users: number[];
   shares: number[];
+  top_upload_users: UserUploadStat[];
   file_total: number;
   user_total: number;
   share_total: number;
   entities_total: number;
   generated_at: string;
+}
+
+export interface UserUploadStat {
+  user_id: number;
+  display_name: string;
+  file_count: number;
 }
 
 export interface Version {

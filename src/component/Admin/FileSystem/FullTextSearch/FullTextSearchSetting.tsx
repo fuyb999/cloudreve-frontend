@@ -78,6 +78,24 @@ const FullTextSearchSetting = () => {
                 <NoMarginHelperText>{t("settings.ftsEnableDes")}</NoMarginHelperText>
               </FormControl>
             </SettingForm>
+            <SettingForm lgWidth={5}>
+              <FormControl fullWidth>
+                <FormControlLabel
+                  control={
+                    <Switch
+                      checked={isTrueVal(values.fts_sync_folders)}
+                      onChange={(e) =>
+                        setSettings({
+                          fts_sync_folders: e.target.checked ? "1" : "0",
+                        })
+                      }
+                    />
+                  }
+                  label={t("settings.ftsSyncFolders")}
+                />
+                <NoMarginHelperText>{t("settings.ftsSyncFoldersDes")}</NoMarginHelperText>
+              </FormControl>
+            </SettingForm>
           </SettingSectionContent>
         </SettingSection>
 

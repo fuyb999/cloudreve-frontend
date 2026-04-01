@@ -125,6 +125,7 @@ const FileSystem = () => {
                 <SettingsWrapper
                   settings={[
                     "fts_enabled",
+                    "fts_sync_folders",
                     "fts_index_type",
                     "fts_meilisearch_endpoint",
                     "fts_meilisearch_api_key",

@@ -2,8 +2,10 @@ import { ExpandMoreRounded } from "@mui/icons-material";
 import {
   Accordion,
   AccordionDetails,
+  Collapse,
   FormControl,
   FormControlLabel,
+  MenuItem,
   Stack,
   Switch,
   Typography,
@@ -40,6 +42,8 @@ const SSOSettings = () => {
   const { values, setSettings } = useContext(SettingContext);
   const oidcEnabled = isTrueVal(values.oidc_enabled);
   const oidcAutoRedirect = isTrueVal(values.oidc_auto_redirect);
+  const oidcConfigMode = values.oidc_config_mode ?? "remote";
+  const remoteConfigMode = oidcConfigMode === "remote";
   // 回调地址固定落回当前站点前端路由，便于不同部署环境直接复用。
   const callbackURL = useMemo(() => `${window.location.origin}/session/oidc/callback`, []);
 
@@ -63,7 +67,7 @@ const SSOSettings = () => {
         />
       </AccordionSummary>
       <AccordionDetails sx={{ display: "block" }}>
-        {/* 这里展示的是统一认证最小闭环配置：开关、显示名称、入口地址、发现文档、客户端凭证与 scope。 */}
+        {/* 统一认证支持两种模式：标准 OIDC 本地配置，或通过授权中心远程拉取运行时配置。 */}
         <Stack spacing={2.5}>
           <FormControl fullWidth>
             <DenseFilledTextField
@@ -98,75 +102,146 @@ const SSOSettings = () => {
 
           <FormControl fullWidth>
             <DenseFilledTextField
-              value={values.oidc_sso_url ?? ""}
+              select
+              value={oidcConfigMode}
               onChange={(e) =>
                 setSettings({
-                  oidc_sso_url: e.target.value,
+                  oidc_config_mode: e.target.value,
                 })
               }
-              label={t("settings.oidcSsoUrl")}
-              placeholder={"https://auth.example.com/sso"}
-            />
-            <NoMarginHelperText>{t("settings.oidcSsoUrlDes")}</NoMarginHelperText>
+              label={t("settings.oidcConfigMode")}
+              required={oidcEnabled}
+              fullWidth
+            >
+              <MenuItem value="standard">{t("settings.oidcConfigModeStandard")}</MenuItem>
+              <MenuItem value="remote">{t("settings.oidcConfigModeRemote")}</MenuItem>
+            </DenseFilledTextField>
+            <NoMarginHelperText>{t("settings.oidcConfigModeDes")}</NoMarginHelperText>
           </FormControl>
 
-          <FormControl fullWidth>
-            <DenseFilledTextField
-              value={values.oidc_wellknown_url ?? ""}
-              onChange={(e) =>
-                setSettings({
-                  oidc_wellknown_url: e.target.value,
-                })
-              }
-              label={t("settings.oidcWellknownUrl")}
-              placeholder={"https://auth.example.com/.well-known/openid-configuration"}
-              required={oidcEnabled}
-            />
-            <NoMarginHelperText>{t("settings.oidcWellknownUrlDes")}</NoMarginHelperText>
-          </FormControl>
+          <Collapse in={!remoteConfigMode} unmountOnExit>
+            <Stack spacing={2.5}>
+              <FormControl fullWidth>
+                <DenseFilledTextField
+                  value={values.oidc_sso_url ?? ""}
+                  onChange={(e) =>
+                    setSettings({
+                      oidc_sso_url: e.target.value,
+                    })
+                  }
+                  label={t("settings.oidcSsoUrl")}
+                  placeholder={"https://auth.example.com/sso"}
+                />
+                <NoMarginHelperText>{t("settings.oidcSsoUrlDes")}</NoMarginHelperText>
+              </FormControl>
 
-          <FormControl fullWidth>
-            <DenseFilledTextField
-              value={values.oidc_client_id ?? ""}
-              onChange={(e) =>
-                setSettings({
-                  oidc_client_id: e.target.value,
-                })
-              }
-              label={t("settings.clientID")}
-              required={oidcEnabled}
-            />
-            <NoMarginHelperText>{t("settings.clientIDDes")}</NoMarginHelperText>
-          </FormControl>
+              <FormControl fullWidth>
+                <DenseFilledTextField
+                  value={values.oidc_wellknown_url ?? ""}
+                  onChange={(e) =>
+                    setSettings({
+                      oidc_wellknown_url: e.target.value,
+                    })
+                  }
+                  label={t("settings.oidcWellknownUrl")}
+                  placeholder={"https://auth.example.com/.well-known/openid-configuration"}
+                  required={oidcEnabled}
+                />
+                <NoMarginHelperText>{t("settings.oidcWellknownUrlDes")}</NoMarginHelperText>
+              </FormControl>
 
-          <FormControl fullWidth>
-            <DenseFilledTextField
-              value={values.oidc_client_secret ?? ""}
-              onChange={(e) =>
-                setSettings({
-                  oidc_client_secret: e.target.value,
-                })
-              }
-              label={t("settings.clientSecret")}
-              type={"password"}
-              required={oidcEnabled}
-            />
-            <NoMarginHelperText>{t("settings.clientSecretDes")}</NoMarginHelperText>
-          </FormControl>
+              <FormControl fullWidth>
+                <DenseFilledTextField
+                  value={values.oidc_client_id ?? ""}
+                  onChange={(e) =>
+                    setSettings({
+                      oidc_client_id: e.target.value,
+                    })
+                  }
+                  label={t("settings.clientID")}
+                  required={oidcEnabled}
+                />
+                <NoMarginHelperText>{t("settings.clientIDDes")}</NoMarginHelperText>
+              </FormControl>
 
-          <FormControl fullWidth>
-            <DenseFilledTextField
-              value={values.oidc_scope ?? ""}
-              onChange={(e) =>
-                setSettings({
-                  oidc_scope: e.target.value,
-                })
-              }
-              label={t("settings.scope")}
-              required={oidcEnabled}
-            />
-            <NoMarginHelperText>{t("settings.unifiedAuthScopeDes")}</NoMarginHelperText>
-          </FormControl>
+              <FormControl fullWidth>
+                <DenseFilledTextField
+                  value={values.oidc_client_secret ?? ""}
+                  onChange={(e) =>
+                    setSettings({
+                      oidc_client_secret: e.target.value,
+                    })
+                  }
+                  label={t("settings.clientSecret")}
+                  type={"password"}
+                  required={oidcEnabled}
+                />
+                <NoMarginHelperText>{t("settings.clientSecretDes")}</NoMarginHelperText>
+              </FormControl>
+
+              <FormControl fullWidth>
+                <DenseFilledTextField
+                  value={values.oidc_scope ?? ""}
+                  onChange={(e) =>
+                    setSettings({
+                      oidc_scope: e.target.value,
+                    })
+                  }
+                  label={t("settings.scope")}
+                  required={oidcEnabled}
+                />
+                <NoMarginHelperText>{t("settings.unifiedAuthScopeDes")}</NoMarginHelperText>
+              </FormControl>
+            </Stack>
+          </Collapse>
+
+          <Collapse in={remoteConfigMode} unmountOnExit>
+            <Stack spacing={2.5}>
+              <FormControl fullWidth>
+                <DenseFilledTextField
+                  value={values.oidc_binding_code ?? ""}
+                  onChange={(e) =>
+                    setSettings({
+                      oidc_binding_code: e.target.value,
+                    })
+                  }
+                  label={t("settings.oidcBindingCode")}
+                  required={oidcEnabled}
+                />
+                <NoMarginHelperText>{t("settings.oidcBindingCodeDes")}</NoMarginHelperText>
+              </FormControl>
+
+              <FormControl fullWidth>
+                <DenseFilledTextField
+                  value={values.oidc_wellknown_url ?? ""}
+                  onChange={(e) =>
+                    setSettings({
+                      oidc_wellknown_url: e.target.value,
+                    })
+                  }
+                  label={t("settings.oidcWellknownUrl")}
+                  placeholder={"https://auth.example.com/.well-known/openid-configuration"}
+                  required={oidcEnabled}
+                />
+                <NoMarginHelperText>{t("settings.oidcRemoteDiscoveryUrlDes")}</NoMarginHelperText>
+              </FormControl>
+
+              <FormControl fullWidth>
+                <DenseFilledTextField
+                  value={values.oidc_client_secret ?? ""}
+                  onChange={(e) =>
+                    setSettings({
+                      oidc_client_secret: e.target.value,
+                    })
+                  }
+                  label={t("settings.clientSecret")}
+                  type={"password"}
+                  required={oidcEnabled}
+                />
+                <NoMarginHelperText>{t("settings.oidcRemoteClientSecretDes")}</NoMarginHelperText>
+              </FormControl>
+            </Stack>
+          </Collapse>
 
           <FormControl fullWidth>
             <Typography variant="body2">{t("settings.oidcCallbackUrl")}</Typography>

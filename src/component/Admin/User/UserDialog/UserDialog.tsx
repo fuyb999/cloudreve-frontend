@@ -6,8 +6,12 @@ import { CSSTransition, SwitchTransition } from "react-transition-group";
 import { getUserDetail, upsertUser } from "../../../../api/api.ts";
 import { UpsertUserService, User } from "../../../../api/dashboard.ts";
 import { useAppDispatch } from "../../../../redux/hooks.ts";
+import { navigateToPath } from "../../../../redux/thunks/filemanager.ts";
 import AutoHeight from "../../../Common/AutoHeight.tsx";
 import FacebookCircularProgress from "../../../Common/CircularProgress.tsx";
+import { FileManagerIndex } from "../../../FileManager/FileManager.tsx";
+import Open from "../../../Icons/Open.tsx";
+import { newMyUri } from "../../../../util/uri.ts";
 import DraggableDialog from "../../../Dialogs/DraggableDialog.tsx";
 import UserForm from "./UserForm.tsx";
 
@@ -79,6 +83,14 @@ const UserDialog = ({ open, onClose, userID, onUpdated }: UserDialogProps) => {
   const revert = () => {
     setModifiedValues(values);
   };
+
+  const openUserFiles = useCallback(() => {
+    if (!modifiedValues.hash_id) {
+      return;
+    }
+
+    dispatch(navigateToPath(FileManagerIndex.main, newMyUri(modifiedValues.hash_id).toString(), undefined, true));
+  }, [dispatch, modifiedValues.hash_id]);
 
   const submit = () => {
     if (formRef.current) {
@@ -157,16 +169,22 @@ const UserDialog = ({ open, onClose, userID, onUpdated }: UserDialogProps) => {
             </SwitchTransition>
           </AutoHeight>
         </DialogContent>
-        <Collapse in={showSaveButton}>
-          <DialogActions>
-            <Button disabled={submitting} onClick={revert}>
-              {t("settings.revert")}
-            </Button>
-            <Button loading={submitting} variant="contained" onClick={submit}>
-              {t("settings.save")}
-            </Button>
-          </DialogActions>
-        </Collapse>
+        <DialogActions sx={{ width: "100%" }}>
+          <Button disabled={loading || !modifiedValues.hash_id} startIcon={<Open />} onClick={openUserFiles}>
+            {t("user.openUserFiles")}
+          </Button>
+          <Box sx={{ flexGrow: 1 }} />
+          <Collapse in={showSaveButton} orientation="horizontal" unmountOnExit>
+            <Box sx={{ display: "flex", gap: 1 }}>
+              <Button disabled={submitting} onClick={revert}>
+                {t("settings.revert")}
+              </Button>
+              <Button loading={submitting} variant="contained" onClick={submit}>
+                {t("settings.save")}
+              </Button>
+            </Box>
+          </Collapse>
+        </DialogActions>
       </DraggableDialog>
     </UserDialogContext.Provider>
   );

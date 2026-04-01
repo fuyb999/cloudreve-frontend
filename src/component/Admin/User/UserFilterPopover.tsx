@@ -8,6 +8,8 @@ import SettingForm from "../../Pages/Setting/SettingForm";
 import GroupSelectionInput from "../Common/GroupSelectionInput";
 
 export interface UserFilterPopoverProps extends PopoverProps {
+  id: string;
+  setID: (id: string) => void;
   username: string;
   setUsername: (username: string) => void;
   email: string;
@@ -18,10 +20,13 @@ export interface UserFilterPopoverProps extends PopoverProps {
   setGroup: (group: string) => void;
   status: string;
   setStatus: (status: string) => void;
+  resetPage: () => void;
   clearFilters: () => void;
 }
 
 const UserFilterPopover = ({
+  id,
+  setID,
   username,
   setUsername,
   email,
@@ -32,6 +37,7 @@ const UserFilterPopover = ({
   setGroup,
   status,
   setStatus,
+  resetPage,
   clearFilters,
   onClose,
   open,
@@ -40,6 +46,7 @@ const UserFilterPopover = ({
   const { t } = useTranslation("dashboard");
 
   // Create local state to track changes before applying
+  const [localID, setLocalID] = useState(id);
   const [localUsername, setLocalUsername] = useState(username);
   const [localEmail, setLocalEmail] = useState(email);
   const [localNick, setLocalNick] = useState(nick);
@@ -49,16 +56,19 @@ const UserFilterPopover = ({
   // Initialize local state when popup opens
   useEffect(() => {
     if (open) {
+      setLocalID(id);
       setLocalUsername(username);
       setLocalEmail(email);
       setLocalNick(nick);
       setLocalGroup(group);
       setLocalStatus(status);
     }
-  }, [open, username, email, nick, group, status]);
+  }, [open, id, username, email, nick, group, status]);
 
   // Apply filters and close popover
   const handleApplyFilters = () => {
+    resetPage();
+    setID(localID);
     setUsername(localUsername);
     setEmail(localEmail);
     setNick(localNick);
@@ -69,11 +79,13 @@ const UserFilterPopover = ({
 
   // Reset filters and close popover
   const handleResetFilters = () => {
+    setLocalID("");
     setLocalUsername("");
     setLocalEmail("");
     setLocalNick("");
     setLocalGroup("");
     setLocalStatus("");
+    resetPage();
     clearFilters();
     onClose?.({}, "backdropClick");
   };
@@ -102,6 +114,15 @@ const UserFilterPopover = ({
       {...rest}
     >
       <Stack spacing={2}>
+        <SettingForm title={t("user.id")} noContainer lgWidth={12}>
+          <DenseFilledTextField
+            fullWidth
+            value={localID}
+            onChange={(e) => setLocalID(e.target.value.replace(/[^\d]/g, ""))}
+            placeholder={t("user.emptyNoFilter")}
+            size="small"
+          />
+        </SettingForm>
         <SettingForm title={t("user.username")} noContainer lgWidth={12}>
           <DenseFilledTextField
             fullWidth

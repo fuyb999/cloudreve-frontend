@@ -37,6 +37,8 @@ import NewUserDialog from "./NewUserDialog";
 import UserDialog from "./UserDialog/UserDialog";
 import UserFilterPopover from "./UserFilterPopover";
 import UserRow from "./UserRow";
+export const DialogUserIDQuery = "dialog_user_id";
+export const IDQuery = "id";
 export const EmailQuery = "email";
 export const UsernameQuery = "username";
 export const NickQuery = "nick";
@@ -58,6 +60,8 @@ const UserSetting = () => {
     defaultValue: "",
   });
   const [orderDirection, setOrderDirection] = useQueryState(OrderDirectionQuery, { defaultValue: "desc" });
+  const [dialogUserID, setDialogUserID] = useQueryState(DialogUserIDQuery, { defaultValue: "" });
+  const [id, setID] = useQueryState(IDQuery, { defaultValue: "" });
   const [username, setUsername] = useQueryState(UsernameQuery, { defaultValue: "" });
   const [email, setEmail] = useQueryState(EmailQuery, { defaultValue: "" });
   const [nick, setNick] = useQueryState(NickQuery, { defaultValue: "" });
@@ -70,25 +74,23 @@ const UserSetting = () => {
     variant: "popover",
     popupId: "userFilterPopover",
   });
-
-  const [userDialogOpen, setUserDialogOpen] = useState(false);
-  const [userDialogID, setUserDialogID] = useState<number | undefined>(undefined);
   const [deleteLoading, setDeleteLoading] = useState(false);
 
   const pageInt = parseInt(page) ?? 1;
   const pageSizeInt = parseInt(pageSize) ?? 11;
 
   const clearFilters = useCallback(() => {
+    setID("");
     setUsername("");
     setEmail("");
     setNick("");
     setGroup("");
     setStatus("");
-  }, [setUsername, setEmail, setNick, setGroup, setStatus]);
+  }, [setID, setUsername, setEmail, setNick, setGroup, setStatus]);
 
   useEffect(() => {
     fetchUsers();
-  }, [page, pageSize, orderBy, orderDirection, username, email, nick, group, status]);
+  }, [page, pageSize, orderBy, orderDirection, id, username, email, nick, group, status]);
 
   const fetchUsers = () => {
     setLoading(true);
@@ -100,6 +102,7 @@ const UserSetting = () => {
         order_by: orderBy ?? "",
         order_direction: orderDirection ?? "desc",
         conditions: {
+          user_id: id,
           user_username: username,
           user_email: email,
           user_nick: nick,
@@ -173,12 +176,15 @@ const UserSetting = () => {
   };
 
   const hasActiveFilters = useMemo(() => {
-    return !!(username || email || nick || group || status);
-  }, [username, email, nick, group, status]);
+    return !!(id || username || email || nick || group || status);
+  }, [id, username, email, nick, group, status]);
+  const activeDialogUserID = useMemo(() => {
+    const parsed = Number.parseInt(dialogUserID, 10);
+    return Number.isFinite(parsed) && parsed > 0 ? parsed : undefined;
+  }, [dialogUserID]);
 
   const handleUserDialogOpen = (id: number) => {
-    setUserDialogID(id);
-    setUserDialogOpen(true);
+    setDialogUserID(id.toString());
   };
 
   return (
@@ -187,14 +193,13 @@ const UserSetting = () => {
         open={createNewOpen}
         onClose={() => setCreateNewOpen(false)}
         onCreated={(user) => {
-          setUserDialogID(user.id);
-          setUserDialogOpen(true);
+          setDialogUserID(user.id.toString());
         }}
       />
       <UserDialog
-        open={userDialogOpen}
-        onClose={() => setUserDialogOpen(false)}
-        userID={userDialogID}
+        open={!!activeDialogUserID}
+        onClose={() => setDialogUserID("")}
+        userID={activeDialogUserID}
         onUpdated={() => fetchUsers()}
       />
       <Container maxWidth="xl">
@@ -206,6 +211,8 @@ const UserSetting = () => {
 
           <UserFilterPopover
             {...bindPopover(filterPopupState)}
+            id={id}
+            setID={setID}
             username={username}
             setUsername={setUsername}
             email={email}
@@ -216,6 +223,7 @@ const UserSetting = () => {
             setGroup={setGroup}
             status={status}
             setStatus={setStatus}
+            resetPage={() => setPage("1")}
             clearFilters={clearFilters}
           />
 

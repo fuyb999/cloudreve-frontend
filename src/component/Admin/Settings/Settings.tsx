@@ -188,6 +188,8 @@ const Settings = () => {
                     "oidc_enabled",
                     "oidc_display_name",
                     "oidc_auto_redirect",
+                    "oidc_config_mode",
+                    "oidc_binding_code",
                     "oidc_sso_url",
                     "oidc_wellknown_url",
                     "oidc_client_id",
