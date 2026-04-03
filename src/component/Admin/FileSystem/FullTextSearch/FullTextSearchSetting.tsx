@@ -40,6 +40,10 @@ const FullTextSearchSetting = () => {
   const theme = useTheme();
   const ftsEnabled = isTrueVal(values.fts_enabled);
   const indexType = values.fts_index_type || "elasticsearch";
+  const externalEnabled = isTrueVal(values.fts_external_enabled);
+  const externalMode = values.fts_external_mode || "fallback_on_error_or_quality";
+  const externalUseGlobalKafka = isTrueVal(values.fts_external_use_global_kafka);
+  const externalQualityEnabled = isTrueVal(values.fts_external_quality_enabled);
   const [rebuildLoading, setRebuildLoading] = useState(false);
   const [rebuildSkipTextExtraction, setRebuildSkipTextExtraction] = useState(false);
   const [rebuildSkipAttachmentExtraction, setRebuildSkipAttachmentExtraction] = useState(false);
@@ -586,6 +590,409 @@ const FullTextSearchSetting = () => {
             </SettingSection>
 
             {/* Chunker Section */}
+            <SettingSection>
+              <Typography variant="h6" gutterBottom>
+                {t("settings.ftsExternalTitle")}
+              </Typography>
+              <SettingSectionContent>
+                <SettingForm lgWidth={5}>
+                  <FormControl fullWidth>
+                    <FormControlLabel
+                      control={
+                        <Switch
+                          checked={externalEnabled}
+                          onChange={(e) =>
+                            setSettings({
+                              fts_external_enabled: e.target.checked ? "1" : "0",
+                            })
+                          }
+                        />
+                      }
+                      label={t("settings.ftsExternalEnabled")}
+                    />
+                    <NoMarginHelperText>{t("settings.ftsExternalEnabledDes")}</NoMarginHelperText>
+                  </FormControl>
+                </SettingForm>
+                <Collapse in={externalEnabled} unmountOnExit>
+                  <Stack spacing={3}>
+                    <SettingForm title={t("settings.ftsExternalMode")} lgWidth={5}>
+                      <DenseFilledTextField
+                        select
+                        value={externalMode}
+                        onChange={(e) =>
+                          setSettings({
+                            fts_external_mode: e.target.value,
+                          })
+                        }
+                        fullWidth
+                      >
+                        <MenuItem value="primary">{t("settings.ftsExternalModePrimary")}</MenuItem>
+                        <MenuItem value="fallback_on_error">{t("settings.ftsExternalModeFallbackOnError")}</MenuItem>
+                        <MenuItem value="fallback_on_error_or_quality">
+                          {t("settings.ftsExternalModeFallbackOnErrorOrQuality")}
+                        </MenuItem>
+                      </DenseFilledTextField>
+                      <NoMarginHelperText>{t("settings.ftsExternalModeDes")}</NoMarginHelperText>
+                    </SettingForm>
+                    <SettingForm title={t("settings.ftsExternalTimeout")} lgWidth={5}>
+                      <DenseFilledTextField
+                        type="number"
+                        inputProps={{ min: 1, step: 1 }}
+                        value={values.fts_external_timeout_seconds}
+                        onChange={(e) =>
+                          setSettings({
+                            fts_external_timeout_seconds: e.target.value,
+                          })
+                        }
+                        fullWidth
+                      />
+                      <NoMarginHelperText>{t("settings.ftsExternalTimeoutDes")}</NoMarginHelperText>
+                    </SettingForm>
+                    <SettingForm title={t("settings.ftsExternalRetryMax")} lgWidth={5}>
+                      <DenseFilledTextField
+                        type="number"
+                        inputProps={{ min: 0, step: 1 }}
+                        value={values.fts_external_retry_max}
+                        onChange={(e) =>
+                          setSettings({
+                            fts_external_retry_max: e.target.value,
+                          })
+                        }
+                        fullWidth
+                      />
+                      <NoMarginHelperText>{t("settings.ftsExternalRetryMaxDes")}</NoMarginHelperText>
+                    </SettingForm>
+                    <SettingForm lgWidth={5}>
+                      <FormControl fullWidth>
+                        <FormControlLabel
+                          control={
+                            <Switch
+                              checked={isTrueVal(values.fts_external_recursive_attachments)}
+                              onChange={(e) =>
+                                setSettings({
+                                  fts_external_recursive_attachments: e.target.checked ? "1" : "0",
+                                })
+                              }
+                            />
+                          }
+                          label={t("settings.ftsExternalRecursiveAttachments")}
+                        />
+                        <NoMarginHelperText>{t("settings.ftsExternalRecursiveAttachmentsDes")}</NoMarginHelperText>
+                      </FormControl>
+                    </SettingForm>
+                    <SettingForm lgWidth={5}>
+                      <FormControl fullWidth>
+                        <FormControlLabel
+                          control={
+                            <Switch
+                              checked={isTrueVal(values.fts_external_skip_encrypted_files)}
+                              onChange={(e) =>
+                                setSettings({
+                                  fts_external_skip_encrypted_files: e.target.checked ? "1" : "0",
+                                })
+                              }
+                            />
+                          }
+                          label={t("settings.ftsExternalSkipEncrypted")}
+                        />
+                        <NoMarginHelperText>{t("settings.ftsExternalSkipEncryptedDes")}</NoMarginHelperText>
+                      </FormControl>
+                    </SettingForm>
+
+                    <SettingForm lgWidth={5}>
+                      <FormControl fullWidth>
+                        <FormControlLabel
+                          control={
+                            <Switch
+                              checked={externalUseGlobalKafka}
+                              onChange={(e) =>
+                                setSettings({
+                                  fts_external_use_global_kafka: e.target.checked ? "1" : "0",
+                                })
+                              }
+                            />
+                          }
+                          label={t("settings.ftsExternalUseGlobalKafka")}
+                        />
+                        <NoMarginHelperText>{t("settings.ftsExternalUseGlobalKafkaDes")}</NoMarginHelperText>
+                      </FormControl>
+                    </SettingForm>
+                    <Collapse in={!externalUseGlobalKafka} unmountOnExit>
+                      <Stack spacing={3}>
+                        <SettingForm title={t("settings.ftsExternalKafkaBrokers")} lgWidth={8}>
+                          <DenseFilledTextField
+                            fullWidth
+                            multiline
+                            minRows={2}
+                            value={values.fts_external_kafka_brokers}
+                            onChange={(e) =>
+                              setSettings({
+                                fts_external_kafka_brokers: e.target.value,
+                              })
+                            }
+                          />
+                          <NoMarginHelperText>{t("settings.ftsExternalKafkaBrokersDes")}</NoMarginHelperText>
+                        </SettingForm>
+                        <SettingForm title={t("settings.ftsExternalKafkaSecurityProtocol")} lgWidth={5}>
+                          <DenseFilledTextField
+                            select
+                            fullWidth
+                            value={values.fts_external_kafka_security_protocol || "PLAINTEXT"}
+                            onChange={(e) =>
+                              setSettings({
+                                fts_external_kafka_security_protocol: e.target.value,
+                              })
+                            }
+                          >
+                            <MenuItem value="PLAINTEXT">PLAINTEXT</MenuItem>
+                            <MenuItem value="SSL">SSL</MenuItem>
+                            <MenuItem value="SASL_PLAINTEXT">SASL_PLAINTEXT</MenuItem>
+                            <MenuItem value="SASL_SSL">SASL_SSL</MenuItem>
+                          </DenseFilledTextField>
+                          <NoMarginHelperText>{t("settings.ftsExternalKafkaSecurityProtocolDes")}</NoMarginHelperText>
+                        </SettingForm>
+                        <SettingForm title={t("settings.ftsExternalKafkaSaslMechanism")} lgWidth={5}>
+                          <DenseFilledTextField
+                            select
+                            fullWidth
+                            value={values.fts_external_kafka_sasl_mechanism || "PLAIN"}
+                            onChange={(e) =>
+                              setSettings({
+                                fts_external_kafka_sasl_mechanism: e.target.value,
+                              })
+                            }
+                          >
+                            <MenuItem value="PLAIN">PLAIN</MenuItem>
+                          </DenseFilledTextField>
+                          <NoMarginHelperText>{t("settings.ftsExternalKafkaSaslMechanismDes")}</NoMarginHelperText>
+                        </SettingForm>
+                        <SettingForm title={t("settings.ftsExternalKafkaUsername")} lgWidth={5}>
+                          <DenseFilledTextField
+                            fullWidth
+                            value={values.fts_external_kafka_username}
+                            onChange={(e) =>
+                              setSettings({
+                                fts_external_kafka_username: e.target.value,
+                              })
+                            }
+                          />
+                          <NoMarginHelperText>{t("settings.ftsExternalKafkaUsernameDes")}</NoMarginHelperText>
+                        </SettingForm>
+                        <SettingForm title={t("settings.ftsExternalKafkaPassword")} lgWidth={5}>
+                          <DenseFilledTextField
+                            fullWidth
+                            type="password"
+                            value={values.fts_external_kafka_password}
+                            onChange={(e) =>
+                              setSettings({
+                                fts_external_kafka_password: e.target.value,
+                              })
+                            }
+                          />
+                          <NoMarginHelperText>{t("settings.ftsExternalKafkaPasswordDes")}</NoMarginHelperText>
+                        </SettingForm>
+                        <SettingForm lgWidth={5}>
+                          <FormControl fullWidth>
+                            <FormControlLabel
+                              control={
+                                <Switch
+                                  checked={isTrueVal(values.fts_external_kafka_tls_skip_verify)}
+                                  onChange={(e) =>
+                                    setSettings({
+                                      fts_external_kafka_tls_skip_verify: e.target.checked ? "1" : "0",
+                                    })
+                                  }
+                                />
+                              }
+                              label={t("settings.ftsExternalKafkaTLSSkipVerify")}
+                            />
+                            <NoMarginHelperText>{t("settings.ftsExternalKafkaTLSSkipVerifyDes")}</NoMarginHelperText>
+                          </FormControl>
+                        </SettingForm>
+                      </Stack>
+                    </Collapse>
+
+                    <SettingForm title={t("settings.ftsExternalKafkaProcessTopic")} lgWidth={5}>
+                      <DenseFilledTextField
+                        fullWidth
+                        value={values.fts_external_kafka_process_topic}
+                        onChange={(e) =>
+                          setSettings({
+                            fts_external_kafka_process_topic: e.target.value,
+                          })
+                        }
+                      />
+                      <NoMarginHelperText>{t("settings.ftsExternalKafkaProcessTopicDes")}</NoMarginHelperText>
+                    </SettingForm>
+                    <SettingForm title={t("settings.ftsExternalKafkaResultTopic")} lgWidth={5}>
+                      <DenseFilledTextField
+                        fullWidth
+                        value={values.fts_external_kafka_result_topic}
+                        onChange={(e) =>
+                          setSettings({
+                            fts_external_kafka_result_topic: e.target.value,
+                          })
+                        }
+                      />
+                      <NoMarginHelperText>{t("settings.ftsExternalKafkaResultTopicDes")}</NoMarginHelperText>
+                    </SettingForm>
+                    <SettingForm title={t("settings.ftsExternalKafkaErrorTopic")} lgWidth={5}>
+                      <DenseFilledTextField
+                        fullWidth
+                        value={values.fts_external_kafka_error_topic}
+                        onChange={(e) =>
+                          setSettings({
+                            fts_external_kafka_error_topic: e.target.value,
+                          })
+                        }
+                      />
+                      <NoMarginHelperText>{t("settings.ftsExternalKafkaErrorTopicDes")}</NoMarginHelperText>
+                    </SettingForm>
+                    <SettingForm title={t("settings.ftsExternalKafkaConsumerGroup")} lgWidth={5}>
+                      <DenseFilledTextField
+                        fullWidth
+                        value={values.fts_external_kafka_consumer_group}
+                        onChange={(e) =>
+                          setSettings({
+                            fts_external_kafka_consumer_group: e.target.value,
+                          })
+                        }
+                      />
+                      <NoMarginHelperText>{t("settings.ftsExternalKafkaConsumerGroupDes")}</NoMarginHelperText>
+                    </SettingForm>
+
+                    <SettingForm lgWidth={5}>
+                      <FormControl fullWidth>
+                        <FormControlLabel
+                          control={
+                            <Switch
+                              checked={externalQualityEnabled}
+                              onChange={(e) =>
+                                setSettings({
+                                  fts_external_quality_enabled: e.target.checked ? "1" : "0",
+                                })
+                              }
+                            />
+                          }
+                          label={t("settings.ftsExternalQualityEnabled")}
+                        />
+                        <NoMarginHelperText>{t("settings.ftsExternalQualityEnabledDes")}</NoMarginHelperText>
+                      </FormControl>
+                    </SettingForm>
+                    <Collapse in={externalQualityEnabled} unmountOnExit>
+                      <Stack spacing={3}>
+                        <Alert severity="info">{t("settings.ftsExternalQualityFontLossDetectionNotice")}</Alert>
+                        <SettingForm title={t("settings.ftsExternalQualityMinTextLength")} lgWidth={5}>
+                          <DenseFilledTextField
+                            type="number"
+                            inputProps={{ min: 0, step: 1 }}
+                            fullWidth
+                            value={values.fts_external_quality_min_text_length}
+                            onChange={(e) =>
+                              setSettings({
+                                fts_external_quality_min_text_length: e.target.value,
+                              })
+                            }
+                          />
+                          <NoMarginHelperText>{t("settings.ftsExternalQualityMinTextLengthDes")}</NoMarginHelperText>
+                        </SettingForm>
+                        <SettingForm title={t("settings.ftsExternalQualityMaxReplacementRatio")} lgWidth={5}>
+                          <DenseFilledTextField
+                            type="number"
+                            inputProps={{ min: 0, max: 1, step: 0.01 }}
+                            fullWidth
+                            value={values.fts_external_quality_max_replacement_ratio}
+                            onChange={(e) =>
+                              setSettings({
+                                fts_external_quality_max_replacement_ratio: e.target.value,
+                              })
+                            }
+                          />
+                          <NoMarginHelperText>
+                            {t("settings.ftsExternalQualityMaxReplacementRatioDes")}
+                          </NoMarginHelperText>
+                        </SettingForm>
+                        <SettingForm title={t("settings.ftsExternalQualityMaxControlCharRatio")} lgWidth={5}>
+                          <DenseFilledTextField
+                            type="number"
+                            inputProps={{ min: 0, max: 1, step: 0.01 }}
+                            fullWidth
+                            value={values.fts_external_quality_max_control_char_ratio}
+                            onChange={(e) =>
+                              setSettings({
+                                fts_external_quality_max_control_char_ratio: e.target.value,
+                              })
+                            }
+                          />
+                          <NoMarginHelperText>
+                            {t("settings.ftsExternalQualityMaxControlCharRatioDes")}
+                          </NoMarginHelperText>
+                        </SettingForm>
+                        <SettingForm title={t("settings.ftsExternalQualityMinPrintableRatio")} lgWidth={5}>
+                          <DenseFilledTextField
+                            type="number"
+                            inputProps={{ min: 0, max: 1, step: 0.01 }}
+                            fullWidth
+                            value={values.fts_external_quality_min_printable_ratio}
+                            onChange={(e) =>
+                              setSettings({
+                                fts_external_quality_min_printable_ratio: e.target.value,
+                              })
+                            }
+                          />
+                          <NoMarginHelperText>
+                            {t("settings.ftsExternalQualityMinPrintableRatioDes")}
+                          </NoMarginHelperText>
+                        </SettingForm>
+                        <SettingForm title={t("settings.ftsExternalQualityFontBoxMinCount")} lgWidth={5}>
+                          <DenseFilledTextField
+                            type="number"
+                            inputProps={{ min: 1, step: 1 }}
+                            fullWidth
+                            value={values.fts_external_quality_font_box_min_count}
+                            onChange={(e) =>
+                              setSettings({
+                                fts_external_quality_font_box_min_count: e.target.value,
+                              })
+                            }
+                          />
+                          <NoMarginHelperText>{t("settings.ftsExternalQualityFontBoxMinCountDes")}</NoMarginHelperText>
+                        </SettingForm>
+                        <SettingForm title={t("settings.ftsExternalQualityFontBoxMinRun")} lgWidth={5}>
+                          <DenseFilledTextField
+                            type="number"
+                            inputProps={{ min: 1, step: 1 }}
+                            fullWidth
+                            value={values.fts_external_quality_font_box_min_run}
+                            onChange={(e) =>
+                              setSettings({
+                                fts_external_quality_font_box_min_run: e.target.value,
+                              })
+                            }
+                          />
+                          <NoMarginHelperText>{t("settings.ftsExternalQualityFontBoxMinRunDes")}</NoMarginHelperText>
+                        </SettingForm>
+                        <SettingForm title={t("settings.ftsExternalQualityFontBoxMinRatio")} lgWidth={5}>
+                          <DenseFilledTextField
+                            type="number"
+                            inputProps={{ min: 0, max: 1, step: 0.01 }}
+                            fullWidth
+                            value={values.fts_external_quality_font_box_min_ratio}
+                            onChange={(e) =>
+                              setSettings({
+                                fts_external_quality_font_box_min_ratio: e.target.value,
+                              })
+                            }
+                          />
+                          <NoMarginHelperText>{t("settings.ftsExternalQualityFontBoxMinRatioDes")}</NoMarginHelperText>
+                        </SettingForm>
+                      </Stack>
+                    </Collapse>
+                  </Stack>
+                </Collapse>
+              </SettingSectionContent>
+            </SettingSection>
+
             <SettingSection>
               <Typography variant="h6" gutterBottom>
                 {t("settings.ftsChunker")}

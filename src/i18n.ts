@@ -8,6 +8,9 @@ import LanguageDetector from "i18next-browser-languagedetector";
 import ChainedBackend from "i18next-chained-backend";
 import LocalStorageBackend from "i18next-localstorage-backend";
 
+const translationLoadPath = "/locales/{{lng}}/{{ns}}.json";
+const translationCacheVersion = "2026-04-03-fts-quality-v2";
+
 // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
 // @ts-ignore
 i18n
@@ -45,12 +48,22 @@ i18n
     },
     backend: {
       backends: process.env.NODE_ENV === "development" ? [Backend] : [LocalStorageBackend, Backend],
-      backendOptions: [
-        {
-          expirationTime: 7 * 24 * 60 * 60 * 1000, // 7 days
-          loadPath: "/locales/{{lng}}/{{ns}}.json",
-        },
-      ],
+      backendOptions:
+        process.env.NODE_ENV === "development"
+          ? [
+              {
+                loadPath: translationLoadPath,
+              },
+            ]
+          : [
+              {
+                expirationTime: 7 * 24 * 60 * 60 * 1000, // 7 days
+                defaultVersion: translationCacheVersion,
+              },
+              {
+                loadPath: translationLoadPath,
+              },
+            ],
     },
   });
 
