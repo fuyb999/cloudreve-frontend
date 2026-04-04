@@ -186,6 +186,11 @@ AdminNavigationItems = [
     path: "/admin/task",
   },
   {
+    label: "dashboard:nav.ftsExternalJobs",
+    icon: [CubeSyncFilled, CubeSync],
+    path: "/admin/fts-external-jobs",
+  },
+  {
     label: "dashboard:nav.events",
     icon: [SendLoggingFilled, SendLogging],
     path: "/admin/event",

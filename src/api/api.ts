@@ -10,6 +10,7 @@ import {
   CleanupTaskService,
   CreateStoragePolicyCorsService,
   Entity,
+  FTSExternalJob,
   FetchWOPIDiscoveryService,
   File as FileEnt,
   FinishOauthCallbackService,
@@ -20,6 +21,7 @@ import {
   HomepageSummary,
   ListEntityResponse,
   ListFileResponse,
+  ListFTSExternalJobResponse,
   ListNodeResponse,
   ListAuditLogResponse,
   ListOAuthClientResponse,
@@ -2036,6 +2038,34 @@ export function getTaskDetail(id: number): ThunkResponse<Task> {
     return await dispatch(
       send(
         `/admin/queue/${id}`,
+        { method: "GET" },
+        {
+          ...defaultOpts,
+        },
+      ),
+    );
+  };
+}
+
+export function getFTSExternalJobList(args: AdminListService): ThunkResponse<ListFTSExternalJobResponse> {
+  return async (dispatch, _getState) => {
+    return await dispatch(
+      send(
+        `/admin/fts-external-jobs`,
+        { method: "POST", data: args },
+        {
+          ...defaultOpts,
+        },
+      ),
+    );
+  };
+}
+
+export function getFTSExternalJobDetail(id: number): ThunkResponse<FTSExternalJob> {
+  return async (dispatch, _getState) => {
+    return await dispatch(
+      send(
+        `/admin/fts-external-jobs/${id}`,
         { method: "GET" },
         {
           ...defaultOpts,

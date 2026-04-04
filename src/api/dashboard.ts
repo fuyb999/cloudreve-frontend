@@ -549,6 +549,48 @@ export interface ListTaskResponse {
   pagination: PaginationResults;
 }
 
+export interface FTSExternalJobListItem extends CommonMixin {
+  request_id?: string;
+  status?: string;
+  file_id?: number;
+  owner_id?: number;
+  entity_id?: number;
+  mode?: string;
+  trigger_reason?: string;
+  attempt?: number;
+  manifest_path?: string;
+  requested_at?: string;
+  deadline_at?: string;
+  completed_at?: string;
+  has_result_payload?: boolean;
+  has_error_payload?: boolean;
+  has_quality_report?: boolean;
+}
+
+export interface FTSExternalJob extends CommonMixin {
+  request_id?: string;
+  status?: string;
+  file_id?: number;
+  owner_id?: number;
+  entity_id?: number;
+  snapshot_token?: string;
+  mode?: string;
+  trigger_reason?: string;
+  attempt?: number;
+  result_payload?: string;
+  error_payload?: string;
+  manifest_path?: string;
+  quality_report?: string;
+  requested_at?: string;
+  deadline_at?: string;
+  completed_at?: string;
+}
+
+export interface ListFTSExternalJobResponse {
+  jobs: FTSExternalJobListItem[];
+  pagination: PaginationResults;
+}
+
 export interface Share extends CommonMixin {
   password?: string;
   views?: number;

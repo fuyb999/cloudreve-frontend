@@ -203,6 +203,13 @@ export const router = createBrowserRouter([
                 },
               },
               {
+                path: "fts-external-jobs",
+                async lazy() {
+                  let { FTSExternalJobList } = await import("../component/Admin/AdminBundle.tsx");
+                  return { Component: FTSExternalJobList };
+                },
+              },
+              {
                 path: "event",
                 async lazy() {
                   let { EventList } = await import("../component/Admin/AdminBundle.tsx");

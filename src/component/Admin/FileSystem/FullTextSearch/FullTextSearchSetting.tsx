@@ -18,6 +18,7 @@ import { useSnackbar } from "notistack";
 import * as React from "react";
 import { lazy, Suspense, useContext, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { useNavigate } from "react-router-dom";
 import { sendRebuildFTSIndex } from "../../../../api/api.ts";
 import { useAppDispatch } from "../../../../redux/hooks.ts";
 import { confirmOperation } from "../../../../redux/thunks/dialog.ts";
@@ -38,6 +39,7 @@ const FullTextSearchSetting = () => {
   const dispatch = useAppDispatch();
   const { enqueueSnackbar } = useSnackbar();
   const theme = useTheme();
+  const navigate = useNavigate();
   const ftsEnabled = isTrueVal(values.fts_enabled);
   const indexType = values.fts_index_type || "elasticsearch";
   const externalEnabled = isTrueVal(values.fts_external_enabled);
@@ -611,6 +613,16 @@ const FullTextSearchSetting = () => {
                       label={t("settings.ftsExternalEnabled")}
                     />
                     <NoMarginHelperText>{t("settings.ftsExternalEnabledDes")}</NoMarginHelperText>
+                  </FormControl>
+                </SettingForm>
+                <SettingForm title={t("settings.ftsExternalJobs")} lgWidth={5}>
+                  <FormControl fullWidth>
+                    <Box sx={{ display: "flex", gap: 1 }}>
+                      <SecondaryButton variant="contained" onClick={() => navigate("/admin/fts-external-jobs")}>
+                        {t("settings.ftsExternalJobsOpen")}
+                      </SecondaryButton>
+                    </Box>
+                    <NoMarginHelperText>{t("settings.ftsExternalJobsDes")}</NoMarginHelperText>
                   </FormControl>
                 </SettingForm>
                 <Collapse in={externalEnabled} unmountOnExit>

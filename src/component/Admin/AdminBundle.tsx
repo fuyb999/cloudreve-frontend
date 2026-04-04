@@ -1,6 +1,7 @@
 import EntitySetting from "./Entity/EntitySetting";
 import EventList from "./Event/EventList";
 import FileSetting from "./File/FileSetting";
+import FTSExternalJobList from "./FTSExternalJob/FTSExternalJobList";
 import FileSystem from "./FileSystem/Filesystem";
 import EditGroup from "./Group/EditGroup/EditGroup";
 import GroupSetting from "./Group/GroupSetting";
@@ -26,6 +27,7 @@ export {
   EventList,
   FileSetting,
   FileSystem,
+  FTSExternalJobList,
   GroupSetting,
   Home,
   NodeSetting,
