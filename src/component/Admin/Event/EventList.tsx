@@ -95,6 +95,13 @@ const summarizeLog = (log: AuditLog, t: TFunction<"dashboard">) => {
   }
 };
 
+const getLinkedUserID = (log: AuditLog) => (log.user_id !== undefined ? log.user_id : log.edges?.user?.id);
+const getLinkedFileID = (log: AuditLog) => (log.file_id !== undefined ? log.file_id : log.edges?.file?.id);
+const getLinkedEntityID = (log: AuditLog) => (log.entity_id !== undefined ? log.entity_id : log.edges?.entity?.id);
+const getLinkedShareID = (log: AuditLog) => (log.share_id !== undefined ? log.share_id : log.edges?.share?.id);
+
+const renderLinkedID = (value?: number) => (value === undefined ? "-" : value);
+
 interface EventFilterPopoverProps extends PopoverProps {
   type: string;
   setType: (value: string) => void;
@@ -286,25 +293,25 @@ const EventDetailDialog = ({ log, onClose }: { log?: AuditLog; onClose: () => vo
               <Typography variant="subtitle2" color="text.secondary">
                 {t("event.linkedUser")}
               </Typography>
-              <Typography variant="body2">{log.edges?.user?.id ?? "-"}</Typography>
+              <Typography variant="body2">{renderLinkedID(getLinkedUserID(log))}</Typography>
             </Box>
             <Box>
               <Typography variant="subtitle2" color="text.secondary">
                 {t("event.linkedFile")}
               </Typography>
-              <Typography variant="body2">{log.edges?.file?.id ?? "-"}</Typography>
+              <Typography variant="body2">{renderLinkedID(getLinkedFileID(log))}</Typography>
             </Box>
             <Box>
               <Typography variant="subtitle2" color="text.secondary">
                 {t("event.linkedEntity")}
               </Typography>
-              <Typography variant="body2">{log.edges?.entity?.id ?? "-"}</Typography>
+              <Typography variant="body2">{renderLinkedID(getLinkedEntityID(log))}</Typography>
             </Box>
             <Box>
               <Typography variant="subtitle2" color="text.secondary">
                 {t("event.linkedShare")}
               </Typography>
-              <Typography variant="body2">{log.edges?.share?.id ?? "-"}</Typography>
+              <Typography variant="body2">{renderLinkedID(getLinkedShareID(log))}</Typography>
             </Box>
             <Box>
               <Typography variant="subtitle2" color="text.secondary" sx={{ mb: 1 }}>
@@ -497,8 +504,8 @@ const EventList = () => {
                       {getEventLabel(t, log.type)}
                     </Typography>
                   </TableCell>
-                  {!isMobile && <TableCell>{log.edges?.user?.id ?? "-"}</TableCell>}
-                  {!isMobile && <TableCell>{log.edges?.file?.id ?? "-"}</TableCell>}
+                  {!isMobile && <TableCell>{renderLinkedID(getLinkedUserID(log))}</TableCell>}
+                  {!isMobile && <TableCell>{renderLinkedID(getLinkedFileID(log))}</TableCell>}
                   <TableCell>{log.ip || "-"}</TableCell>
                 </TableRow>
               ))}

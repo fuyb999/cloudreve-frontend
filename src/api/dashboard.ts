@@ -491,10 +491,14 @@ export interface LogEntry {
 }
 
 export interface AuditLog extends CommonMixin {
-  type?: number;
+  type: number;
   correlation_id?: string;
   ip?: string;
   content?: LogEntry;
+  user_id?: number;
+  file_id?: number;
+  entity_id?: number;
+  share_id?: number;
   edges: {
     user?: User;
     file?: File;
