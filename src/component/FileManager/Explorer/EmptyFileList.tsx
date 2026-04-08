@@ -128,7 +128,7 @@ export const SharedWithMeEmpty = () => {
                     <FolderLink fontSize="small" />
                   </ListItemIcon>
                   <ListItemText slotProps={{ primary: { variant: "body2" } }}>
-                    {t("application:fileManager.saveShortcut")}
+                    {t("application:fileManager.save")}
                   </ListItemText>
                 </SquareMenuItem>
                 <DenseDivider />

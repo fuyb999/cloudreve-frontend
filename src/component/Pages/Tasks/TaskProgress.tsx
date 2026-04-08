@@ -91,6 +91,18 @@ const stepOptions: {
       },
     ],
   ],
+  [TaskType.share_save]: [
+    // Master
+    [
+      queueingStep,
+      {
+        title: "setting.savingSharedFile",
+        state: "copying",
+        description: "setting.savingSharedFileDes",
+      },
+      completedStep,
+    ],
+  ],
   [TaskType.relocate]: [
     // Master
     [

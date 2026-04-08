@@ -697,6 +697,24 @@ const FullTextSearchSetting = () => {
                         <FormControlLabel
                           control={
                             <Switch
+                              checked={isTrueVal(values.fts_external_ocr_enabled)}
+                              onChange={(e) =>
+                                setSettings({
+                                  fts_external_ocr_enabled: e.target.checked ? "1" : "0",
+                                })
+                              }
+                            />
+                          }
+                          label={t("settings.ftsExternalOCREnabled")}
+                        />
+                        <NoMarginHelperText>{t("settings.ftsExternalOCREnabledDes")}</NoMarginHelperText>
+                      </FormControl>
+                    </SettingForm>
+                    <SettingForm lgWidth={5}>
+                      <FormControl fullWidth>
+                        <FormControlLabel
+                          control={
+                            <Switch
                               checked={isTrueVal(values.fts_external_skip_encrypted_files)}
                               onChange={(e) =>
                                 setSettings({

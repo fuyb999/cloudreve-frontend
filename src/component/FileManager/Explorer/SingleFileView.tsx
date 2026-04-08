@@ -20,7 +20,7 @@ import { FileResponse, Share } from "../../../api/explorer.ts";
 import { bindDelayedHover } from "../../../hooks/delayedHover.tsx";
 import { useAppDispatch, useAppSelector } from "../../../redux/hooks.ts";
 import { downloadSingleFile } from "../../../redux/thunks/download.ts";
-import { createShareShortcut, openFileContextMenu } from "../../../redux/thunks/file.ts";
+import { openFileContextMenu, saveSharedFile } from "../../../redux/thunks/file.ts";
 import { queueLoadShareInfo } from "../../../redux/thunks/share.ts";
 import { openViewers } from "../../../redux/thunks/viewer.ts";
 import SessionManager from "../../../session/index.ts";
@@ -241,7 +241,7 @@ const SingleFileView = forwardRef<HTMLDivElement>((_props, ref) => {
                 {!!user && file && (
                   <SecondaryButton
                     variant="contained"
-                    onClick={() => dispatch(createShareShortcut(fmIndex))}
+                    onClick={() => dispatch(saveSharedFile(fmIndex))}
                     disabled={loading}
                     startIcon={<FolderLink />}
                   >

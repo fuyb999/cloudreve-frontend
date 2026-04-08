@@ -104,6 +104,7 @@ const taskIconsMap: {
   [TaskType.create_archive]: Archive,
   [TaskType.extract_archive]: ArchiveArrow,
   [TaskType.relocate]: StorageOutlined,
+  [TaskType.share_save]: StorageOutlined,
   [TaskType.import]: ArrowImport,
 };
 

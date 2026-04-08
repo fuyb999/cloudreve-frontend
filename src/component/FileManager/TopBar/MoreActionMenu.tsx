@@ -4,7 +4,7 @@ import { useCallback, useContext } from "react";
 import { useTranslation } from "react-i18next";
 import { clearSelected } from "../../../redux/fileManagerSlice.ts";
 import { useAppDispatch, useAppSelector } from "../../../redux/hooks.ts";
-import { createShareShortcut, isMacbook } from "../../../redux/thunks/file.ts";
+import { isMacbook, saveSharedFile } from "../../../redux/thunks/file.ts";
 import { inverseSelection, pinCurrentView, refreshFileList, selectAll } from "../../../redux/thunks/filemanager.ts";
 import SessionManager from "../../../session";
 import { Filesystem } from "../../../util/uri.ts";
@@ -38,7 +38,7 @@ const MoreActionMenu = ({ onClose, ...rest }: MenuProps) => {
   }, [dispatch, onClose, fmIndex]);
 
   const onCreateShortcutClicked = useCallback(() => {
-    dispatch(createShareShortcut(fmIndex));
+    dispatch(saveSharedFile(fmIndex));
     onClose && onClose({}, "escapeKeyDown");
   }, [dispatch, onClose, fmIndex]);
 
@@ -101,7 +101,7 @@ const MoreActionMenu = ({ onClose, ...rest }: MenuProps) => {
           <ListItemIcon>
             <FolderLink fontSize="small" />
           </ListItemIcon>
-          <ListItemText>{t("application:fileManager.saveShortcut")}</ListItemText>
+          <ListItemText>{t("application:fileManager.save")}</ListItemText>
         </SquareMenuItem>
       )}
       {isLogin && <DenseDivider />}

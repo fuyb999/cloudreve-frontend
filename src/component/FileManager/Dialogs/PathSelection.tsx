@@ -14,6 +14,7 @@ export const PathSelectionVariantOptions = {
   copy: "copy",
   move: "move",
   shortcut: "shortcut",
+  saveTo: "saveTo",
 };
 
 interface SelectedFolderIndicatorProps {

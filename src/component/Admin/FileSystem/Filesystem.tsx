@@ -175,6 +175,7 @@ const FileSystem = () => {
                     "fts_external_quality_font_box_min_run",
                     "fts_external_quality_font_box_min_ratio",
                     "fts_external_recursive_attachments",
+                    "fts_external_ocr_enabled",
                     "fts_external_skip_encrypted_files",
                   ]}
                 >

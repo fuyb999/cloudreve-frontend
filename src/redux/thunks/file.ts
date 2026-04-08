@@ -7,6 +7,7 @@ import {
   getFileInfo,
   getFileList,
   getFileThumb,
+  sendCreateShareSave,
   sendCreateFile,
   sendDeleteFiles,
   sendMetadataPatch,
@@ -78,7 +79,6 @@ import { AppThunk } from "../store.ts";
 import { confirmOperation, deleteConfirmation, renameForm, requestCreateNew, selectPath } from "./dialog.ts";
 import { downloadSingleFile } from "./download.ts";
 import { navigateToPath, refreshFileList, updateUserCapacity } from "./filemanager.ts";
-import { queueLoadShareInfo } from "./share.ts";
 import { loadSiteConfig } from "./site.ts";
 import { openViewer, openViewers } from "./viewer.ts";
 
@@ -913,7 +913,7 @@ export function dialogBasedMoveCopy(index: number, files: FileResponse[], isCopy
   };
 }
 
-export function createShareShortcut(index: number): AppThunk {
+export function saveSharedFile(index: number): AppThunk {
   return async (dispatch, getState) => {
     const fm = getState().fileManager[index];
     const base = fm?.path_root;
@@ -923,37 +923,27 @@ export function createShareShortcut(index: number): AppThunk {
       return;
     }
 
-    let shortcutPath = base;
+    let sharePath = base;
     if (isSingleFile && files && files.length > 0) {
-      shortcutPath = files[0].path;
+      sharePath = files[0].path;
     }
 
-    const dst = await dispatch(selectPath(PathSelectionVariantOptions.shortcut, defaultPath));
-    const dstCrUri = new CrUri(dst);
-    const shareCrUri = new CrUri(shortcutPath);
-    const shareInfo = await dispatch(queueLoadShareInfo(shareCrUri));
-    if (!shareInfo.name || !shareInfo.owner) {
+    const dst = await dispatch(selectPath(PathSelectionVariantOptions.saveTo, defaultPath));
+    if (!dst) {
       return;
     }
 
-    dstCrUri.join(shareInfo.name);
-
     await dispatch(
-      sendCreateFile({
-        type: shareInfo.source_type == FileType.file ? "file" : "folder",
-        uri: dstCrUri.toString(),
-        metadata: {
-          [Metadata.share_redirect]: shortcutPath,
-          [Metadata.share_owner]: shareInfo.owner.id,
-        },
-        err_on_conflict: true,
+      sendCreateShareSave({
+        src: sharePath,
+        dst,
       }),
     );
 
     enqueueSnackbar({
-      message: i18next.t("application:modals.shortcutCreated"),
+      message: i18next.t("application:setting.taskCreated"),
       variant: "success",
-      action: ViewDstAction(dst),
+      action: DefaultCloseAction,
     });
   };
 }

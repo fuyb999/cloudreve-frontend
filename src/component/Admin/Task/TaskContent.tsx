@@ -13,6 +13,7 @@ import TaskSummaryTitle from "../../Pages/Tasks/TaskSummaryTitle";
 
 export const userTaskTypes: string[] = [
   TaskType.relocate,
+  TaskType.share_save,
   TaskType.create_archive,
   TaskType.extract_archive,
   TaskType.remote_download,

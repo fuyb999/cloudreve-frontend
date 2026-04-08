@@ -147,14 +147,16 @@ const TaskProps = ({ task }: TaskPropsProps) => {
               clickable={
                 taskDisplayType == TaskType.remote_download ||
                 taskDisplayType == TaskType.extract_archive ||
-                taskDisplayType == TaskType.import
+                taskDisplayType == TaskType.import ||
+                taskDisplayType == TaskType.share_save
               }
               simplifiedFile={{
                 path: normalizedSummary.props.dst,
                 type:
                   taskDisplayType == TaskType.remote_download ||
                   taskDisplayType == TaskType.extract_archive ||
-                  taskDisplayType == TaskType.import
+                  taskDisplayType == TaskType.import ||
+                  taskDisplayType == TaskType.share_save
                     ? FileType.folder
                     : FileType.file,
               }}

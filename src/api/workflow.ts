@@ -196,6 +196,11 @@ export interface ImportWorkflowService {
   policy_id: number;
 }
 
+export interface ShareSaveWorkflowService {
+  src: string;
+  dst: string;
+}
+
 export interface ListTaskService {
   page_size: number;
   category: ListTaskCategory;
@@ -213,6 +218,7 @@ export enum TaskType {
   create_archive = "create_archive",
   extract_archive = "extract_archive",
   remote_download = "remote_download",
+  share_save = "share_save",
   media_metadata = "media_meta",
   document_inspect = "document_inspect",
   entity_recycle_routine = "entity_recycle_routine",

@@ -98,6 +98,30 @@ const TaskSummaryTitle = ({ type, summary, isInDashboard = false }: TaskSummaryT
           }}
         />
       );
+    case TaskType.share_save:
+      return (
+        <Trans
+          i18nKey="setting.shareSaveTo"
+          components={[
+            <StyledFileBadge
+              key={0}
+              variant={"outlined"}
+              simplifiedFile={{
+                type: FileType.file,
+                path: normalizedSummary?.props.src ? normalizedSummary.props.src : newMyUri("").toString(),
+              }}
+            />,
+            <StyledFileBadge
+              key={1}
+              variant={"outlined"}
+              simplifiedFile={{
+                type: FileType.folder,
+                path: normalizedSummary?.props.dst ? normalizedSummary.props.dst : newMyUri("").toString(),
+              }}
+            />,
+          ]}
+        />
+      );
     case TaskType.import:
       return (
         <Trans
