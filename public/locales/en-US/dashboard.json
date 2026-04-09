@@ -943,6 +943,8 @@
     "ftsExternalModeFallbackOnErrorOrQuality": "Fallback on local error or poor quality",
     "ftsExternalTimeout": "External wait timeout (seconds)",
     "ftsExternalTimeoutDes": "Maximum time Cloudreve waits for a result/error message after publishing a process request. After timeout, the task retries first and eventually falls back according to the selected mode.",
+    "ftsExternalMaxFileSize": "Maximum file size (MB)",
+    "ftsExternalMaxFileSizeDes": "Applies only to third-party extraction. Defaults to 25 MB; set to 0 to disable the limit, and files larger than this value will not be published to the external extraction pipeline.",
     "ftsExternalRetryMax": "Maximum retries",
     "ftsExternalRetryMaxDes": "How many times Cloudreve can re-publish a process request after an external error, unusable payload, or timeout. Set to 0 to fall back immediately.",
     "ftsExternalRecursiveAttachments": "Accept recursive attachment tree",

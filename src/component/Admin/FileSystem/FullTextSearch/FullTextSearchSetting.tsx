@@ -660,6 +660,20 @@ const FullTextSearchSetting = () => {
                       />
                       <NoMarginHelperText>{t("settings.ftsExternalTimeoutDes")}</NoMarginHelperText>
                     </SettingForm>
+                    <SettingForm title={t("settings.ftsExternalMaxFileSize")} lgWidth={5}>
+                      <DenseFilledTextField
+                        type="number"
+                        inputProps={{ min: 0, step: 1 }}
+                        value={values.fts_external_max_file_size_mb}
+                        onChange={(e) =>
+                          setSettings({
+                            fts_external_max_file_size_mb: e.target.value,
+                          })
+                        }
+                        fullWidth
+                      />
+                      <NoMarginHelperText>{t("settings.ftsExternalMaxFileSizeDes")}</NoMarginHelperText>
+                    </SettingForm>
                     <SettingForm title={t("settings.ftsExternalRetryMax")} lgWidth={5}>
                       <DenseFilledTextField
                         type="number"

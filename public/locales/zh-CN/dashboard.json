@@ -943,6 +943,8 @@
     "ftsExternalModeFallbackOnErrorOrQuality": "本地失败或质量不达标后回退第三方",
     "ftsExternalTimeout": "第三方等待超时（秒）",
     "ftsExternalTimeoutDes": "Cloudreve 发出 process 请求后，等待 result/error 的最长时间。超过该时间会按重试次数继续，最终再根据模式回退本地抽取。",
+    "ftsExternalMaxFileSize": "最大文件大小（MB）",
+    "ftsExternalMaxFileSizeDes": "仅对第三方抽取生效。默认 25MB；设置为 0 表示不限制，大于该值的文件不会投递到第三方抽取链路。",
     "ftsExternalRetryMax": "最大重试次数",
     "ftsExternalRetryMaxDes": "第三方返回 error、返回内容不可用或超时后，允许重新投递 process 的次数。设置为 0 表示失败后立即回退。",
     "ftsExternalRecursiveAttachments": "递归接收附件树",
