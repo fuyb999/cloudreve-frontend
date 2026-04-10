@@ -13,6 +13,7 @@ import { ViewTaskAction } from "../../Common/Snackbar/snackbar.tsx";
 import DraggableDialog from "../../Dialogs/DraggableDialog.tsx";
 import Password from "../../Icons/Password.tsx";
 import { FileManagerIndex } from "../FileManager.tsx";
+import { archiveEncodingTypes, archivePasswordTypes } from "../archiveSupport.ts";
 
 const ExtractArchive = () => {
   const { t } = useTranslation();
@@ -38,13 +39,13 @@ const ExtractArchive = () => {
   }, [predefinedEncoding]);
 
   const showEncodingOption = useMemo(() => {
-    const ext = fileExtension(target?.name ?? "");
-    return ext === "zip";
+    const ext = fileExtension(target?.name ?? "") ?? "";
+    return archiveEncodingTypes.includes(ext);
   }, [target?.name]);
 
   const showPasswordOption = useMemo(() => {
-    const ext = fileExtension(target?.name ?? "");
-    return ext === "zip" || ext === "7z";
+    const ext = fileExtension(target?.name ?? "") ?? "";
+    return archivePasswordTypes.includes(ext);
   }, [target?.name]);
 
   useEffect(() => {

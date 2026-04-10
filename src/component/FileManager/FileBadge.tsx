@@ -3,7 +3,7 @@ import FileIcon from "./Explorer/FileIcon.tsx";
 import React, { useMemo } from "react";
 import { Box, ButtonProps, Skeleton, Tooltip } from "@mui/material";
 import { BadgeText, DefaultButton } from "../Common/StyledComponents.tsx";
-import CrUri from "../../util/uri.ts";
+import CrUri, { getUriDisplayName } from "../../util/uri.ts";
 import { useTranslation } from "react-i18next";
 import { usePopupState } from "material-ui-popup-state/hooks";
 import { bindHover, bindPopover } from "material-ui-popup-state";
@@ -43,7 +43,7 @@ const FileBadge = ({ file, clickable, simplifiedFile, unknown, ...rest }: FileBa
 
     try {
       const uri = new CrUri(simplifiedFile?.path ?? "");
-      return uri.elements().pop() ?? "";
+      return getUriDisplayName(uri);
     } catch (e) {
       return "";
     }
@@ -125,7 +125,7 @@ const FileBadge = ({ file, clickable, simplifiedFile, unknown, ...rest }: FileBa
               />
             )}
 
-            <BadgeText variant={"body2"}>{name == "" ? displayName : name}</BadgeText>
+            <BadgeText variant={"body2"}>{displayName || name}</BadgeText>
           </DefaultButton>
         </span>
       </Tooltip>

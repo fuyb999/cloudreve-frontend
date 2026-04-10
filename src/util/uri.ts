@@ -14,6 +14,8 @@ export const Filesystem = {
   trash: "trash",
 };
 
+const PublicProjectedAliasSeparator = "__";
+
 export const UriQuery = {
   name: "name",
   name_op_or: "name_op_or",
@@ -323,4 +325,29 @@ export const newMyUri = (uid?: string): CrUri => {
 
 export const newPublicUri = (): CrUri => {
   return new CrUri("cloudreve://public");
+};
+
+export const getPublicProjectedAliasDisplayName = (name: string): string => {
+  const normalized = name.trim();
+  const separatorIndex = normalized.lastIndexOf(PublicProjectedAliasSeparator);
+  if (separatorIndex <= 0) {
+    return normalized;
+  }
+
+  return normalized.slice(0, separatorIndex);
+};
+
+export const getUriDisplayName = (uriOrPath: CrUri | string, preferredName?: string): string => {
+  const uri = typeof uriOrPath === "string" ? new CrUri(uriOrPath) : uriOrPath;
+  const elements = uri.elements();
+  const fallbackName = preferredName ?? elements[elements.length - 1] ?? "";
+  if (uri.fs() !== Filesystem.public || elements.length !== 1) {
+    return fallbackName;
+  }
+
+  if (fallbackName !== elements[0]) {
+    return fallbackName;
+  }
+
+  return getPublicProjectedAliasDisplayName(fallbackName);
 };

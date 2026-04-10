@@ -1,0 +1,32 @@
+export const supportedArchiveTypes = [
+  "zip",
+  "7z",
+  "rar",
+  "tar",
+  "tgz",
+  "tbz",
+  "tbz2",
+  "txz",
+  "tlz",
+  "gz",
+  "z",
+  "zz",
+  "bz",
+  "bz2",
+  "xz",
+  "lz",
+  "lz4",
+  "lzma",
+  "br",
+  "sz",
+  "zst",
+  "jar",
+  "war",
+  "ear",
+  "ar",
+  "cpio",
+  "arj",
+];
+
+export const archivePasswordTypes = ["zip", "7z", "rar"];
+export const archiveEncodingTypes = ["zip"];

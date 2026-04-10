@@ -5,7 +5,7 @@ import { useCallback } from "react";
 import DraggableDialog, { StyledDialogContentText } from "../../Dialogs/DraggableDialog.tsx";
 import { askSaveAs, staleVersionDialogPromisePool } from "../../../redux/thunks/dialog.ts";
 import { closeStaleVersionDialog } from "../../../redux/globalStateSlice.ts";
-import CrUri from "../../../util/uri.ts";
+import CrUri, { getUriDisplayName } from "../../../util/uri.ts";
 
 const StaleVersionConfirm = () => {
   const { t } = useTranslation();
@@ -40,7 +40,7 @@ const StaleVersionConfirm = () => {
       return;
     }
     try {
-      const fileName = new CrUri(uri).elements().pop();
+      const fileName = getUriDisplayName(uri);
       if (fileName && promiseId) {
         const saveAsDst = await dispatch(askSaveAs(fileName));
         const dst = new CrUri(saveAsDst.uri).join(saveAsDst.name);

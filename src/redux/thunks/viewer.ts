@@ -10,7 +10,7 @@ import SessionManager, { UserSettings } from "../../session";
 import { isTrueVal } from "../../session/utils.ts";
 import { dataUrlToBytes, fileExtension, fileNameNoExt, getFileLinkedUri, sizeToString } from "../../util";
 import { base64Encode } from "../../util/base64.ts";
-import CrUri, { CrUriPrefix } from "../../util/uri.ts";
+import CrUri, { CrUriPrefix, getUriDisplayName } from "../../util/uri.ts";
 import { closeContextMenu, ContextMenuTypes, fileUpdated } from "../fileManagerSlice.ts";
 import {
   closeImageEditor,
@@ -477,7 +477,7 @@ export function saveFile(
     let savedFile: FileResponse | undefined;
     if (saveAsNew) {
       try {
-        const fileName = new CrUri(uri).elements().pop();
+        const fileName = getUriDisplayName(uri);
         if (fileName) {
           const saveAsDst = await dispatch(askSaveAs(fileName));
           const dst = new CrUri(saveAsDst.uri).join(saveAsDst.name);

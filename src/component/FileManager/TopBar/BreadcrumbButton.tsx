@@ -9,7 +9,7 @@ import { navigateToPath, openContextUrlFromUri } from "../../../redux/thunks/fil
 import { queueLoadShareInfo } from "../../../redux/thunks/share.ts";
 import PageTitle from "../../../router/PageTitle.tsx";
 import SessionManager from "../../../session";
-import CrUri, { Filesystem, UriQuery, UriSearchCategory } from "../../../util/uri.ts";
+import CrUri, { Filesystem, getUriDisplayName, UriQuery, UriSearchCategory } from "../../../util/uri.ts";
 import { NoWrapBox } from "../../Common/StyledComponents.tsx";
 import UserAvatar from "../../Common/User/UserAvatar.tsx";
 import CaretDown from "../../Icons/CaretDown.tsx";
@@ -157,7 +157,7 @@ export const useBreadcrumbButtons = ({
       }
     }
 
-    return name;
+    return getUriDisplayName(uri, name);
   }, [name, uri, t, shareInfo]);
 
   const startIcon = useMemo(() => {
