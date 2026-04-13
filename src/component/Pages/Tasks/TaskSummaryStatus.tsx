@@ -50,6 +50,17 @@ const TaskSummaryStatus = ({ type, status, summary, error, simplified }: TaskSum
 
   switch (status) {
     case TaskStatus.completed:
+      if (error) {
+        return (
+          <Tooltip title={error}>
+            <TaskStatusContent
+              title={t("setting.finished")}
+              icon={<CircleHintFilled fontSize={"small"} />}
+              color={theme.palette.warning.main}
+            />
+          </Tooltip>
+        );
+      }
       return (
         <TaskStatusContent
           title={t("setting.finished")}
