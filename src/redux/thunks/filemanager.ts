@@ -427,8 +427,21 @@ export function openEmptyContextMenu(index: number, e: React.MouseEvent<HTMLElem
 }
 
 export function openNewContextMenu(index: number, e: React.MouseEvent<HTMLElement>): AppThunk {
-  return async (dispatch, _getState) => {
+  return async (dispatch, getState) => {
     e.preventDefault();
+    const parent = getState().fileManager[index].list?.parent;
+    const displayOpt = getActionOpt([], Viewers, ContextMenuTypes.new, parent, index);
+    const canCreate =
+      !!displayOpt.showCreateFolder ||
+      !!displayOpt.showCreateFile ||
+      !!displayOpt.showUpload ||
+      !!displayOpt.showRemoteDownload ||
+      !!displayOpt.showNewFileFromTemplate;
+    if (!canCreate) {
+      dispatch(closeContextMenu({ index, value: undefined }));
+      return;
+    }
+
     const rect = e.currentTarget.getBoundingClientRect();
     const { x, y } = { x: rect.x, y: rect.bottom };
     dispatch(
