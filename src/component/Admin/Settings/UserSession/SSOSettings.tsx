@@ -2,6 +2,7 @@ import { ExpandMoreRounded } from "@mui/icons-material";
 import {
   Accordion,
   AccordionDetails,
+  Alert,
   Collapse,
   FormControl,
   FormControlLabel,
@@ -12,8 +13,11 @@ import {
   styled,
 } from "@mui/material";
 import MuiAccordionSummary, { AccordionSummaryProps } from "@mui/material/AccordionSummary";
-import { useContext, useMemo } from "react";
+import { useContext, useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { getOIDCRuntimeState } from "../../../../api/api.ts";
+import { OIDCRuntimeState } from "../../../../api/dashboard.ts";
+import { useAppDispatch } from "../../../../redux/hooks.ts";
 import { isTrueVal } from "../../../../session/utils.ts";
 import { DenseFilledTextField } from "../../../Common/StyledComponents.tsx";
 import { NoMarginHelperText } from "../Settings.tsx";
@@ -39,13 +43,38 @@ export const StyledAccordion = styled(Accordion)(({ theme }) => ({
 
 const SSOSettings = () => {
   const { t } = useTranslation("dashboard");
+  const dispatch = useAppDispatch();
   const { values, setSettings } = useContext(SettingContext);
   const oidcEnabled = isTrueVal(values.oidc_enabled);
   const oidcAutoRedirect = isTrueVal(values.oidc_auto_redirect);
   const oidcConfigMode = values.oidc_config_mode ?? "remote";
   const remoteConfigMode = oidcConfigMode === "remote";
+  const [runtimeState, setRuntimeState] = useState<OIDCRuntimeState>();
   // 回调地址固定落回当前站点前端路由，便于不同部署环境直接复用。
   const callbackURL = useMemo(() => `${window.location.origin}/session/oidc/callback`, []);
+
+  useEffect(() => {
+    if (!oidcEnabled || !remoteConfigMode) {
+      return;
+    }
+
+    dispatch(getOIDCRuntimeState()).then((res) => {
+      setRuntimeState(res);
+    });
+  }, [dispatch, oidcEnabled, remoteConfigMode]);
+
+  const runtimeSeverity = useMemo(() => {
+    switch (runtimeState?.status) {
+      case "remote_ready":
+      case "remote_cached":
+        return "success";
+      case "local_fallback":
+      case "remote_error":
+        return "warning";
+      default:
+        return "info";
+    }
+  }, [runtimeState?.status]);
 
   return (
     <StyledAccordion defaultExpanded disableGutters>
@@ -197,6 +226,55 @@ const SSOSettings = () => {
 
           <Collapse in={remoteConfigMode} unmountOnExit>
             <Stack spacing={2.5}>
+              {oidcEnabled && runtimeState && (
+                <Alert severity={runtimeSeverity} variant="outlined">
+                  <Typography variant="body2" fontWeight={600}>
+                    {t("settings.oidcRuntimeStateTitle")}
+                  </Typography>
+                  <Typography variant="body2">
+                    {t("settings.oidcRuntimeStateSummary", {
+                      status: runtimeState.status ?? "-",
+                      source: runtimeState.source ?? "-",
+                    })}
+                  </Typography>
+                  {runtimeState.client_id && (
+                    <Typography variant="body2">
+                      {t("settings.clientID")}: {runtimeState.client_id}
+                    </Typography>
+                  )}
+                  {runtimeState.sso_url && (
+                    <Typography variant="body2" sx={{ wordBreak: "break-all" }}>
+                      {t("settings.oidcSsoUrl")}: {runtimeState.sso_url}
+                    </Typography>
+                  )}
+                  {runtimeState.wellknown_url && (
+                    <Typography variant="body2" sx={{ wordBreak: "break-all" }}>
+                      {t("settings.oidcWellknownUrl")}: {runtimeState.wellknown_url}
+                    </Typography>
+                  )}
+                  {runtimeState.scope && (
+                    <Typography variant="body2" sx={{ wordBreak: "break-word" }}>
+                      {t("settings.scope")}: {runtimeState.scope}
+                    </Typography>
+                  )}
+                  {runtimeState.last_success_at && (
+                    <Typography variant="body2">
+                      {t("settings.oidcRuntimeLastSuccessAt")}: {runtimeState.last_success_at}
+                    </Typography>
+                  )}
+                  {runtimeState.cache_expires_at && (
+                    <Typography variant="body2">
+                      {t("settings.oidcRuntimeCacheExpiresAt")}: {runtimeState.cache_expires_at}
+                    </Typography>
+                  )}
+                  {runtimeState.last_error && (
+                    <Typography variant="body2" color="warning.main" sx={{ wordBreak: "break-word" }}>
+                      {t("settings.oidcRuntimeLastError")}: {runtimeState.last_error}
+                    </Typography>
+                  )}
+                </Alert>
+              )}
+
               <FormControl fullWidth>
                 <DenseFilledTextField
                   value={values.oidc_binding_code ?? ""}

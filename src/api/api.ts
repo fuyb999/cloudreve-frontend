@@ -30,6 +30,7 @@ import {
   ListUserResponse,
   Node,
   OauthCredentialStatus,
+  OIDCRuntimeState,
   QueueMetric,
   SetSettingService,
   Share as ShareEnt,
@@ -142,6 +143,22 @@ export function getSiteConfig(section: string): ThunkResponse<SiteConfig> {
           ...defaultOpts,
           bypassSnackbar: (e) => isRequestAbortedError(e),
           errorSnackbarMsg: (e) => i18n.t("errLoadingSiteConfig", { ns: "common" }) + e.message,
+        },
+      ),
+    );
+  };
+}
+
+export function getOIDCRuntimeState(): ThunkResponse<OIDCRuntimeState> {
+  return async (dispatch, _getState) => {
+    return await dispatch(
+      send(
+        "/admin/settings/oidc/runtime-state",
+        {
+          method: "GET",
+        },
+        {
+          ...defaultOpts,
         },
       ),
     );

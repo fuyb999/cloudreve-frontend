@@ -1,5 +1,6 @@
 import { CustomProps, ViewerGroup } from "./explorer.ts";
 import { User } from "./user.ts";
+import { OIDCRuntimeState } from "./dashboard.ts";
 
 export enum CaptchaType {
   NORMAL = "normal",
@@ -22,6 +23,7 @@ export interface SiteConfig {
   oidc_enabled?: boolean;
   oidc_display_name?: string;
   oidc_auto_redirect?: boolean;
+  oidc_runtime_state?: OIDCRuntimeState;
   user?: User;
   captcha_ReCaptchaKey?: string;
   captcha_type?: CaptchaType;

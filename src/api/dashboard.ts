@@ -47,6 +47,21 @@ export interface SetSettingService {
   };
 }
 
+export interface OIDCRuntimeState {
+  status: string;
+  source: string;
+  binding_code?: string;
+  client_id?: string;
+  scope?: string;
+  sso_url?: string;
+  wellknown_url?: string;
+  cache_expires_at?: string;
+  last_success_at?: string;
+  last_attempt_at?: string;
+  last_error?: string;
+  last_error_at?: string;
+}
+
 export interface GroupEnt extends CommonMixin {
   name: string;
   max_storage?: number;
