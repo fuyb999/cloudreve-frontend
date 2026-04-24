@@ -1,13 +1,15 @@
 import { DialogContent, Typography, useMediaQuery, useTheme } from "@mui/material";
 import { useCallback, useMemo, useState } from "react";
 import { Trans, useTranslation } from "react-i18next";
-import { FileResponse, FileType } from "../../../api/explorer.ts";
+import { FileResponse, FileType, NavigatorCapability } from "../../../api/explorer.ts";
 import { closePathSelectionDialog } from "../../../redux/globalStateSlice.ts";
 import { useAppDispatch, useAppSelector } from "../../../redux/hooks.ts";
 import { pathSelectionDialogPromisePool } from "../../../redux/thunks/dialog.ts";
+import Boolset from "../../../util/boolset.ts";
 import CrUri, { Filesystem } from "../../../util/uri.ts";
 import DraggableDialog from "../../Dialogs/DraggableDialog.tsx";
 import FileBadge from "../FileBadge.tsx";
+import { FileManagerIndex } from "../FileManager.tsx";
 import FolderPicker, { useFolderSelector } from "../FolderPicker.tsx";
 
 export const PathSelectionVariantOptions = {
@@ -28,6 +30,7 @@ interface PathSelectionVariant {
   title: string;
   disableSharedWithMe?: boolean;
   disableTrash?: boolean;
+  requiredCapability?: number;
 }
 
 export const PathSelectionVariants: Record<string, PathSelectionVariant> = {
@@ -36,42 +39,49 @@ export const PathSelectionVariants: Record<string, PathSelectionVariant> = {
     title: "application:fileManager.copyTo",
     disableSharedWithMe: true,
     disableTrash: true,
+    requiredCapability: NavigatorCapability.create_file,
   },
   move: {
     indicator: "fileManager.moveToDst",
     title: "application:fileManager.moveTo",
     disableSharedWithMe: true,
     disableTrash: true,
+    requiredCapability: NavigatorCapability.create_file,
   },
   shortcut: {
     indicator: "application:modals.createShortcutTo",
     title: "application:modals.createShortcut",
     disableSharedWithMe: true,
     disableTrash: true,
+    requiredCapability: NavigatorCapability.create_file,
   },
   saveAs: {
     indicator: "application:modals.saveToTitleDescription",
     title: "application:modals.saveAs",
     disableSharedWithMe: true,
     disableTrash: true,
+    requiredCapability: NavigatorCapability.create_file,
   },
   saveTo: {
     indicator: "application:modals.saveToTitleDescription",
     title: "application:modals.saveToTitle",
     disableSharedWithMe: true,
     disableTrash: true,
+    requiredCapability: NavigatorCapability.create_file,
   },
   extractTo: {
     indicator: "application:modals.decompressToDst",
     title: "application:modals.decompressTo",
     disableSharedWithMe: true,
     disableTrash: true,
+    requiredCapability: NavigatorCapability.upload_file,
   },
   downloadTo: {
     indicator: "application:modals.downloadToDst",
     title: "application:modals.downloadTo",
     disableSharedWithMe: true,
     disableTrash: true,
+    requiredCapability: NavigatorCapability.upload_file,
   },
   searchIn: {
     indicator: "application:navbar.searchInBase",
@@ -83,6 +93,24 @@ export const PathSelectionVariants: Record<string, PathSelectionVariant> = {
     disableSharedWithMe: true,
     disableTrash: true,
   },
+};
+
+const canUseSelectedFolder = (
+  selectedFile: FileResponse | undefined,
+  currentFolderCapability: string | undefined,
+  variant: PathSelectionVariant,
+) => {
+  if (variant.requiredCapability === undefined) {
+    return true;
+  }
+
+  const capability = selectedFile?.capability ?? currentFolderCapability;
+  if (!capability) {
+    return false;
+  }
+
+  const cap = new Boolset(capability);
+  return cap.enabled(variant.requiredCapability);
 };
 
 export const SelectedFolderIndicator = ({ selectedFile, selectedPath, variant }: SelectedFolderIndicatorProps) => {
@@ -131,6 +159,11 @@ const PathSelection = () => {
   );
 
   const [selectedFile, selectedPath] = useFolderSelector();
+  const currentFolderCapability = useAppSelector(
+    (state) =>
+      state.fileManager[FileManagerIndex.selector].list?.parent?.capability ??
+      state.fileManager[FileManagerIndex.selector].list?.props.capability,
+  );
 
   const onClose = useCallback(() => {
     dispatch(closePathSelectionDialog());
@@ -160,8 +193,8 @@ const PathSelection = () => {
       }
     }
 
-    return !selectedPath;
-  }, [selectedPath, variantProps]);
+    return !selectedPath || !canUseSelectedFolder(selectedFile, currentFolderCapability, variantProps);
+  }, [selectedPath, selectedFile, currentFolderCapability, variantProps]);
 
   return (
     <DraggableDialog
