@@ -362,10 +362,12 @@ export interface FullTextSidecarObject {
   kind?: string;
   name: string;
   uri?: string;
+  preview_uri?: string;
   path: string;
   mime_type: string;
   size: number;
   url: string;
+  preview_url?: string;
 }
 
 export interface FullTextSidecarResponse {

@@ -53,8 +53,6 @@ const objectKindLabelKey = (item: FullTextSidecarObject) => {
   switch (item.kind) {
     case "text":
       return "application:fileManager.fullTextArtifactText";
-    case "metadata":
-      return "application:fileManager.fullTextArtifactMetadata";
     case "embedded":
       return "application:fileManager.fullTextArtifactAssets";
     case "docx_media":
@@ -136,18 +134,19 @@ const collectExpandableIds = (items: FullTextSidecarTreeNode[], ids = new Set<st
 };
 
 const buildSidecarVirtualFile = (extractedAt: string, item: FullTextSidecarObject): FileResponse | undefined => {
-  if (!item.uri) {
+  const previewUri = item.preview_uri || item.uri;
+  if (!previewUri) {
     return undefined;
   }
 
   return {
     type: FileType.file,
-    id: item.uri,
+    id: previewUri,
     name: item.name,
     created_at: extractedAt,
     updated_at: extractedAt,
     size: item.size,
-    path: item.uri,
+    path: previewUri,
   };
 };
 
@@ -212,6 +211,8 @@ const openPreviewUrl = (url: string) => {
   }
 };
 
+const getPreviewTargetUrl = (item: FullTextSidecarObject) => item.preview_url || item.url;
+
 const FullTextArtifactActionGroup = ({
   item,
   virtualFile,
@@ -233,7 +234,7 @@ const FullTextArtifactActionGroup = ({
 
   const openFallbackPreview = async () => {
     if (!virtualFile) {
-      openPreviewUrl(item.url);
+      openPreviewUrl(getPreviewTargetUrl(item));
       return;
     }
 
@@ -242,7 +243,7 @@ const FullTextArtifactActionGroup = ({
         uris: [virtualFile.path],
       }),
     );
-    openPreviewUrl(entityUrl.urls[0]?.url || item.url);
+    openPreviewUrl(entityUrl.urls[0]?.url || getPreviewTargetUrl(item));
   };
 
   const openWithViewer = async (viewer?: Viewer) => {
@@ -269,7 +270,7 @@ const FullTextArtifactActionGroup = ({
         <Button
           size="small"
           onClick={() => {
-            handlePreview().catch(() => openPreviewUrl(item.url));
+            handlePreview().catch(() => openPreviewUrl(getPreviewTargetUrl(item)));
           }}
         >
           {t("application:fileManager.preview")}
@@ -303,7 +304,7 @@ const FullTextArtifactActionGroup = ({
             key={viewer.id}
             onClick={() => {
               setAnchorEl(null);
-              openWithViewer(viewer).catch(() => openPreviewUrl(item.url));
+              openWithViewer(viewer).catch(() => openPreviewUrl(getPreviewTargetUrl(item)));
             }}
           >
             <ListItemIcon>
@@ -556,13 +557,15 @@ const FullTextArtifacts = ({ target }: FullTextArtifactsProps) => {
     };
   }, [dispatch, shouldLoad, sidecarSourceURI]);
 
+  const sidecarObjects = useMemo(() => sidecar?.objects ?? [], [sidecar]);
+
   const hasText = useMemo(() => {
-    return !!sidecar?.objects.some((item) => item.kind === "text");
-  }, [sidecar]);
+    return sidecarObjects.some((item) => item.kind === "text");
+  }, [sidecarObjects]);
 
   const attachmentCount = useMemo(() => {
-    return sidecar?.objects.filter((item) => item.kind !== "text" && item.kind !== "metadata").length ?? 0;
-  }, [sidecar]);
+    return sidecarObjects.filter((item) => item.kind !== "text").length;
+  }, [sidecarObjects]);
 
   if (!shouldLoad) {
     return null;
