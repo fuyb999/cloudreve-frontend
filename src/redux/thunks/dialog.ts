@@ -182,7 +182,7 @@ export function confirmOperation(message: string): AppThunk<Promise<void>> {
   };
 }
 
-export function selectPath(variant: string, initialPath?: string): AppThunk<Promise<string>> {
+export function selectPath(variant: string, initialPath?: string, allowedFs?: string[]): AppThunk<Promise<string>> {
   return (dispatch) => {
     const id = promiseId();
     return new Promise<string>((resolve, reject) => {
@@ -193,6 +193,7 @@ export function selectPath(variant: string, initialPath?: string): AppThunk<Prom
           variant: variant,
           promiseId: id,
           initialPath: initialPath,
+          allowedFs: allowedFs,
         }),
       );
     });

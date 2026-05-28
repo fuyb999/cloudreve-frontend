@@ -43,7 +43,7 @@ import SessionManager, { UserSettings } from "../../session";
 import { addRecentUsedColor, addUsedTags } from "../../session/utils.ts";
 import { fileExtension, getFileLinkedUri } from "../../util";
 import Boolset from "../../util/boolset.ts";
-import { canCopyMoveTo } from "../../util/permission.ts";
+import { allowedMoveCopyDestinationFilesystems, canCopyMoveTo } from "../../util/permission.ts";
 import CrUri, { Filesystem } from "../../util/uri.ts";
 import {
   addSelected,
@@ -906,8 +906,9 @@ export function openShareDialog(index: number, src: FileResponse): AppThunk {
 export function dialogBasedMoveCopy(index: number, files: FileResponse[], isCopy: boolean): AppThunk {
   return async (dispatch, _getState) => {
     dispatch(closeContextMenu({ index, value: undefined }));
+    const allowedFs = allowedMoveCopyDestinationFilesystems(files, isCopy);
     const dst = await dispatch(
-      selectPath(isCopy ? PathSelectionVariantOptions.copy : PathSelectionVariantOptions.move),
+      selectPath(isCopy ? PathSelectionVariantOptions.copy : PathSelectionVariantOptions.move, undefined, allowedFs),
     );
     dispatch(moveFiles(index, files, dst, !!isCopy));
   };

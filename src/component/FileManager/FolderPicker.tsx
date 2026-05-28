@@ -26,10 +26,11 @@ export const useFolderSelector = () => {
 export interface FolderPickerProps {
   disableSharedWithMe?: boolean;
   disableTrash?: boolean;
+  allowedFs?: string[];
   initialPath?: string;
 }
 
-const FolderPicker = ({ disableSharedWithMe, disableTrash, initialPath }: FolderPickerProps) => {
+const FolderPicker = ({ disableSharedWithMe, disableTrash, allowedFs, initialPath }: FolderPickerProps) => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
   const path = useAppSelector((state) => state.fileManager[FileManagerIndex.main].path);
@@ -51,6 +52,7 @@ const FolderPicker = ({ disableSharedWithMe, disableTrash, initialPath }: Folder
             index={FileManagerIndex.selector}
             disableSharedWithMe={disableSharedWithMe}
             disableTrash={disableTrash}
+            allowedFs={allowedFs}
           />
         </StyledGridItem>
         <StyledGridItem

@@ -141,6 +141,9 @@ const CustomContent = React.memo(
     const handleExpansionClick = useCallback(
       async (event: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
         event.stopPropagation();
+        if (disabled) {
+          return;
+        }
         let timeOutID: NodeJS.Timeout | undefined;
         handleExpansion(event);
         if (!expanded) {
@@ -154,16 +157,19 @@ const CustomContent = React.memo(
           }
         }
       },
-      [handleExpansion, setLoading, dispatch, uri],
+      [handleExpansion, setLoading, dispatch, uri, disabled],
     );
 
     const handleSelectionClick = useCallback(
       (event: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
         event.stopPropagation();
+        if (disabled) {
+          return;
+        }
         handleSelection(event);
         dispatch(navigateToPath(fmIndex, uri, file));
       },
-      [dispatch, handleSelection, fmIndex, uri],
+      [dispatch, handleSelection, fmIndex, uri, disabled],
     );
 
     const FileItemIcon = useMemo(() => {

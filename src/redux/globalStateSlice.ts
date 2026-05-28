@@ -659,15 +659,18 @@ export const globalStateSlice = createSlice({
         variant: string;
         promiseId: string;
         initialPath?: string;
+        allowedFs?: string[];
       }>,
     ) => {
       state.pathSelectDialogOpen = action.payload.open;
       state.pathSelectDialogVariant = action.payload.variant;
       state.pathSelectPromiseId = action.payload.promiseId;
       state.pathSelectInitialPath = action.payload.initialPath;
+      state.pathSelectAllowedFs = action.payload.allowedFs;
     },
     closePathSelectionDialog: (state) => {
       state.pathSelectDialogOpen = false;
+      state.pathSelectAllowedFs = undefined;
     },
     setTagsDialog: (state, action: PayloadAction<{ open: boolean; file?: FileResponse[] }>) => {
       state.tagsDialogOpen = action.payload.open;

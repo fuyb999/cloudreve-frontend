@@ -152,6 +152,7 @@ const PathSelection = () => {
   const variant = useAppSelector((state) => state.globalState.pathSelectDialogVariant);
   const promiseId = useAppSelector((state) => state.globalState.pathSelectPromiseId);
   const initialPath = useAppSelector((state) => state.globalState.pathSelectInitialPath);
+  const allowedFs = useAppSelector((state) => state.globalState.pathSelectAllowedFs);
 
   const variantProps = useMemo(
     () => (variant ? PathSelectionVariants[variant] : PathSelectionVariants["copy"]),
@@ -191,10 +192,13 @@ const PathSelection = () => {
       if (variantProps.disableTrash && crUri.fs() == Filesystem.trash) {
         return true;
       }
+      if (allowedFs && !allowedFs.includes(crUri.fs())) {
+        return true;
+      }
     }
 
     return !selectedPath || !canUseSelectedFolder(selectedFile, currentFolderCapability, variantProps);
-  }, [selectedPath, selectedFile, currentFolderCapability, variantProps]);
+  }, [selectedPath, selectedFile, currentFolderCapability, variantProps, allowedFs]);
 
   return (
     <DraggableDialog
@@ -223,6 +227,7 @@ const PathSelection = () => {
         <FolderPicker
           disableSharedWithMe={variantProps.disableSharedWithMe}
           disableTrash={variantProps.disableTrash}
+          allowedFs={allowedFs}
           initialPath={initialPath}
         />
       </DialogContent>

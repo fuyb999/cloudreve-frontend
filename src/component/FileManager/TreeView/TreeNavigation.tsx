@@ -24,10 +24,11 @@ export interface TreeNavigationProps {
   hideWithDrawer?: boolean;
   disableSharedWithMe?: boolean;
   disableTrash?: boolean;
+  allowedFs?: string[];
 }
 
 const TreeNavigation = React.memo(
-  ({ index = 0, scrollRef, hideWithDrawer, disableSharedWithMe, disableTrash }: TreeNavigationProps) => {
+  ({ index = 0, scrollRef, hideWithDrawer, disableSharedWithMe, disableTrash, allowedFs }: TreeNavigationProps) => {
     const base = useAppSelector((s) => s.fileManager[index].path_root);
     const path = useAppSelector((s) => s.fileManager[index].pure_path_with_category);
     const currentFs = useAppSelector((s) => s.fileManager[index].current_fs);
@@ -94,6 +95,7 @@ const TreeNavigation = React.memo(
                       level={0}
                       path={defaultPath}
                       key={defaultPath}
+                      disabled={allowedFs !== undefined && !allowedFs.includes(Filesystem.my)}
                       elements={currentFs == Filesystem.my ? elements : undefined}
                     />
                     <TreeFiles
@@ -101,6 +103,7 @@ const TreeNavigation = React.memo(
                       level={0}
                       path={defaultPublicPath}
                       key={defaultPublicPath}
+                      disabled={allowedFs !== undefined && !allowedFs.includes(Filesystem.public)}
                       elements={currentFs == Filesystem.public ? elements : undefined}
                     />
                     {index == FileManagerIndex.main && (
@@ -139,6 +142,7 @@ const TreeNavigation = React.memo(
                         level={0}
                         flatten
                         canDrop
+                        disabled={allowedFs !== undefined && !allowedFs.includes(Filesystem.trash)}
                         key={defaultTrashPath}
                         path={defaultTrashPath}
                         elements={currentFs == Filesystem.trash ? elements : undefined}
