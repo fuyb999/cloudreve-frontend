@@ -707,6 +707,7 @@ export const globalStateSlice = createSlice({
     },
     closeSidebar: (state) => {
       state.sidebarOpen = false;
+      state.sidebarTarget = undefined;
     },
     setVersionControlDialog: (
       state,

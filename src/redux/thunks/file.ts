@@ -72,6 +72,7 @@ import {
   setRemoteDownloadDialog,
   setShareLinkDialog,
   setSidebar,
+  closeSidebar,
   updateLockConflicts,
 } from "../globalStateSlice.ts";
 import { ConfigLoadState, Viewers } from "../siteConfigSlice.ts";
@@ -81,6 +82,7 @@ import { downloadSingleFile } from "./download.ts";
 import { navigateToPath, refreshFileList, updateUserCapacity } from "./filemanager.ts";
 import { loadSiteConfig } from "./site.ts";
 import { openViewer, openViewers } from "./viewer.ts";
+import { shouldClearFileTargetAfterDelete } from "./fileDeletedTarget.ts";
 
 const contextMenuCloseAnimationDelay = 250;
 
@@ -543,8 +545,12 @@ export function deleteFile(index: number, files: FileResponse[]): AppThunk<Promi
 function processFileListDiff(index: number, deleted: FileResponse[], refreshIfNeeded: boolean = true): AppThunk {
   return async (dispatch, getState) => {
     const fm = getState().fileManager[index];
+    const sidebarTarget = getState().globalState.sidebarTarget;
     let potentialParents: string[] = [];
     dispatch(removeTreeCache({ index, value: deleted.map((f) => f.path) }));
+    if (shouldClearFileTargetAfterDelete(sidebarTarget, deleted)) {
+      dispatch(closeSidebar());
+    }
     if (!fm.path) {
       return;
     }
