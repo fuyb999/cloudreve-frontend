@@ -11,6 +11,7 @@ import Boolset from "../../../util/boolset.ts";
 import CrUri, { Filesystem } from "../../../util/uri.ts";
 import { FileManagerIndex } from "../FileManager.tsx";
 import { supportedArchiveTypes } from "../archiveSupport.ts";
+import { canShowCreateArchiveAction } from "./actionDisplayRules.ts";
 
 export const canManageVersion = (file: FileResponse, bs: Boolset) => {
   return (
@@ -317,12 +318,12 @@ export const getActionOpt = (
     !!currentUser &&
     (publicContext || groupBs.enabled(GroupPermission.share)) &&
     display.orCapability.enabled(NavigatorCapability.share);
-  display.showCreateArchive =
-    display.hasReadable &&
-    !!currentUser &&
-    (publicContext || groupBs.enabled(GroupPermission.archive_task)) &&
-    display.orCapability &&
-    display.orCapability.enabled(NavigatorCapability.create_archive);
+  display.showCreateArchive = canShowCreateArchiveAction({
+    hasReadable: display.hasReadable,
+    hasCurrentUser: !!currentUser,
+    hasArchiveTaskPermission: groupBs.enabled(GroupPermission.archive_task),
+    hasCreateArchiveCapability: !!display.orCapability?.enabled(NavigatorCapability.create_archive),
+  });
   display.showResetThumb =
     display.hasFile &&
     !display.hasFolder &&
