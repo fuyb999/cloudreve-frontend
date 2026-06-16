@@ -32,6 +32,7 @@ import {
   OauthCredentialStatus,
   OIDCRuntimeState,
   QueueMetric,
+  SetSettingResponse,
   SetSettingService,
   Share as ShareEnt,
   Task,
@@ -1474,9 +1475,7 @@ export function getSettings(keys: GetSettingService): ThunkResponse<{
   };
 }
 
-export function sendSetSetting(keys: SetSettingService): ThunkResponse<{
-  [key: string]: string;
-}> {
+export function sendSetSetting(keys: SetSettingService): ThunkResponse<SetSettingResponse> {
   return async (dispatch, _getState) => {
     return await dispatch(
       send(

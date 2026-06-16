@@ -1,7 +1,9 @@
-import { DialogContent, List, ListItemButton, Stack, Typography } from "@mui/material";
+import { Box, DialogContent, List, ListItemButton, Stack, Typography } from "@mui/material";
+import { useSnackbar } from "notistack";
 import { useTranslation } from "react-i18next";
 import { sendSetSetting } from "../../../api/api.ts";
 import { useAppDispatch } from "../../../redux/hooks.ts";
+import { DefaultCloseAction } from "../../Common/Snackbar/snackbar.tsx";
 import { StyledListItemText } from "../../Common/StyledComponents.tsx";
 import DraggableDialog from "../../Dialogs/DraggableDialog.tsx";
 
@@ -14,6 +16,7 @@ export interface SiteUrlWarningProps {
 const SiteUrlWarning = ({ open, onClose, existingUrls }: SiteUrlWarningProps) => {
   const { t } = useTranslation("dashboard");
   const dispatch = useAppDispatch();
+  const { enqueueSnackbar } = useSnackbar();
 
   const setSiteUrl = (isPrimary: boolean) => () => {
     const urls = [...existingUrls];
@@ -29,7 +32,19 @@ const SiteUrlWarning = ({ open, onClose, existingUrls }: SiteUrlWarningProps) =>
           siteURL: urls.join(","),
         },
       }),
-    );
+    ).then((res) => {
+      if (res.warnings?.length) {
+        enqueueSnackbar({
+          message: (
+            <Box component="span" sx={{ whiteSpace: "pre-line" }}>
+              {res.warnings.join("\n")}
+            </Box>
+          ),
+          variant: "warning",
+          action: DefaultCloseAction,
+        });
+      }
+    });
   };
 
   return (

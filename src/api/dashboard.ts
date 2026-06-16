@@ -47,6 +47,13 @@ export interface SetSettingService {
   };
 }
 
+export interface SetSettingResponse {
+  settings: {
+    [key: string]: string;
+  };
+  warnings?: string[];
+}
+
 export interface OIDCRuntimeState {
   status: string;
   source: string;

@@ -1,5 +1,6 @@
 import { LoadingButton } from "@mui/lab";
 import { Box, Grow, styled } from "@mui/material";
+import { useSnackbar } from "notistack";
 import * as React from "react";
 import { createContext, useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -7,6 +8,7 @@ import { CSSTransition, SwitchTransition } from "react-transition-group";
 import { getSettings, sendSetSetting } from "../../../api/api.ts";
 import { useAppDispatch } from "../../../redux/hooks.ts";
 import FacebookCircularProgress from "../../Common/CircularProgress.tsx";
+import { DefaultCloseAction } from "../../Common/Snackbar/snackbar.tsx";
 import { SecondaryButton } from "../../Common/StyledComponents.tsx";
 import ArrowHookUpRight from "../../Icons/ArrowHookUpRight.tsx";
 import Save from "../../Icons/Save.tsx";
@@ -101,6 +103,7 @@ const normalizeSettings = (settings: { [key: string]: string }) =>
 
 const SettingsWrapper = ({ settings, children }: SettingsWrapperProps) => {
   const dispatch = useAppDispatch();
+  const { enqueueSnackbar } = useSnackbar();
   const [values, setValues] = useState<{ [key: string]: string }>({});
   const [modifiedValues, setModifiedValues] = useState<{
     [key: string]: string;
@@ -159,9 +162,20 @@ const SettingsWrapper = ({ settings, children }: SettingsWrapperProps) => {
       }),
     )
       .then((res) => {
-        const normalized = normalizeSettings(res);
+        const normalized = normalizeSettings(res.settings);
         setValues((s) => ({ ...s, ...normalized }));
         setModifiedValues((s) => ({ ...s, ...normalized }));
+        if (res.warnings?.length) {
+          enqueueSnackbar({
+            message: (
+              <Box component="span" sx={{ whiteSpace: "pre-line" }}>
+                {res.warnings.join("\n")}
+              </Box>
+            ),
+            variant: "warning",
+            action: DefaultCloseAction,
+          });
+        }
       })
       .finally(() => {
         setSubmitting(false);
